@@ -52,4 +52,7 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
 
+WORKDIR /var/www/html
+EXPOSE 80
 ENTRYPOINT ["docker-mautic-entrypoint"]
+CMD ["apache2-foreground"]
