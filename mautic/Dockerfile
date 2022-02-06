@@ -22,7 +22,8 @@ RUN apt-get update && \
         zlib1g-dev=1:1.2.11.dfsg-2 \
         libfreetype6-dev=2.10.4+dfsg-1 \
         libjpeg-dev=1:2.0.6-4 \
-        libzip-dev=1.7.3-1 && \
+        libzip-dev=1.7.3-1 \
+        sudo=1.9.5p2-3 && \
     rm -r /var/lib/apt/lists/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
