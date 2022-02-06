@@ -31,6 +31,13 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /etc/cron.d/mautic && \
+    chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
+    chown www-data:www-data /etc/cron.d/mautic && \
+    chmod 644 /etc/cron.d/mautic && \
     mkdir -p /opt/composer /var/www/.composer && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
@@ -39,7 +46,9 @@ RUN apt-get update && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && \
     git clone https://github.com/mautic/mautic.git /app && \
-    chown -R ${USER}:${GROUP} /app /var/www/.composer
+    chown -R ${USER}:${GROUP} /app /var/www/.composer &&
+    mkfifo /var/log/cron.pipe && \
+    chown www-data:www-data /var/log/cron.pipe
 
 COPY rootfs /
 
@@ -68,27 +77,27 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
 
-ARG MAUTIC_RUN_CRON_JOBS=true
-ARG MAUTIC_RUN_MIGRATIONS=false
-ARG MAUTIC_DB_USER=root
-ARG MAUTIC_DB_HOST=localhost
-ARG MAUTIC_DB_NAME=mautic
-ARG MAUTIC_DB_PORT=3306
-ARG PHP_INI_DATE_TIMEZONE=UTC
-ARG PHP_MEMORY_LIMIT=512M
-ARG PHP_MAX_UPLOAD=512M
-ARG PHP_MAX_EXECUTION_TIME=300
+ARG MAUTIC_RUN_CRON_JOBS=true \
+    MAUTIC_RUN_MIGRATIONS=false \
+    MAUTIC_DB_USER=root \
+    MAUTIC_DB_HOST=localhost \
+    MAUTIC_DB_NAME=mautic \
+    MAUTIC_DB_PORT=3306 \
+    PHP_INI_DATE_TIMEZONE=UTC \
+    PHP_MEMORY_LIMIT=512M \
+    PHP_MAX_UPLOAD=512M \
+    PHP_MAX_EXECUTION_TIME=300
 
-ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS}
-ENV MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS}
-ENV MAUTIC_DB_HOST=${MAUTIC_DB_HOST}
-ENV MAUTIC_DB_USER=${MAUTIC_DB_USER}
-ENV MAUTIC_DB_NAME=${MAUTIC_DB_NAME}
-ENV MAUTIC_DB_PORT=${MAUTIC_DB_PORT}
-ENV PHP_INI_DATE_TIMEZONE=${PHP_INI_DATE_TIMEZONE}
-ENV PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT}
-ENV PHP_MAX_UPLOAD=${PHP_MAX_UPLOAD}
-ENV PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME}
+ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
+    MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS} \
+    MAUTIC_DB_HOST=${MAUTIC_DB_HOST} \
+    MAUTIC_DB_USER=${MAUTIC_DB_USER} \
+    MAUTIC_DB_NAME=${MAUTIC_DB_NAME} \
+    MAUTIC_DB_PORT=${MAUTIC_DB_PORT} \
+    PHP_INI_DATE_TIMEZONE=${PHP_INI_DATE_TIMEZONE} \
+    PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT} \
+    PHP_MAX_UPLOAD=${PHP_MAX_UPLOAD} \
+    PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME}
 
 STOPSIGNAL SIGWINCH
 WORKDIR /var/www/html
