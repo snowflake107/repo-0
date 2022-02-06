@@ -147,7 +147,7 @@ jobs:
           # list of Docker images to use as base name for tags
           images: |
             aperimau/mautic
-            ghcr.io/apeerim/mautic
+            ghcr.io/aperim/mautic
           # generate Docker tags based on the following events/attributes
           tags: |
             type=schedule
