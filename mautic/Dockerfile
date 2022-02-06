@@ -50,7 +50,7 @@ RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/commo
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
     chown www-data:www-data /etc/cron.d/mautic && \
-    chmod 644 /etc/cron.d/mautic && \
+    chmod 644 /etc/cron.d/mautic
 
 COPY rootfs /
 
