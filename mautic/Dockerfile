@@ -48,7 +48,7 @@ RUN apt-get update && \
     git clone https://github.com/mautic/mautic.git /app && \
     chown -R ${USER}:${GROUP} /app /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
-    chown www-data:www-data /var/log/cron.pipe
+    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini
 
 COPY rootfs /
 
