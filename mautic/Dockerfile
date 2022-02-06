@@ -7,9 +7,16 @@ ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
 
-RUN apt update && \
-    apt -y full-upgrade && \
-    apt -y install git libc-client-dev libkrb5-dev zlib1g-dev libpng-dev libzip-dev && \
+RUN apt-get update && \
+    apt-get -y full-upgrade && \
+    apt-get -y install \
+        git \
+        libc-client-dev \
+        libkrb5-dev \
+        libpng-dev \
+        zlib1g-dev \
+        libzip-dev && \
+    rm -r /var/lib/apt/lists/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-install bcmath gd imap zip sockets && \
     mkdir -p /opt/composer && \
