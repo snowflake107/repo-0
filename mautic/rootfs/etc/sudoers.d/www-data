@@ -1,1 +1,1 @@
-www-data ALL=(ALL) NOPASSWD: /usr/local/bin/php /var/www/html/bin/console mautic:cache:clear
+www-data ALL=(ALL) NOPASSWD: /usr/local/bin/php /var/www/html/bin/console
