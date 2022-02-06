@@ -1,1 +1,1 @@
-# docker-mautic
+# mautic
