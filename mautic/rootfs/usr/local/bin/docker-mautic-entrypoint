@@ -9,6 +9,7 @@ else
   echo "Moving Mautic to ${MAUTIC_HOME}"
   mkdir -p "${MAUTIC_HOME}"
   cp -R /app/. "${MAUTIC_HOME}"
+  mkdir -p "${MAUTIC_HOME}/var/cache/prod"
 fi
 
 # first arg is `-f` or `--some-option`

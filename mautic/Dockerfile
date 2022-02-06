@@ -6,20 +6,32 @@ ARG BUILD_DATE
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
+ARG USER=www-data
+ARG GROUP=www-data
 
 RUN apt-get update && \
     apt-get -y full-upgrade && \
     apt-get -y install \
         git=1:2.30.2-1 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
+        libcurl4-openssl-dev=7.74.0-1.3+deb11u1 \
+        libicu-dev=67.1-7 \
         libkrb5-dev=1.18.3-6+deb11u1 \
+        libonig-dev=6.9.6-1.1 \
         libpng-dev=1.6.37-3 \
         zlib1g-dev=1:1.2.11.dfsg-2 \
+        libfreetype6-dev=2.10.4+dfsg-1 \
+        libjpeg-dev=1:2.0.6-4 \
         libzip-dev=1.7.3-1 && \
     rm -r /var/lib/apt/lists/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
-    docker-php-ext-install bcmath gd imap zip sockets && \
-    mkdir -p /opt/composer && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-configure opcache --enable-opcache && \
+    docker-php-ext-install bcmath gd imap intl mbstring mysqli curl pdo_mysql zip opcache bcmath gd sockets exif && \
+    docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
+    a2dismod mpm_event && \
+    a2enmod mpm_prefork rewrite && \
+    mkdir -p /opt/composer /var/www/.composer && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
@@ -27,10 +39,14 @@ RUN apt-get update && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && \
     git clone https://github.com/mautic/mautic.git /app && \
-    cd /app && \
-    composer install
+    chown -R ${USER}:${GROUP} /app /var/www/.composer
 
 COPY rootfs /
+
+USER ${USER}
+
+RUN cd /app && \
+    composer install
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
@@ -51,6 +67,26 @@ LABEL \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
+
+ARG MAUTIC_RUN_CRON_JOBS=true
+ARG MAUTIC_RUN_MIGRATIONS=false
+ARG MAUTIC_DB_USER=root
+ARG MAUTIC_DB_NAME=mautic
+ARG MAUTIC_DB_PORT=3306
+ARG PHP_INI_DATE_TIMEZONE=UTC
+ARG PHP_MEMORY_LIMIT=512M
+ARG PHP_MAX_UPLOAD=512M
+ARG PHP_MAX_EXECUTION_TIME=300
+
+ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS}
+ENV MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS}
+ENV MAUTIC_DB_USER=${MAUTIC_DB_USER}
+ENV MAUTIC_DB_NAME=${MAUTIC_DB_NAME}
+ENV MAUTIC_DB_PORT=${MAUTIC_DB_PORT}
+ENV PHP_INI_DATE_TIMEZONE=${PHP_INI_DATE_TIMEZONE}
+ENV PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT}
+ENV PHP_MAX_UPLOAD=${PHP_MAX_UPLOAD}
+ENV PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME}
 
 STOPSIGNAL SIGWINCH
 WORKDIR /var/www/html
