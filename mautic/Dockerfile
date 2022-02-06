@@ -31,13 +31,6 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
-    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
-    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
-    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /etc/cron.d/mautic && \
-    chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
-    chown www-data:www-data /etc/cron.d/mautic && \
-    chmod 644 /etc/cron.d/mautic && \
     mkdir -p /opt/composer /var/www/.composer && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
@@ -49,6 +42,14 @@ RUN apt-get update && \
     chown -R ${USER}:${GROUP} /app /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini
+
+RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /etc/cron.d/mautic && \
+    chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
+    chown www-data:www-data /etc/cron.d/mautic && \
+    chmod 644 /etc/cron.d/mautic && \
 
 COPY rootfs /
 
