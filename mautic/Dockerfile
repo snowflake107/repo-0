@@ -10,11 +10,11 @@ ARG BUILD_VERSION
 RUN apt-get update && \
     apt-get -y full-upgrade && \
     apt-get -y install \
-        git=1-2.30.2-1 \
-        libc-client-dev=8-2007f~dfsg-7+b1 \
+        git=1:2.30.2-1 \
+        libc-client2007e-dev=8:2007f~dfsg-7+b1 \
         libkrb5-dev=1.18.3-6+deb11u1 \
         libpng-dev=1.6.37-3 \
-        zlib1g-dev-1=1.2.11.dfsg-2 \
+        zlib1g-dev=1:1.2.11.dfsg-2 \
         libzip-dev=1.7.3-1 && \
     rm -r /var/lib/apt/lists/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
