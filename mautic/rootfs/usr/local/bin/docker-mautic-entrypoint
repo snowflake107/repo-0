@@ -2,7 +2,7 @@
 
 MAUTIC_HOME=${MAUTIC_HOME:-'/var/www/html'}
 
-if [ -n "$(ls -A ""${MAUTIC_HOME}"" 2>/dev/null)" ]
+if [ -n "$(ls -A """${MAUTIC_HOME}""" 2>/dev/null)" ]
 then
   echo "Mautic app exists in ${MAUTIC_HOME}"
 else
