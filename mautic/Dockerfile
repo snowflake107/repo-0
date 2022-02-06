@@ -52,6 +52,7 @@ LABEL \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
 
+STOPSIGNAL SIGWINCH
 WORKDIR /var/www/html
 EXPOSE 80
 ENTRYPOINT ["docker-mautic-entrypoint"]
