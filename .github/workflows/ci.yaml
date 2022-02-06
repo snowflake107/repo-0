@@ -60,7 +60,7 @@ jobs:
       - name: 🚀 Run Hadolint
         uses: brpaz/hadolint-action@v1.5.0
         with:
-          dockerfile: "./rgdrive/Dockerfile.alpine"
+          dockerfile: "./mautic/Dockerfile"
           ignore: "DL3003 DL3007"
 
   lint-json:
