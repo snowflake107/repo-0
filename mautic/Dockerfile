@@ -12,6 +12,7 @@ ARG GROUP=www-data
 RUN apt-get update && \
     apt-get -y full-upgrade && \
     apt-get -y install \
+        cron=3.0pl1-137 \
         git=1:2.30.2-1 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
         libcurl4-openssl-dev=7.74.0-1.3+deb11u1 \
@@ -43,7 +44,9 @@ RUN apt-get update && \
     chown -R ${USER}:${GROUP} /app /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
-    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini
+    echo "pcre.jit=0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
+    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
+    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
