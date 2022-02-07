@@ -51,10 +51,16 @@ RUN apt-get update && \
     chown -R ${USER}:${GROUP} /usr/src/mautic /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
+    cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini.base && \
     echo "pcre.jit = 0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
     echo "always_populate_raw_post_data = -1" > /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
-    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
-    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini
+    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/php.ini.base /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/local/etc/php/php.ini.base && \
+    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/local/etc/php/php.ini.base && \
+    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini.base && \
+    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini.base && \
+    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/local/etc/php/php.ini.base
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
@@ -71,11 +77,7 @@ USER ${USER}
 
 RUN cd /usr/src/mautic && \
     composer install && \
-    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/local/etc/php/php.ini && \
-    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/local/etc/php/php.ini && \
-    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini && \
-    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini && \
-    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/local/etc/php/php.ini
+    mv /usr/local/etc/php/php.ini.base /usr/local/etc/php/php.ini
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
