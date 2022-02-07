@@ -17,6 +17,9 @@ else
   chmod 777 "${MAUTIC_HOME}/var/cache/prod"
 fi
 
+# Cleanup cron
+cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic
+
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
         set -- /docker-entrypoint.sh "$@"

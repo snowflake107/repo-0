@@ -40,7 +40,7 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    mkdir -p /opt/composer /var/www/.composer /usr/src && \
+    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
@@ -64,10 +64,11 @@ RUN apt-get update && \
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
-    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /etc/cron.d/mautic && \
+    curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /usr/src/mautic-cron/mautic && \
+    cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
-    chown www-data:www-data /etc/cron.d/mautic && \
-    chmod 644 /etc/cron.d/mautic
+    chown www-data:www-data /etc/cron.d/mautic /usr/src/mautic-cron/mautic && \
+    chmod 644 /etc/cron.d/mautic /usr/src/mautic-cron/mautic
 
 COPY rootfs /
 
