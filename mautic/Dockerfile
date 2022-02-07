@@ -16,15 +16,20 @@ RUN apt-get update && \
         git=1:2.30.2-1 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
         libcurl4-openssl-dev=7.74.0-1.3+deb11u1 \
+        libc-client2007e-dev=8:2007f~dfsg-7+b1 \
         libicu-dev=67.1-7 \
         libkrb5-dev=1.18.3-6+deb11u1 \
+        libmcrypt-dev=2.5.8-3.4+b1 \
         libonig-dev=6.9.6-1.1 \
         libpng-dev=1.6.37-3 \
         zlib1g-dev=1:1.2.11.dfsg-2 \
+        libssl-dev=1.1.1k-1+deb11u1 \
         libfreetype6-dev=2.10.4+dfsg-1 \
         libjpeg-dev=1:2.0.6-4 \
         libzip-dev=1.7.3-1 \
-        sudo=1.9.5p2-3 && \
+        sudo=1.9.5p2-3 \
+        unzip=6.0-26 \
+        zip=3.0-12 && \
     rm -r /var/lib/apt/lists/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
