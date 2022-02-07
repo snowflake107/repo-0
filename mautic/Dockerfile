@@ -77,7 +77,8 @@ USER ${USER}
 
 RUN cd /usr/src/mautic && \
     composer install && \
-    mv /usr/local/etc/php/php.ini.base /usr/local/etc/php/php.ini
+    cp /usr/local/etc/php/php.ini.base /usr/local/etc/php/php.ini && \
+    rm /usr/local/etc/php/php.ini.base
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
