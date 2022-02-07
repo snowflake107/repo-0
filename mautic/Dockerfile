@@ -31,6 +31,7 @@ RUN apt-get update && \
         unzip=6.0-26 \
         zip=3.0-12 && \
     rm -r /var/lib/apt/lists/* && \
+    rm /etc/cron.daily/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-configure opcache --enable-opcache && \
