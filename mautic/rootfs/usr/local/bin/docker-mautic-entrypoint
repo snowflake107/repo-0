@@ -12,7 +12,7 @@ then
 else
   echo "Moving Mautic to ${MAUTIC_HOME}"
   mkdir -p "${MAUTIC_HOME}"
-  cp -R /app/. "${MAUTIC_HOME}"
+  cp -R /usr/src/mautic/. "${MAUTIC_HOME}"
   mkdir -p "${MAUTIC_HOME}/var/cache/prod"
   chmod 777 "${MAUTIC_HOME}/var/cache/prod"
 fi
