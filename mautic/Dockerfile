@@ -11,7 +11,7 @@ ARG GROUP=www-data
 
 RUN apt-get update && \
     apt-get -y full-upgrade && \
-    apt-get -y install \
+    apt-get install --no-install-recommends -y \
         cron=3.0pl1-137 \
         git=1:2.30.2-1 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
@@ -30,6 +30,7 @@ RUN apt-get update && \
         sudo=1.9.5p2-3 \
         unzip=6.0-26 \
         zip=3.0-12 && \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
     rm -r /var/lib/apt/lists/* && \
     rm /etc/cron.daily/* && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
@@ -39,20 +40,26 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    mkdir -p /opt/composer /var/www/.composer && \
+    mkdir -p /opt/composer /var/www/.composer /usr/src && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
     php composer-setup.php && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && \
-    git clone https://github.com/mautic/mautic.git /app && \
-    chown -R ${USER}:${GROUP} /app /var/www/.composer && \
+    git clone https://github.com/mautic/mautic.git /usr/src/mautic && \
+    chown -R ${USER}:${GROUP} /usr/src/mautic /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
-    echo "pcre.jit=0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
-    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
-    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini
+    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/local/etc/php/php.ini && \
+    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/local/etc/php/php.ini && \
+    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini && \
+    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini && \
+    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/local/etc/php/php.ini && \
+    echo "pcre.jit = 0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
+    echo "always_populate_raw_post_data = -1" > /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
@@ -66,7 +73,7 @@ COPY rootfs /
 
 USER ${USER}
 
-RUN cd /app && \
+RUN cd /usr/src/mautic && \
     composer install
 
 HEALTHCHECK --interval=30s \
