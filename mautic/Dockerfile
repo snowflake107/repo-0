@@ -67,7 +67,8 @@ RUN apt-get update && \
     sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini
+    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:8080>/g' /etc/apache2/sites-available/000-default.conf
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \

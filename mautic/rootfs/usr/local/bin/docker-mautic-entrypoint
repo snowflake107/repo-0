@@ -6,7 +6,7 @@ MAUTIC_HOME=${MAUTIC_HOME:-'/var/www/html'}
 if [ -n "$(ls -A """${MAUTIC_HOME}""" 2>/dev/null)" ]
 then
   echo "Mautic app exists in ${MAUTIC_HOME}"
-  rm -Rf "${MAUTIC_HOME}/var/cache/prod"
+  # rm -Rf "${MAUTIC_HOME}/var/cache/prod"
   mkdir -p "${MAUTIC_HOME}/var/cache/prod"
   chmod 777 "${MAUTIC_HOME}/var/cache/prod"
 else
