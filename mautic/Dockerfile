@@ -65,6 +65,7 @@ RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/commo
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /usr/src/mautic-cron/mautic && \
+    sed --in-place --regexp-extended --posix 's/^(    sudo -Eu www-data php \/var\/www\/html\/bin\/console mautic:install)/    echo >\&2 \"Params: \${INSTALL_PARAMS[*]}\"\n\1/g' /docker-entrypoint.sh && \
     cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
     chown www-data:www-data /etc/cron.d/mautic /usr/src/mautic-cron/mautic && \
