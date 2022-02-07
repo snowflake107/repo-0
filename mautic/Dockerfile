@@ -63,20 +63,20 @@ RUN apt-get update && \
     chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
         /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
         /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --posix 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:8080>/g' /etc/apache2/sites-available/000-default.conf
+    sed --in-place --regexp-extended 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /usr/src/mautic-cron/mautic && \
-    sed --in-place --regexp-extended --posix 's/^(    sudo -Eu www-data php \/var\/www\/html\/bin\/console mautic:install)/    echo >\&2 \"Params: \${INSTALL_PARAMS[*]}\"\n\1/g' /docker-entrypoint.sh && \
-    sed --in-place --regexp-extended --posix 's/^(php \/makeconfig.php)/\1\ncat >\&2 \/var\/www\/html\/app\/config\/local.php/g' /docker-entrypoint.sh && \
-    sed --in-place "s/$\(\$path\\s\+=\\s\+'\/var\/www\/html\/app\/config\/local\.php'\;\)/\1\nfwrite(\$stderr, json_encode\(\\\$_ENV)\)\;/g" /makeconfig.php && \
+    sed --in-place --regexp-extended 's/^(    sudo -Eu www-data php \/var\/www\/html\/bin\/console mautic:install)/    echo >\&2 \"Params: \${INSTALL_PARAMS[*]}\"\n\1/g' /docker-entrypoint.sh && \
+    sed --in-place --regexp-extended 's/^(php \/makeconfig.php)/\1\ncat >\&2 \/var\/www\/html\/app\/config\/local.php/g' /docker-entrypoint.sh && \
+    sed --in-place --regexp-extended 's/^(\$path\s+=\s+\x27\/var\/www\/html\/app\/config\/local\.php\x27\;)/\1\nfwrite(\$stderr, json_encode\(\\\$_ENV)\)\;/g' /makeconfig.php && \
     cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
     chown www-data:www-data /etc/cron.d/mautic /usr/src/mautic-cron/mautic && \
@@ -119,7 +119,8 @@ ARG MAUTIC_RUN_CRON_JOBS=true \
     PHP_INI_DATE_TIMEZONE=UTC \
     PHP_MEMORY_LIMIT=512M \
     PHP_MAX_UPLOAD=512M \
-    PHP_MAX_EXECUTION_TIME=300
+    PHP_MAX_EXECUTION_TIME=300 \
+    PORT=8080
 
 ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS} \
@@ -130,7 +131,8 @@ ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     PHP_INI_DATE_TIMEZONE=${PHP_INI_DATE_TIMEZONE} \
     PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT} \
     PHP_MAX_UPLOAD=${PHP_MAX_UPLOAD} \
-    PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME}
+    PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME} \
+    PORT=${PORT}
 
 STOPSIGNAL SIGWINCH
 WORKDIR /var/www/html
