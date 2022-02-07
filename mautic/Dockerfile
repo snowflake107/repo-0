@@ -40,7 +40,7 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron && \
+    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron /usr/src/mautic-php && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
@@ -51,16 +51,22 @@ RUN apt-get update && \
     chown -R ${USER}:${GROUP} /usr/src/mautic /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
-    cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini.base && \
+    cp /usr/local/etc/php/php.ini-production /usr/src/mautic-php/php.ini && \
     echo "pcre.jit = 0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
     echo "always_populate_raw_post_data = -1" > /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
-    chown www-data:www-data /var/log/cron.pipe /usr/local/etc/php/php.ini /usr/local/etc/php/php.ini.base /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
-    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
-    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/local/etc/php/php.ini.base && \
-    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/local/etc/php/php.ini.base && \
-    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini.base && \
-    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/local/etc/php/php.ini.base && \
-    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/local/etc/php/php.ini.base
+    chown www-data:www-data /var/log/cron.pipe \
+        /usr/local/etc/php/php.ini \
+        /usr/src/mautic-php/php.ini \
+        /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
+        /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
+        /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
+        /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --posix 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
@@ -77,8 +83,7 @@ USER ${USER}
 
 RUN cd /usr/src/mautic && \
     composer install && \
-    cp /usr/local/etc/php/php.ini.base /usr/local/etc/php/php.ini && \
-    rm /usr/local/etc/php/php.ini.base
+    cp /usr/src/mautic-php/php.ini /usr/local/etc/php/php.ini
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
