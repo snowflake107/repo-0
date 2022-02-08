@@ -48,7 +48,7 @@ RUN apt-get update && \
     php composer-setup.php && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && \
-    git clone -- depth 1 https://github.com/mautic/mautic.git /usr/src/mautic && \
+    git clone --depth 1 https://github.com/mautic/mautic.git /usr/src/mautic && \
     chown -R ${USER}:${GROUP} /usr/src/mautic /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
