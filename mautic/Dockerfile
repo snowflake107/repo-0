@@ -68,6 +68,7 @@ RUN apt-get update && \
     sed --in-place --regexp-extended 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^variables_order = .*$/variables_order  = "EGPCS"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
