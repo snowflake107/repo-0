@@ -101,7 +101,7 @@ HEALTHCHECK --interval=30s \
     --timeout=30s \
     --start-period=4m \
     --retries=3 \
-    CMD curl -f http://localhost:80
+    CMD curl -f http://localhost:\${PORT}
 
 LABEL \
     maintainer="Troy Kelly <troy@aperim.com>" \
