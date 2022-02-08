@@ -41,7 +41,7 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron /usr/src/mautic-php && \
+    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron /usr/src/mautic-php /var/sessions/php && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '${COMPOSER_SHA}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
@@ -59,16 +59,18 @@ RUN apt-get update && \
         /usr/local/etc/php/php.ini \
         /usr/src/mautic-php/php.ini \
         /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
-        /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+        /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
+        /var/sessions/php && \
     chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
         /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
         /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^\;date\.timezone =.*$/date.timezone = "\${PHP_INI_DATE_TIMEZONE}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^memory_limit = .*$/memory_limit  = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^upload_max_filesize = .*$/upload_max_filesize  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^post_max_size = .*$/post_max_size  = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time  = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^variables_order = .*$/variables_order  = "EGPCS"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^memory_limit = .*$/memory_limit = "\${PHP_MEMORY_LIMIT}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^upload_max_filesize = .*$/upload_max_filesize = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^post_max_size = .*$/post_max_size = "\${PHP_MAX_UPLOAD}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^variables_order = .*$/variables_order = "EGPCS"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^;session.save_path = .*$/session.save_path = "/var/sessions/php"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
