@@ -48,7 +48,7 @@ RUN apt-get update && \
     php composer-setup.php && \
     php -r "unlink('composer-setup.php');" && \
     mv composer.phar /usr/local/bin/composer && \
-    git clone https://github.com/mautic/mautic.git /usr/src/mautic && \
+    git clone -- depth 1 https://github.com/mautic/mautic.git /usr/src/mautic && \
     chown -R ${USER}:${GROUP} /usr/src/mautic /var/www/.composer && \
     mkfifo /var/log/cron.pipe && \
     cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
@@ -126,11 +126,12 @@ ARG MAUTIC_RUN_CRON_JOBS=true \
     MAUTIC_DB_HOST=localhost \
     MAUTIC_DB_NAME=mautic \
     MAUTIC_DB_PORT=3306 \
+    MAUTIC_HOME=/var/www/html \
     PHP_INI_DATE_TIMEZONE=UTC \
     PHP_MEMORY_LIMIT=512M \
     PHP_MAX_UPLOAD=512M \
     PHP_MAX_EXECUTION_TIME=300 \
-    PORT=80
+    PORT=8080
 
 ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS} \
@@ -138,6 +139,7 @@ ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     MAUTIC_DB_USER=${MAUTIC_DB_USER} \
     MAUTIC_DB_NAME=${MAUTIC_DB_NAME} \
     MAUTIC_DB_PORT=${MAUTIC_DB_PORT} \
+    MAUTIC_HOME=${MAUTIC_HOME} \
     PHP_INI_DATE_TIMEZONE=${PHP_INI_DATE_TIMEZONE} \
     PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT} \
     PHP_MAX_UPLOAD=${PHP_MAX_UPLOAD} \
@@ -145,7 +147,7 @@ ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     PORT=${PORT}
 
 STOPSIGNAL SIGWINCH
-WORKDIR /var/www/html
-EXPOSE 80
+WORKDIR ${MAUTIC_HOME}
+EXPOSE ${PORT}
 ENTRYPOINT ["docker-mautic-entrypoint"]
 CMD ["apache2-foreground"]
