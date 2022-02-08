@@ -76,6 +76,7 @@ RUN apt-get update && \
     sed --in-place --regexp-extended 's/^;error_log = php_errors\.log$/error_log = "\/dev\/stderr"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^error_reporting = .*$/error_reporting = E_ALL/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^display_errors = .*$/display_errors = On/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time = 900/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf && \
     sed --in-place --regexp-extended 's/^Listen 80$/Listen \${PORT}/g' /etc/apache2/ports.conf
 
