@@ -41,7 +41,7 @@ RUN apt-get update && \
     docker-php-ext-enable imap intl mbstring mysqli curl pdo_mysql zip sodium opcache bcmath gd sockets exif && \
     a2dismod mpm_event && \
     a2enmod mpm_prefork rewrite && \
-    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron /usr/src/mautic-php /var/sessions/php && \
+    mkdir -p /opt/composer /var/www/.composer /usr/src/mautic-cron /usr/src/mautic-php /var/sessions/php /var/run && \
     cd /opt/composer && \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"  && \
     php -r "if (hash_file('sha384', 'composer-setup.php') === '${COMPOSER_SHA}') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"  && \
@@ -55,12 +55,14 @@ RUN apt-get update && \
     cp /usr/local/etc/php/php.ini-production /usr/src/mautic-php/php.ini && \
     echo "pcre.jit = 0" > /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini && \
     echo "always_populate_raw_post_data = -1" > /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini && \
+    touch /var/run/crond.pid && \
     chown www-data:www-data /var/log/cron.pipe \
         /usr/local/etc/php/php.ini \
         /usr/src/mautic-php/php.ini \
         /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
         /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
-        /var/sessions/php && \
+        /var/sessions/php \
+        /var/run/crond.pid && \
     chmod 444 /usr/local/etc/php/conf.d/mautic-php-disable-pcre-jit.ini \
         /usr/local/etc/php/conf.d/mautic-php-always-populate-raw-post.ini \
         /usr/src/mautic-php/php.ini && \
@@ -71,7 +73,7 @@ RUN apt-get update && \
     sed --in-place --regexp-extended 's/^max_execution_time = .*$/max_execution_time = "\${PHP_MAX_EXECUTION_TIME}"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^variables_order = .*$/variables_order = "EGPCS"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^;session\.save_path = .*$/session.save_path = "\/var\/sessions\/php"/g' /usr/src/mautic-php/php.ini && \
-    sed --in-place --regexp-extended 's/^;error_log = php_errors\.log$/error_log = "\/proc\/self\/fd\/2"/g' /usr/src/mautic-php/php.ini && \
+    sed --in-place --regexp-extended 's/^;error_log = php_errors\.log$/error_log = "\/dev\/stderr"/g' /usr/src/mautic-php/php.ini && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf
 
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
