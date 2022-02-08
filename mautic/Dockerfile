@@ -99,9 +99,9 @@ RUN cd /usr/src/mautic && \
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
-    --start-period=4m \
+    --start-period=50m \
     --retries=3 \
-    CMD curl -f http://localhost:\${PORT}
+    CMD curl -f http://localhost:$${PORT}
 
 LABEL \
     maintainer="Troy Kelly <troy@aperim.com>" \
@@ -127,7 +127,7 @@ ARG MAUTIC_RUN_CRON_JOBS=true \
     PHP_MEMORY_LIMIT=512M \
     PHP_MAX_UPLOAD=512M \
     PHP_MAX_EXECUTION_TIME=300 \
-    PORT=8080
+    PORT=80
 
 ENV MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS} \
     MAUTIC_RUN_MIGRATIONS=${MAUTIC_RUN_MIGRATIONS} \
