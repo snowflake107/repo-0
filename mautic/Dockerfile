@@ -76,7 +76,7 @@ RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/commo
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/mautic.crontab -o /usr/src/mautic-cron/mautic && \
     sed --in-place --regexp-extended 's/^(    sudo -Eu www-data php \/var\/www\/html\/bin\/console mautic:install)/    echo >\&2 \"Params: \${INSTALL_PARAMS[*]}\"\n\1/g' /docker-entrypoint.sh && \
     sed --in-place --regexp-extended 's/^(php \/makeconfig.php)/\1\ncat >\&2 \/var\/www\/html\/app\/config\/local.php/g' /docker-entrypoint.sh && \
-    sed --in-place --regexp-extended 's/^(\$path\s+=\s+\x27\/var\/www\/html\/app\/config\/local\.php\x27\;)/\1\nfwrite(\$stderr, json_encode\(\\\$_ENV)\)\;/g' /makeconfig.php && \
+    sed --in-place --regexp-extended 's/^(\$path\s+=\s+\x27\/var\/www\/html\/app\/config\/local\.php\x27\;)/\1\nfwrite(\$stderr, json_encode\(\$_ENV)\)\;/g' /makeconfig.php && \
     cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
     chown www-data:www-data /etc/cron.d/mautic /usr/src/mautic-cron/mautic && \
