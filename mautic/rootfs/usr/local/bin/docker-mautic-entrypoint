@@ -1,19 +1,28 @@
 #!/usr/bin/env sh
+set -e
 
 MAUTIC_HOME=${MAUTIC_HOME:-'/var/www/html'}
 
 if [ -n "$(ls -A """${MAUTIC_HOME}""" 2>/dev/null)" ]
 then
   echo "Mautic app exists in ${MAUTIC_HOME}"
+  rm -Rf "${MAUTIC_HOME}/var/cache/prod"
+  mkdir -p "${MAUTIC_HOME}/var/cache/prod"
+  chmod 777 "${MAUTIC_HOME}/var/cache/prod"
 else
   echo "Moving Mautic to ${MAUTIC_HOME}"
   mkdir -p "${MAUTIC_HOME}"
-  cp -R /app/. "${MAUTIC_HOME}"
+  cp -R /usr/src/mautic/. "${MAUTIC_HOME}"
+  mkdir -p "${MAUTIC_HOME}/var/cache/prod"
+  chmod 777 "${MAUTIC_HOME}/var/cache/prod"
 fi
+
+# Cleanup cron
+cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
-        set -- apache2-foreground "$@"
+        set -- /docker-entrypoint.sh "$@"
 fi
 
-exec "$@"
+/docker-entrypoint.sh "$@"
