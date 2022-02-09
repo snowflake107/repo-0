@@ -13,7 +13,7 @@ if [ "${MAUTIC_RUN_CRON_JOBS}" = true ] ; then
     exit 5
   fi
   
-  CRON_PID=`cat /var/run/crond.pid`
+  CRON_PID=$(cat /var/run/crond.pid)
 
   CRON_PS_OUTPUT=$(ps -p "${CRON_PID}")
   if [ "$?" -ne 0 ]; then
@@ -32,7 +32,7 @@ if [ ! -f /var/run/apache2/apache2.pid ]; then
   exit 3
 fi
 
-APACHE_PID=`cat /var/run/apache2/apache2.pid`
+APACHE_PID=$(cat /var/run/apache2/apache2.pid)
 
 APACHE_PS_OUTPUT=$(ps -p "${APACHE_PID}")
 if [ "$?" -ne 0 ]; then
@@ -42,7 +42,7 @@ if [ "$?" -ne 0 ]; then
   exit 2
 fi
 
-curl --fail http://localhost:${MAUTIC_PORT}/
+curl --fail "http://localhost:${MAUTIC_PORT}/"
 CURL_RESULT=$?
 if [ "${CURL_RESULT}" -ne 0 ]; then
   if [ "${MAUTIC_DEBUG}" = true ] ; then
