@@ -46,7 +46,7 @@ if [ "$?" -ne 0 ]; then
   exit 2
 fi
 
-curl --fail "http://localhost:${MAUTIC_PORT}/"
+curl --fail "http://localhost:${MAUTIC_PORT}/" > /dev/null
 CURL_RESULT=$?
 # shellcheck disable=2181
 if [ "${CURL_RESULT}" -ne 0 ]; then
