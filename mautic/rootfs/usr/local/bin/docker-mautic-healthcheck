@@ -1,0 +1,78 @@
+#!/usr/bin/env sh
+set -e
+
+MAUTIC_PORT=${PORT:-'8080'}
+MAUTIC_DEBUG=${MAUTIC_DEBUG:-'false'}
+MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS:-'false'}
+
+if [ "${MAUTIC_RUN_CRON_JOBS}" = true ] ; then
+  if [ ! -f /var/run/crond.pid ]; then
+    if [ "${MAUTIC_DEBUG}" = true ] ; then
+      echo >&2 "🤔 No crond pid"
+    fi
+    exit 5
+  fi
+  
+  CRON_PID=$(cat /var/run/crond.pid)
+
+  # shellcheck disable=2034
+  CRON_PS_OUTPUT=$(ps -p "${CRON_PID}")
+  # shellcheck disable=2181
+  if [ "$?" -ne 0 ]; then
+    if [ "${MAUTIC_DEBUG}" = true ] ; then
+      echo >&2 "🕰️ crond is not running"
+    fi
+    exit 4
+  else
+    if [ "${MAUTIC_DEBUG}" = true ] ; then
+      echo >&2 "🕰️ crond is running"
+    fi
+  fi
+else
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "🕰️ crond not needed"
+  fi
+fi
+
+if [ ! -f /var/run/apache2/apache2.pid ]; then
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "💾 No apache pid file"
+  fi
+  exit 3
+fi
+
+APACHE_PID=$(cat /var/run/apache2/apache2.pid)
+
+# shellcheck disable=2034
+APACHE_PS_OUTPUT=$(ps -p "${APACHE_PID}")
+# shellcheck disable=2181
+if [ "$?" -ne 0 ]; then
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "🤖 apache is not running"
+  fi
+  exit 2
+else
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "🤖 apache is running"
+  fi
+fi
+
+curl --fail "http://localhost:${MAUTIC_PORT}/" > /dev/null
+CURL_RESULT=$?
+# shellcheck disable=2181
+if [ "${CURL_RESULT}" -ne 0 ]; then
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "🌏 Web Server Offline"
+  fi
+  exit 1
+else
+  if [ "${MAUTIC_DEBUG}" = true ] ; then
+    echo >&2 "🌏 Web Server Online"
+  fi
+fi
+
+if [ "${MAUTIC_DEBUG}" = true ] ; then
+  echo >&2 "🏥 Healthcheck okay"
+fi
+
+exit 0

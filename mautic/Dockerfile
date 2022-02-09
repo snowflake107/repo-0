@@ -34,6 +34,8 @@ RUN apt-get update && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
     rm -r /var/lib/apt/lists/* && \
     rm /etc/cron.daily/* && \
+    chmod gu+rw /var/run && \
+    chmod gu+s /usr/sbin/cron && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-configure opcache --enable-opcache && \
@@ -104,7 +106,7 @@ HEALTHCHECK --interval=30s \
     --timeout=30s \
     --start-period=2h \
     --retries=3 \
-    CMD curl -f http://localhost:$${PORT}
+    CMD docker-mautic-healthcheck
 
 LABEL \
     maintainer="Troy Kelly <troy@aperim.com>" \
