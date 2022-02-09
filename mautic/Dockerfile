@@ -36,7 +36,6 @@ RUN apt-get update && \
     rm /etc/cron.daily/* && \
     chmod gu+rw /var/run && \
     chmod gu+s /usr/sbin/cron && \
-    chmod g+s, u-s /usr/bin/crontab && \
     docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-configure opcache --enable-opcache && \
