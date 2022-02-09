@@ -102,7 +102,7 @@ RUN cd /usr/src/mautic && \
 
 HEALTHCHECK --interval=30s \
     --timeout=30s \
-    --start-period=50m \
+    --start-period=2h \
     --retries=3 \
     CMD curl -f http://localhost:$${PORT}
 
