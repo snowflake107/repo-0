@@ -3,6 +3,7 @@ set -e
 
 MAUTIC_PORT=${PORT:-'8080'}
 MAUTIC_DEBUG=${MAUTIC_DEBUG:-'false'}
+MAUTIC_RUN_CRON_JOBS=${MAUTIC_RUN_CRON_JOBS:-'false'}
 
 if [ "${MAUTIC_RUN_CRON_JOBS}" = true ] ; then
   if [ ! -f /var/run/crond.pid ]; then
