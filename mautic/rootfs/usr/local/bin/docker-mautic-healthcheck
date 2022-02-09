@@ -38,6 +38,7 @@ APACHE_PID=$(cat /var/run/apache2/apache2.pid)
 
 # shellcheck disable=2034
 APACHE_PS_OUTPUT=$(ps -p "${APACHE_PID}")
+# shellcheck disable=2181
 if [ "$?" -ne 0 ]; then
   if [ "${MAUTIC_DEBUG}" = true ] ; then
     echo >&2 "🤖 apache is not running"
