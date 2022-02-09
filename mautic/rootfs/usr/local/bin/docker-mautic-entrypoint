@@ -21,7 +21,7 @@ fi
 if [ ! -f "${AUTOLOAD_FILE}" ]; then
    echo >&2 "🏗️ Mautic not ready. Making it so."
    cd "${MAUTIC_HOME}"
-   compose install
+   /usr/local/bin/composer install
 fi
 
 # Cleanup cron
