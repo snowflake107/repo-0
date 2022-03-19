@@ -24,7 +24,7 @@ RUN apt-get update && \
         libonig-dev=6.9.6-1.1 \
         libpng-dev=1.6.37-3 \
         zlib1g-dev=1:1.2.11.dfsg-2 \
-        libssl-dev=1.1.1k-1+deb11u1 \
+        libssl-dev=1.1.1k-1+deb11u2 \
         libfreetype6-dev=2.10.4+dfsg-1 \
         libjpeg-dev=1:2.0.6-4 \
         libzip-dev=1.7.3-1 \
