@@ -1,6 +1,7 @@
 # Test config
 /.config
 /.export
+/.testing
 
 # General
 .DS_Store
