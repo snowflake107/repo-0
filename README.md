@@ -7,8 +7,6 @@
 *** Thanks again! Now go create something AMAZING! :D
 -->
 
-
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -17,14 +15,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -48,8 +45,6 @@
     <a href="https://www.mautic.org/blog">Blog</a>
   </p>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -77,9 +72,8 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://mautic.org)
@@ -89,9 +83,10 @@ We could never get the official mautic docker containers to work. They'd always 
 This is the best docker container to use for mautic, don't waste your time trying to get others working.
 
 Here's why:
-* This container works
-* It doesn't waste your time
-* It works
+
+- This container works
+- It doesn't waste your time
+- It works
 
 Of course, there's no guarantee it will actually work for you. It does for us, so that's great - so it should work for you. No promises though.
 
@@ -99,17 +94,14 @@ Use the `docker-compose.yaml` to get started.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 ### Built With
 
 We aren't responsible for mautic - it's a great tool, and we love it. We are only responsible for getting it into a working container.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 Use the example compose file to see how you can use mautic in a container.
@@ -135,9 +127,8 @@ _There's not really anything to install per-se._
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 There's only really one use for this container - running mautic.
@@ -146,9 +137,8 @@ _For more examples, please refer to the [Documentation](https://mautic.org)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [x] Add Readme
@@ -156,16 +146,15 @@ _For more examples, please refer to the [Documentation](https://mautic.org)_
 - [ ] Make the readme actually helpful
 - [ ] Improve the starup script
 - [ ] Better examples
-    - [ ] Full with mysql
-    - [ ] Not so fancy
+  - [ ] Full with mysql
+  - [ ] Not so fancy
 
 See the [open issues](https://github.com/aperim/docker-mautic/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -181,18 +170,16 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- LICENSE -->
+
 ## License
 
 This is distributed under the Apache License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Your Name - [@aperimstudio](https://twitter.com/aperimstudio) - hello@aperim.com
@@ -201,9 +188,8 @@ Project Link: [https://github.com/mautic](https://github.com/mautic)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 This collection of files was created on the unceded Aboriginal land. We acknowledge the Gadigal people of the Eora Nation as the Traditional Custodians of the Country we work on. We recognise their continuing connection to the land and waters, and thank them for protecting this coastline and its ecosystems since time immemorial.
