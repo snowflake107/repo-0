@@ -27,10 +27,10 @@
 <br />
 <div align="center">
   <a href="https://www.mautic.org/">
-    <img src="https://www.mautic.org/themes/custom/mauticorg_base/logo.svg" alt="Logo" width="80" height="80">
+    <img src="https://www.mautic.org/themes/custom/mauticorg_base/logo.svg" alt="Logo" width="425" height="113">
   </a>
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center">mautic</h3>
 
   <p align="center">
     An unofficial docker container for Mautic that works
