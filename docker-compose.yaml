@@ -1,0 +1,73 @@
+---
+version: "3.8"
+services:
+  mautic:
+    image: ghcr.io/aperim/mautic:latest
+    deploy:
+      replicas: 1
+      endpoint_mode: vip
+      placement:
+        max_replicas_per_node: 1
+        constraints:
+          - node.role==worker
+      update_config:
+        parallelism: 2
+        delay: 10s
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+    environment:
+      MAUTIC_DEBUG: "true"
+      MAUTIC_DB_HOST: db.server.example.com
+      MAUTIC_DB_USER: mautic
+      MAUTIC_DB_PASSWORD: mautic
+      MAUTIC_DB_NAME: mautic
+      MAUTIC_RUN_CRON_JOBS: "true"
+      MAUTIC_TRUSTED_PROXIES: '[ "0.0.0.0/0", "::/0" ]'
+      PHP_INI_DATE_TIMEZONE: Australia/Sydney
+      PHP_MEMORY_LIMIT: 2G
+      PHP_MAX_UPLOAD: 20G
+      PHP_MAX_EXECUTION_TIME: "900"
+      MAUTIC_CONFIG_DEBUG: "true"
+      MAUTIC_URL: https://marketing.example.com/
+      MAUTIC_ADMIN_EMAIL: operations@example.com
+      MAUTIC_ADMIN_PASSWORD: passw0rd!
+      MAUTIC_ADMIN_USERNAME: admin
+      MAUTIC_ADMIN_FIRSTNAME: admin
+      MAUTIC_ADMIN_LASTNAME: admin
+    volumes:
+      - type: tmpfs
+        target: "/tmp"
+        tmpfs:
+          size: 262144000
+      - type: tmpfs
+        target: "/var/run/apache2"
+        tmpfs:
+          size: 262144000
+      - mauticapp:/var/www/html
+      - "/etc/timezone:/etc/timezone:ro"
+    read_only: false
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://logging.example.com:12201
+        gelf-compression-type: none
+        tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+        labels: web,mautic
+volumes:
+  mauticapp:
+    driver_opts:
+      type: nfs
+      o: addr=nfs.example.com,nfsvers=4,rsize=65536,wsize=65536,timeo=14,tcp,rw,noatime
+      device: ":/var/nfs/marketing_example_com"
