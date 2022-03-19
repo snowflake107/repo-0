@@ -34,7 +34,7 @@ cleanupCron () {
 }
 
 checkUpdate () {
-  if cmp -s "${MAUTIC_HOME}/index.html" "${MAUTIC_SOURCE}/index.html" ; then
+  if cmp -s "${MAUTIC_HOME}/app/release_metadata.json" "${MAUTIC_SOURCE}/app/release_metadata.json" ; then
     echo >&2 "🗃 No changes"
   else
     echo >&2 "🗄️ Mautic has changes"
