@@ -38,7 +38,7 @@
   <p align="center">
     An unofficial docker container for Mautic that works
     <br />
-    <a href="https://github.com/aperim/mautic"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/aperim/docker-mautic"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://www.mautic.org/what-is-mautic">What is mautic</a>
@@ -159,7 +159,7 @@ _For more examples, please refer to the [Documentation](https://mautic.org)_
     - [ ] Full with mysql
     - [ ] Not so fancy
 
-See the [open issues](https://github.com/aperim/mautic/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/aperim/docker-mautic/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -214,16 +214,16 @@ We'd like to thank the Internet, for existing. The mautic team and contributers 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/aperim/mautic.svg?style=for-the-badge
-[contributors-url]: https://github.com/aperim/mautic/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/aperim/mautic.svg?style=for-the-badge
-[forks-url]: https://github.com/aperim/mautic/network/members
-[stars-shield]: https://img.shields.io/github/stars/aperim/mautic.svg?style=for-the-badge
-[stars-url]: https://github.com/aperim/mautic/stargazers
-[issues-shield]: https://img.shields.io/github/issues/aperim/mautic.svg?style=for-the-badge
-[issues-url]: https://github.com/aperim/mautic/issues
-[license-shield]: https://img.shields.io/github/license/aperim/mautic.svg?style=for-the-badge
-[license-url]: https://github.com/aperim/mautic/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/aperim/docker-mautic.svg?style=for-the-badge
+[contributors-url]: https://github.com/aperim/docker-mautic/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/aperim/docker-mautic.svg?style=for-the-badge
+[forks-url]: https://github.com/aperim/docker-mautic/network/members
+[stars-shield]: https://img.shields.io/github/stars/aperim/docker-mautic.svg?style=for-the-badge
+[stars-url]: https://github.com/aperim/docker-mautic/stargazers
+[issues-shield]: https://img.shields.io/github/issues/aperim/docker-mautic.svg?style=for-the-badge
+[issues-url]: https://github.com/aperim/docker-mautic/issues
+[license-shield]: https://img.shields.io/github/license/aperim/docker-mautic.svg?style=for-the-badge
+[license-url]: https://github.com/aperim/docker-mautic/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/othneildrew
 [product-screenshot]: images/mautic_screenshot.png
