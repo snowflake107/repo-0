@@ -211,5 +211,5 @@ We'd like to thank the Internet, for existing. The mautic team and contributers 
 [license-shield]: https://img.shields.io/github/license/aperim/docker-mautic.svg?style=for-the-badge
 [license-url]: https://github.com/aperim/docker-mautic/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
+[linkedin-url]: https://www.linkedin.com/company/aperim
 [product-screenshot]: images/mautic_screenshot.png
