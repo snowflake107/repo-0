@@ -21,7 +21,7 @@ jobs:
       environment: ${{ steps.information.outputs.environment }}
       name: ${{ steps.information.outputs.name }}
       version: ${{ steps.information.outputs.version }}
-      mautic_version: ${{ steps.information.outputs.mautic_version }}
+      mautic-version: ${{ steps.information.outputs.mautic-version }}
       build_date: ${{ steps.information.outputs.build_date }}
     steps:
       - name: ⤵️ Check out code from GitHub
@@ -44,15 +44,13 @@ jobs:
             fi
           fi
 
-          mautic_version="$(curl -sL https://api.github.com/repos/mautic/mautic/releases/latest | jq -r \".tag_name\")"
+          echo "::set-output name=mautic-version::$(curl -sL https://api.github.com/repos/mautic/mautic/releases/latest | jq -r \".tag_name\")\n"
 
           echo "::set-output name=environment::${environment}"
           echo "::set-output name=version::${version}"
 
-          echo "::set-output name=mautic_version::${mautic_version}"
-
-          echo "::set-output name=name::Mautic ${mautic_version}"
-          echo "::set-output name=description::Mautic ${mautic_version} in a container that works"
+          echo "::set-output name=name::Mautic ${mautic-version}"
+          echo "::set-output name=description::Mautic ${mautic-version} in a container that works"
         # yamllint enable rule:line-length
 
   lint-hadolint:
@@ -208,7 +206,7 @@ jobs:
           # platforms: linux/amd64,linux/386,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           platforms: linux/amd64
           build-args: |
-            MAUTIC_VERSION=${{ needs.information.outputs.mautic_version }}
+            MAUTIC_VERSION=${{ needs.information.outputs.mautic-version }}
             BUILD_DATE=${{ steps.flags.outputs.date }}
             BUILD_DESCRIPTION=${{ needs.information.outputs.description }}
             BUILD_NAME=${{ needs.information.outputs.name }}
