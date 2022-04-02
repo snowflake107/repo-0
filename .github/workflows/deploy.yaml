@@ -88,7 +88,7 @@ jobs:
             aperimau/mautic
             ghcr.io/aperim/mautic
           # generate Docker tags based on the following events/attributes
-          # yamllint disable-line rule:line-length
+          # yamllint disable rule:line-length
           tags: |
             type=schedule
             type=ref,event=branch
@@ -98,6 +98,7 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,enable=true,priority=200,prefix=mautic,value=${{ needs.information.outputs.mautic_version }}
             type=sha
+          # yamllint enable rule:line-length
 
       - name: 🏗 Set up build cache
         id: cache
