@@ -26,12 +26,12 @@ jobs:
         uses: actions/checkout@v3
       - name: ℹ️ Gather version and environment
         id: information
-        shell: bash
         # yamllint disable rule:line-length
         run: |
           sha="${{ github.sha }}"
           environment="edge"
           version="${sha:0:7}"
+          echo "::set-output name=containersha::${version}"
           if [[ "${{ github.event_name }}" = "release" ]]; then
             version="${{ github.event.release.tag_name }}"
             version="${version,,}"
@@ -42,11 +42,15 @@ jobs:
             fi
           fi
 
+          mautic_version="$(curl -sL https://api.github.com/repos/mautic/mautic/releases/latest | jq -r \".tag_name\")"
+
           echo "::set-output name=environment::${environment}"
           echo "::set-output name=version::${version}"
-
-          echo "::set-output name=name::Mautic"
-          echo "::set-output name=description::Mautic in a container that works"
+          
+          echo "::set-output name=mautic_version::${mautic_version}"
+          
+          echo "::set-output name=name::Mautic ${mautic_version}"
+          echo "::set-output name=description::Mautic ${mautic_version} in a container that works"
         # yamllint enable rule:line-length
 
   lint-hadolint:
@@ -202,6 +206,7 @@ jobs:
           # platforms: linux/amd64,linux/386,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           platforms: linux/amd64
           build-args: |
+            MAUTIC_VERSION=${{ needs.information.outputs.mautic_version }}
             BUILD_DATE=${{ steps.flags.outputs.date }}
             BUILD_DESCRIPTION=${{ needs.information.outputs.description }}
             BUILD_NAME=${{ needs.information.outputs.name }}
