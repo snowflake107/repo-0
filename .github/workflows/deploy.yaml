@@ -88,7 +88,8 @@ jobs:
             aperimau/mautic
             ghcr.io/aperim/mautic
           # generate Docker tags based on the following events/attributes
-          tags: | # yamllint disable-line rule:line-length
+          # yamllint disable-line rule:line-length
+          tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=pr

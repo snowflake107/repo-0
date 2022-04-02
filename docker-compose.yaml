@@ -69,5 +69,5 @@ volumes:
   mauticapp:
     driver_opts:
       type: nfs
-      o: addr=nfs.example.com,nfsvers=4,rsize=65536,wsize=65536,timeo=14,tcp,rw,noatime # yamllint disable-line rule:line-length
+      o: addr=nfs.example.com,nfsvers=4,rsize=65536,wsize=65536,timeo=14,tcp,rw,noatime   # yamllint disable-line rule:line-length
       device: ":/var/nfs/marketing_example_com"
