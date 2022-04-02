@@ -12,6 +12,3 @@ exclude_rule 'MD031'
 exclude_rule 'MD033'
 exclude_rule 'MD036'
 exclude_rule 'MD041'
-
-# Nested lists should be indented with four spaces.
-rule 'MD007', :indent => 4

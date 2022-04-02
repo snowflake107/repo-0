@@ -55,9 +55,9 @@ jobs:
 
           echo "::set-output name=environment::${environment}"
           echo "::set-output name=version::${version}"
-          
+
           echo "::set-output name=mautic_version::${mautic_version}"
-          
+
           echo "::set-output name=name::Mautic ${mautic_version}"
           echo "::set-output name=description::Mautic ${mautic_version} in a container that works"
         # yamllint enable rule:line-length
@@ -88,7 +88,7 @@ jobs:
             aperimau/mautic
             ghcr.io/aperim/mautic
           # generate Docker tags based on the following events/attributes
-          tags: |
+          tags: | # yamllint disable-line rule:line-length
             type=schedule
             type=ref,event=branch
             type=ref,event=pr

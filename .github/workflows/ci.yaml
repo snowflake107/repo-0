@@ -46,9 +46,9 @@ jobs:
 
           echo "::set-output name=environment::${environment}"
           echo "::set-output name=version::${version}"
-          
+
           echo "::set-output name=mautic_version::${mautic_version}"
-          
+
           echo "::set-output name=name::Mautic ${mautic_version}"
           echo "::set-output name=description::Mautic ${mautic_version} in a container that works"
         # yamllint enable rule:line-length
