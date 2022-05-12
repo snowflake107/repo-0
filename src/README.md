@@ -3,6 +3,7 @@
 
 ## 指针
 - [基础](pointer/basic.md)
+- [动态内存管理](pointer/dynamic_mm.md)
 
 ---
 ## 技巧
