@@ -1,2 +1,2 @@
 # beefond
-[link](https://mrssss.github.io/beefond/)
+[docs](https://mrssss.github.io/beefond/)
