@@ -1,0 +1,14 @@
+@startuml
+state new as "创建（new）"
+state running as "运行（running）"
+state ready as "就绪（ready）"
+state waiting as "阻塞（blocked）"
+state terminated as "终止（terminated）"
+
+new --> ready: 创建(admitted)
+ready --> running: 调度(scheduler dispatch)
+running --> ready: 中断，取消调度(interrupt)
+running --> waiting: I/O或事件发起(I/O or event wait)
+waiting --> ready: I/O或事件完成(I/O or event completion)
+running --> terminated: 退出或被终止(exit)
+@enduml

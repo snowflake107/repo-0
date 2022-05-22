@@ -22,6 +22,20 @@
     * 栈指针（SP）函数调用栈，局部变量相关数据
 * 进程访问的设备，即I/O相关信息（当前进程打开的文件列表）
 
+## 概念总结
+
+**程序**
+程序是指编译过的、可执行的二进制代码；保存在磁盘这种存储介质中，不运行。
+
+**进程**
+进程指正在运行的程序。
+
+**进程ID**
+进程的标识符，pid。操作系统保证在任意时刻pid都是唯一的。
+
+**父进程**
+创建进程B的那个进程A成为B进程的父进程。
+
 # 进程相关API
 
 **操作系统提供了哪些对进程的操作？**
@@ -31,6 +45,8 @@
 * 等待进程停滞
 * 其他操作（暂停、恢复等）
 * 获取进程状态
+
+[进程API](../chap5/proc_api.md)
 
 ## 进程创建
 
@@ -49,22 +65,7 @@
 
 ## 进程状态
 
-```plantuml
-@startuml
-state new as "创建（new）"
-state running as "运行（running）"
-state ready as "就绪（ready）"
-state waiting as "阻塞（blocked）"
-state terminated as "终止（terminated）"
-
-new --> ready: 创建(admitted)
-ready --> running: 调度(scheduler dispatch)
-running --> ready: 中断，取消调度(interrupt)
-running --> waiting: I/O或事件发起(I/O or event wait)
-waiting --> ready: I/O或事件完成(I/O or event completion)
-running --> terminated: 退出或被终止(exit)
-@enduml
-```
+![proc_state](./proc_state.svg)
 
 * running: 进程正在处理器上运行
 * ready: 进程已经准备好，但是由于某种原因，操作系统选择不在此时运行
@@ -116,7 +117,15 @@ struct context {
 
 ```c
 // proc.h
-enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum procstate
+{
+    UNUSED,
+    EMBRYO,
+    SLEEPING,
+    RUNNABLE,
+    RUNNING,
+    ZOMBIE
+};
 ```
 
  * 1. UNUSED： 进程创建之前的状态。
@@ -127,24 +136,7 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
  * 6. ZOMBIE：僵尸状态，已退出但未清理的最终状态。
 
 **xv6进程状态转换图**
-```plantuml
-@startuml
-state UNUSED
-state EMBRYO
-state RUNNING
-state RUNNABLE
-state SLEEPING
-state ZOMBIE
-
-UNUSED --> EMBRYO: allocproc()
-EMBRYO --> RUNNABLE: fork()/userinit()
-RUNNABLE --> RUNNING: scheduler()
-RUNNING --> RUNNABLE: interrupt
-RUNNING --> SLEEPING: syscall
-SLEEPING --> RUNNABLE: Event finish
-RUNNING --> ZOMBIE: exit/killed
-@enduml
-```
+![xv6_proc_state](./xv6_proc_state.svg)
 
 ## 进程控制块
 用于存储关于进程的信息。
