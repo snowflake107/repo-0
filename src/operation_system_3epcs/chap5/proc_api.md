@@ -39,6 +39,7 @@ fork调用成功，会创建一个新的进程。
 而子进程中的fork会返回0.
 
 父进程和子进程的区别：
+
 * pid不同
 * 子进程的ppid是父进程的pid
 * 子进程的资源统计信息被清零
@@ -46,6 +47,7 @@ fork调用成功，会创建一个新的进程。
 * 父进程的文件锁不会被子进程继承
 
 出错返回-1，并设置errno的值：
+
 * EAGAIN：内核申请资源失败
 * ENOMEM：内核内存不足
 
@@ -54,6 +56,7 @@ fork调用成功，会创建一个新的进程。
 ```
 
 ## wait系统调用
+
 wait()系统调用用于等待进程和终止。
 
 ```c
@@ -66,10 +69,12 @@ pid_t wait(int * status);
 如果子进程没有终止，调用会阻塞；
 调用成功，返回已终止的子进程的pid；
 出错则返回-1，并设置errno的值：
+
 * ECHILD：调用进程没有任何子进程
 * EINTR：在等待子进程结束时收到信号，调用提前返回
 
 **status**
+
 返回子进程的附加信息。
 这些信息用比特位来表示。可以用下面的这些宏来解释：
 
@@ -95,7 +100,9 @@ int WCOREDUMP(status);      // 信号终止的情况下（WIFSIGNALED），生�
 
 pid_t waitpid(pid_t pid, int * status, int options);
 ```
+
 options是一个flag：
+
 * WNOHANG：不要阻塞
 * WUNTRACED：即使调用进程没有跟踪子进程，也会设置WIFSTOPPED位；对shell有帮助
 * WCONTINUED：即使调用进程没有跟踪子进程，也会设置WIFCONTINUED位；对shell有帮助
@@ -119,4 +126,5 @@ errno多了一个`EINVAL`表示参数非法
 ```
 
 ## exec系统调用
+
 
