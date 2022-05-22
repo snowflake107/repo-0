@@ -127,4 +127,69 @@ errno多了一个`EINVAL`表示参数非法
 
 ## exec系统调用
 
+exec系统调用负责将二进制程序加载到内存中，替换地址空间原油的内容，
+并开始执行。
 
+exec系统调用由一系列的exec函数构成。
+
+```c
+#include <unistd.h>
+
+int execl(const char * path, const char * arg, ...);
+int execlp(const char * file, const char * arg, ...);
+int execle(const char * path, const char * arg, ..., char * const envp[]);
+int execv(const char * path, char * const argv[]);
+int execvp(const char * file, char * const argv[]);
+int execve(const char * file, char * const argv[], char * const envp[]);
+```
+
+execl把path所指向的文件加载到内存中，替换当前进程的镜像。
+arg是传给main函数的第一个参数，就是程序名称。
+
+path是指定要加载那个程序，arg是指定程序名称。加载的程序可以是同一个，
+而程序名可以不同。有些程序可以根据这个参数来确定具体的行为。
+
+**exec函数族**
+
+* `l` : 以列表方式提供参数
+* `v` : 以数组方式提供参数
+* `p` : 在绝对路径path下查找可执行文件，可以只指定文件名
+* `e` : 会为新进程提供新的环境变量
+
+execl调用会改变：
+
+* 地址空间
+* 进程映像
+* 挂起的信号会丢失
+* 信号处理函数丢失
+* 丢弃所有内存锁
+* 线程的属性还原成默认值
+* 重置和进程相关的统计信息
+* 清空和进程内存地址空间相关的所有数据
+* 清空所有只存在于用户空间的数据
+
+执行成功时，会跳转到新的程序入口。
+执行失败时，会返回-1，并设置errno：
+
+* E2BIG     : 参数列表（arg）或者环境变量（envp）的长度过长 
+* EACCESS   : 
+  * 没有在path所指定路径的查找权限
+  * path所指向的文件不是一个普通文件
+  * 目标文件不可执行
+  * path或文件所位于的文件系统以不可执行的方式挂载
+* EFAULT    : 给定指针非法
+* EIO       : 底层I/O错误
+* EISDIR    : 路径path的最后一部分或者路径解释器是个目录
+* ELOOP     : 系统在解析path时遇到太多的符号连接
+* EMFILE    : 调用进程打开的文件数达到进程上限
+* ENFILE    : 打开文件达到系统上限
+* ENOENT    : 目标路径或文件不存在，或者所需要的共享库不存在
+* ENOEXEC   : 目标文件不是一个有效的二进制可执行文件或者是其他体系结构的可执行格式
+* ENOMEM    : 内核内存不足，无法执行新的程序
+* ENOTDIR   : path中除最后名称外的其中某个部分不是目录
+* EPERM     : path或文件所在的文件系统以没有sudo权限的用户挂载，而且用户不是root用户，path或文件的suid或sgid位被设置（只允许有sudo权限执行）
+* ETXTBSY   : 目标目录或文件被另一个进程以可写方式打开
+
+```c
+{{ #include ./wc.c }}
+```
