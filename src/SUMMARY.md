@@ -16,5 +16,5 @@
 
 # 操作系统
 - [操作系统介绍](operation_system_3epcs/introduction/introduction.md)
-- [进程](operation_system_3epcs/process_basic.md)
+- [进程](operation_system_3epcs/process_basic/process_basic.md)
 - [进程API](operation_system_3epcs/proc_api/proc_api.md)
