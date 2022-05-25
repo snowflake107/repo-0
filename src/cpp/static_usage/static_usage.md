@@ -4,11 +4,15 @@
 
 在函数内部使用static修饰变量时，会延长这个变量的生命周期。
 
+```c
 {{ #include ./method.cpp }}
+```
 
 编译文件`g++ -S method.cpp -O0`，得到没有优化过的汇编代码
 
+```c
 {{ #include ./method.s }}
+```
 
 可以看到在全局的`.data`段中有一个label `_ZZ6methodvE1i`。
 
@@ -32,12 +36,16 @@
 标识符仅在本文件中可见，或者说这些符号具有内部链接性（internal 
 linkage）。
 
+```c
 {{ #include ./file.cpp }}
+```
 
 这一次，把源文件编译成二进制文件，通过`objdump -t file.o`指令来
 查看符号属性。
 
+```c
 {{ #include ./file.symbol }}
+```
 
 可以看到`_ZL11func_staticv`符号的属性是`l` local，而`_Z4funcv`
 的属性是`g` global。
@@ -59,9 +67,13 @@ static可以修饰函数，使其成为“静态成员函数”。静态成员�
 方法不和对象绑定，不需要传对象地址。同样，它也就没有办法访问到普通成
 员变量和普通成员方法。
 
+```c
 {{ #include ./cls.cpp }}
+```
 
+```c
 {{ #include ./cls.s }}
+```
 
 # 匿名namespace
 
