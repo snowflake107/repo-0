@@ -2,8 +2,8 @@ FROM php:7-apache
 
 ARG USER=www-data
 ARG GROUP=www-data
-ARG COMPOSER_SHA=906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8
-ARG MAUTIC_VERSION=4.2.0
+ARG COMPOSER_SHA=55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae
+ARG MAUTIC_VERSION=4.4.0
 
 RUN apt-get update && \
     apt-get -y full-upgrade && \
@@ -19,7 +19,7 @@ RUN apt-get update && \
         libonig-dev=6.9.6-1.1 \
         libpng-dev=1.6.37-3 \
         zlib1g-dev=1:1.2.11.dfsg-2+deb11u1 \
-        libssl-dev=1.1.1n-0+deb11u1 \
+        libssl-dev=1.1.1n-0+deb11u3 \
         libfreetype6-dev=2.10.4+dfsg-1 \
         libjpeg-dev=1:2.0.6-4 \
         libzip-dev=1.7.3-1 \
