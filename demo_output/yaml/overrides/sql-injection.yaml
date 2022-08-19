@@ -1,0 +1,4 @@
+apps:
+  2fb80124-d789-4a8c-a00e-05e730b97461/13dec2018webgoat111:
+    dev: false
+    qa: false

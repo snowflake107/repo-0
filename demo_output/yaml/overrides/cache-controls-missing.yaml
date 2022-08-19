@@ -1,0 +1,182 @@
+apps:
+  037b264f-483f-4da1-970d-fa39cf8544ef/joshpal:
+    dev: true
+  095a0e35-f312-4d74-905a-82a8cff7b2ce/sample-spring-log4j-app:
+    dev: true
+    prod: false
+  0b5bd987-0bd8-4fd3-b81d-dec92c8f2e85/application:
+    dev: true
+    prod: false
+  0c064815-14bf-491a-be31-1bab6e8be240/mvn-sdk-java:
+    dev: true
+    prod: false
+  1650ec93-aff3-40b5-a16d-a1c5522b91da/soma2:
+    dev: true
+    prod: false
+  188543f7-59f2-4793-b8a1-73c8c54af5e0/ROOT:
+    dev: true
+  1973cc25-91b8-4097-996d-59f2946e254a/mvn-mas-j:
+    dev: true
+  1984d3ad-0e31-49f4-a3d6-2a5c1f84c1f7/soma3:
+    dev: true
+    prod: false
+  1e2ea8d1-48a2-49b2-ac7e-b19a8e18586e/joshshaun:
+    dev: true
+  20729fcb-16e4-4601-9bff-0c4095995737/webgoat-server:
+    dev: true
+  28cb5322-69bb-41b7-901f-82364263699f/soma:
+    dev: true
+    prod: false
+  29e0e785-eda8-4cbe-8bd2-23011caad1b6/FridayWebgoatBDE:
+    dev: true
+  2a71d923-7ab8-4380-bd26-577bc5275538/MyShop:
+    dev: true
+    prod: false
+  2fb80124-d789-4a8c-a00e-05e730b97461/13dec2018webgoat111:
+    prod: false
+    qa: false
+  3346d912-08fb-43a2-936a-4dc7af4112e9/ticketbook-mvn:
+    dev: true
+    prod: false
+  355f5b96-a7f5-4514-bf89-15e6037d32e3/mvn-vulnerable-spring-boot-application:
+    dev: true
+  3967a912-4454-4959-97f2-496881bee354/contrast-jenkins-plugin:
+    dev: true
+    prod: false
+  3c43674f-e06e-4197-baa2-8c7250e45b9b/APPLICATION_NAME:
+    dev: true
+    prod: false
+  3c7effc4-0dc1-4d74-8e85-e009f31a316e/spring-petclinic:
+    dev: true
+    prod: false
+  3ea1f60e-a2c4-4853-bcf6-0cbfaf8c5c8a/webgoat-develop-cli:
+    dev: true
+    prod: false
+  45e4fca6-e014-490b-8f81-c90b9023db8d/ticketbook:
+    dev: true
+  46a49e5e-2f12-4f6a-91ab-039db8dfa2a6/node-goat:
+    dev: true
+    prod: false
+  490d495f-a05b-4300-a972-e0dbf2fc8451/testapp5:
+    dev: true
+    prod: false
+  4a19a6af-be0c-437f-af75-71a5a1b6bfa0/testapp1:
+    dev: true
+    prod: false
+  4cb4e770-5ee4-42da-9192-b162b684176e/@contrast/express-test-bench:
+    dev: true
+    prod: false
+  4dbfdb61-e42a-48d8-9abf-653dcf7dc369/mvn-ticketbook:
+    dev: true
+  52893d44-5481-4fbd-a5bb-b74ddd71d240/tomcat-deferred-ph:
+    dev: true
+    prod: false
+  5894abc9-93b1-4a24-9005-a1cde98a619e/groupchangewebgoat:
+    dev: true
+  5c4ec080-1ae9-4900-a458-7f5fb14491a7/my-vertx-first-app:
+    dev: true
+  60be5800-7ebc-4a62-87ee-6c40b6f21e96/mvn-mas:
+    dev: true
+    prod: false
+  66d0ae86-c733-4175-b6ee-f83d61a0a6eb/example spring boot log4j2-core:
+    dev: true
+    prod: false
+  69f2d817-1cf2-49dd-b3ab-509c87bfb0a7/mas-j:
+    dev: true
+    prod: false
+  70b2f8f7-002c-4653-afda-1cd4e1b65ef7/testapp2:
+    dev: true
+    prod: false
+  734d5642-47b5-4fd9-b1d1-23ea69401e00/HODOR:
+    dev: true
+  7376533a-91ef-41c7-9282-94d3f5feed09/StandaloneWG:
+    dev: true
+  75d0bbf8-10a9-4fef-ab89-3be4eb40fe58/webgoat-develop:
+    dev: true
+    prod: false
+  7da4d9de-8a2e-41f0-929c-a5798cac80af/testwebhook:
+    dev: true
+  81718255-331a-4cd6-9bbf-5e2a5a714e31/soma-ctrl-cli-2:
+    dev: true
+    prod: false
+  81befefe-7a58-4299-b767-bab596741485/mvn-mas-j3:
+    dev: true
+    prod: false
+  81c5ba5e-a71d-48c0-a926-af1fa773cc8d/FindingDump:
+    dev: true
+    prod: false
+  83426a2a-2758-4544-ba61-0952c2bb2adb/mvn-mas-j-cli:
+    dev: true
+    prod: false
+  83caacdc-de87-4b98-9f46-64bccec729c9/soma1:
+    dev: true
+    prod: false
+  8b742839-513b-46df-a96c-a9f4a976940d/blah:
+    prod: false
+    qa: false
+  901e37c5-bdb1-4929-9482-c13bb9408fc5/WebGoatDemo:
+    dev: true
+  99033f65-bf19-491e-a3f1-5c93ed8f6d42/RoutingSimulator:
+    dev: true
+  993e8cfb-4c75-4910-8972-1cc16fe7e5c2/soma-ctrl:
+    dev: true
+  99714da5-edb6-43fc-b1d0-4c382d37f4a5/myConfigApe:
+    dev: true
+    prod: false
+  a2894cf1-30d2-4ba7-bb7d-4f185aa77c0d/spring-petclinic (1):
+    dev: true
+    prod: false
+  a50154ea-85e0-429d-88f9-0f20dc1e5724/JAXWebGoat:
+    dev: true
+  a7a0d4a2-da53-4991-9392-1c4ea6879ada/mvn-mas-j2:
+    dev: true
+    prod: false
+  aafec7c7-30db-43bc-9b2c-c95fdd80a0a3/soma-ctrl-cli-4:
+    dev: true
+    prod: false
+  afb9bcc0-3596-4eae-b733-7c169dd1fe1c/JenkinsPipelineWebGoat:
+    dev: true
+  b566bc6c-13e0-4270-908a-e8e18004cc07/juice-shop:
+    dev: true
+    prod: false
+  b8ee287a-f5ee-479f-890e-b666d486d41f/Webgoat_8.0:
+    dev: true
+  bd3bc1f7-b553-488c-8f7f-d11f6b0bdd52/testapp3:
+    dev: true
+    prod: false
+  be17174e-7535-4402-812b-a65328fd135a/WebGoat:
+    dev: true
+  be5043a0-bc2b-4e88-bc46-61ed55fa6c75/DjanGoat:
+    dev: true
+  bff1742b-dce8-4799-9054-e914ea753692/test-profile-with-dashes-envvar:
+    dev: true
+    prod: false
+  c2b7cc2b-bd9b-4070-9804-7d64f9f0fe7c/soma-ctrl-cli:
+    dev: true
+    prod: false
+  c749f318-a290-4214-8820-bdc1154e1293/WebGoatDocker:
+    dev: true
+  c74b23c9-75fd-4133-adfa-9b6a299a6140/NodeTestBench:
+    dev: true
+  c9e6df3c-26f1-4fb4-9198-6992120cdac8/gradleSampleApp:
+    dev: true
+  cd573198-0dad-4d87-9024-4e632786c634/webgoat-develop2:
+    dev: true
+    prod: false
+  cdbfa7d7-dff0-44d0-9202-b354e9107d15/myConfigAppNameee:
+    dev: true
+    prod: false
+  ceca8643-607f-4790-bb68-0c760323c665/webgoat-dep-tree:
+    dev: true
+    prod: false
+  df284743-78c4-402d-b11f-144e5cef4495/groupchangewebgoattt:
+    dev: true
+  e03a60f1-b13a-4775-9a91-516c81892255/contrast-verify-action:
+    dev: true
+    prod: false
+  e90161cb-718c-40f6-a521-f862b6311342/Default Web Site:
+    dev: true
+    prod: false
+  fb31a07c-4793-451a-878e-c3414bd52644/testapp4:
+    dev: true
+    prod: false
