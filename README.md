@@ -13,6 +13,13 @@ Rule configuration is retrieved _from_ Contrast only, changes to the output cont
 You can run this script locally with a Python install, or, in a container with the provided `Dockerfile`
 
 ### Container use
+
+#### Pre-built
+```bash
+docker run -it --env-file=contrast.env -v $PWD/output:/usr/src/app/output ghcr.io/contrast-security-oss/assess-policy-as-code:main <...args...>
+```
+
+#### Local build
 ```bash
 docker build . --tag contrast-policy-as-code # Build the container
 docker run -it --env-file=contrast.env -v $PWD/output:/usr/src/app/output contrast-policy-as-code <...args...> # Run the container
