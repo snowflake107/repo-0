@@ -7,4 +7,4 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY *.py ./
 
-CMD ["python", "contrast_policy_as_code.py"]
+ENTRYPOINT [ "python", "contrast_policy_as_code.py" ]
