@@ -78,6 +78,8 @@ RUN apt-get update && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf && \
     sed --in-place --regexp-extended 's/^Listen 80$/Listen \${PORT}/g' /etc/apache2/ports.conf
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
@@ -87,6 +89,11 @@ RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/commo
     sed --in-place --regexp-extended 's/^(\$path\s+=\s+\x27\/var\/www\/html\/app\/config\/local\.php\x27\;)/\1\nfwrite(\$stderr, json_encode\(\$_ENV, JSON_PRETTY_PRINT\)\)\;\n/g' /makeconfig.php && \
     cp /usr/src/mautic-cron/mautic /etc/cron.d/mautic && \
     chmod 755 /docker-entrypoint.sh /makeconfig.php /makedb.php && \
+    rm -f /usr/src/mautic/sig.txt && \
+    find /usr/src/mautic -type f | sort | tr '\n' '\0' | xargs -0 sha1sum | sha1sum | head -c 40 > /usr/src/mautic/sig.txt && \
+    chown www-data:www-data /usr/src/mautic/sig.txt && \
+    chmod 400 /usr/src/mautic/sig.txt && \
+    echo "Signature for build: $(cat /usr/src/mautic/sig.txt)" && \
     chown www-data:www-data /etc/cron.d/mautic /usr/src/mautic-cron/mautic && \
     chmod 644 /etc/cron.d/mautic /usr/src/mautic-cron/mautic
 
