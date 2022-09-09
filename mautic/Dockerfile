@@ -3,7 +3,7 @@ FROM php:7-apache
 ARG USER=www-data
 ARG GROUP=www-data
 ARG COMPOSER_SHA=55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae
-ARG MAUTIC_VERSION=4.4.0
+ARG MAUTIC_VERSION=4.4.2
 
 RUN apt-get update && \
     apt-get -y full-upgrade && \
