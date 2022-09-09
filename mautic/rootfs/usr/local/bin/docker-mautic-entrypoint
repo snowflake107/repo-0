@@ -22,7 +22,7 @@ buildApp () {
   if [ ! -f "${AUTOLOAD_FILE}" ]; then
     echo >&2 "🏗️ Mautic not ready. Making it so."
     cd "${MAUTIC_HOME}"
-    /usr/local/bin/composer install
+    COMPOSER_CACHE_READ_ONLY=1 /usr/local/bin/composer install
   fi
 }
 
@@ -34,7 +34,7 @@ cleanupCron () {
 }
 
 checkUpdate () {
-  if cmp -s "${MAUTIC_HOME}/app/release_metadata.json" "${MAUTIC_SOURCE}/app/release_metadata.json" ; then
+  if cmp -s "${MAUTIC_HOME}/sig.txt" "${MAUTIC_SOURCE}/sig.txt" ; then
     echo >&2 "🗃 No changes"
   else
     echo >&2 "🗄️ Mautic has changes"
