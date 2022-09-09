@@ -78,6 +78,8 @@ RUN apt-get update && \
     sed --in-place --regexp-extended 's/^<VirtualHost \*\:80>$/<VirtualHost \*\:\${PORT}>/g' /etc/apache2/sites-available/000-default.conf && \
     sed --in-place --regexp-extended 's/^Listen 80$/Listen \${PORT}/g' /etc/apache2/ports.conf
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/docker-entrypoint.sh -o /docker-entrypoint.sh && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makeconfig.php -o /makeconfig.php && \
     curl -L https://raw.githubusercontent.com/mautic/docker-mautic/mautic4/common/makedb.php -o /makedb.php && \
