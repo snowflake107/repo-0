@@ -1,9 +1,10 @@
-FROM php:7-apache
+ARG PHP_VERSION=8.0
+FROM php:${PHP_VERSION}-apache
 
 ARG USER=www-data
 ARG GROUP=www-data
 ARG COMPOSER_SHA=55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae
-ARG MAUTIC_VERSION=4.4.2
+ARG MAUTIC_VERSION=4.4.3
 
 RUN apt-get update && \
     apt-get -y full-upgrade && \
@@ -11,10 +12,10 @@ RUN apt-get update && \
         cron=3.0pl1-137 \
         git=1:2.30.2-1 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
-        libcurl4-openssl-dev=7.74.0-1.3+deb11u2 \
+        libcurl4-openssl-dev=7.74.0-1.3+deb11u3 \
         libc-client2007e-dev=8:2007f~dfsg-7+b1 \
         libicu-dev=67.1-7 \
-        libkrb5-dev=1.18.3-6+deb11u1 \
+        libkrb5-dev=1.18.3-6+deb11u2 \
         libmcrypt-dev=2.5.8-3.4+b1 \
         libonig-dev=6.9.6-1.1 \
         libpng-dev=1.6.37-3 \
@@ -24,7 +25,7 @@ RUN apt-get update && \
         libjpeg-dev=1:2.0.6-4 \
         libzip-dev=1.7.3-1 \
         sudo=1.9.5p2-3 \
-        unzip=6.0-26 \
+        unzip=6.0-26+deb11u1 \
         zip=3.0-12 && \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
     rm -r /var/lib/apt/lists/* && \
