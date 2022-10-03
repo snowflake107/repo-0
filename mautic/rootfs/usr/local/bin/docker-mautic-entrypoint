@@ -38,7 +38,7 @@ checkUpdate () {
     echo >&2 "🗃 No changes"
   else
     echo >&2 "🗄️ Mautic has changes"
-    rm -Rf "${AUTOLOAD_FILE}"
+    rm -Rf "${AUTOLOAD_FILE}" "${MAUTIC_HOME}/sig.txt"
     installOrUpdate
   fi
 }
