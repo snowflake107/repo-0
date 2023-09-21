@@ -75,6 +75,17 @@
 * ready: 进程已经准备好，但是由于某种原因，操作系统选择不在此时运行
 * blocked: 进程执行了某个操作，直到某个时间发生才会准备运行""
 
+```mermaid
+graph TD;
+
+new --> ready: 创建(admitted);
+ready --> running: 调度(scheduler dispatch);
+running --> ready: 中断，取消调度(interrupt);
+running --> waiting: I/O或事件发起(I/O or event wait);
+waiting --> ready: I/O或事件完成(I/O or event completion);
+running --> terminated: 退出或被终止(exit);
+```
+
 # xv6中进程相关数据结构
 
 ## 寄存器上下文
