@@ -1,0 +1,4 @@
+baseURL = 'https://mrssss.github.io/beefond/'
+languageCode = 'zh-cn'
+title = 'beefond'
+theme = 'ananke'
