@@ -19,15 +19,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
-          fetch-depth: 0
+          fetch-depth: 1
       - name: setup hugo
         uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: '0.92.0'
+          hugo-version: '0.118.2'
           extended: true
       - name: build
-        run: hugo --minify
-      
+        run: |
+          ls -al
+          hugo --minify
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{github.ref == 'refs/heads/main'}}
