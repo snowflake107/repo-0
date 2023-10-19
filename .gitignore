@@ -1,13 +1,10 @@
 .DS_Store
 *.sublime-workspace
-/dist/**/*.js
 /dist/**/*.js.map
-/dist/**/*.d.ts
 /node_modules
 /npm-debug.log
 /package-lock.json
 /yarn-error.log
-/yarn.lock
 
 # Redis database
 *.rdb
