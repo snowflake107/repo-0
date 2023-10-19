@@ -65,8 +65,8 @@
     "build:development": "rm -f dist/**/*.{js,js.map,d.ts} && tsc --watch",
     "test": "cd dist/esm && ava --verbose *.test.js",
     "test:development": "cd dist/esm && ava --verbose --watch *.test.js",
-    "prepare": "yarn build",
-    "prepublishOnly": "yarn install && yarn lint && yarn build"
+    "prepare": "pnpm build",
+    "prepublishOnly": "pnpm install && pnpm lint && pnpm build"
   },
   "dependencies": {
     "node-abort-controller": "^3.0.1"
