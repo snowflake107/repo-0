@@ -187,16 +187,7 @@ module.exports = {
 
 네이티브 CSS 지원을 활성화합니다. 아직 개발 중인 실험적인 기능이고 webpack v6에서 기본적으로 활성화될 예정이지만, [GitHub](https://github.com/webpack/webpack/issues/14893)에서 진행 상황을 확인할 수 있습니다.
 
-- Type:
-
-  - `boolean`
-  - `CssExperimentOptions`
-
-    ```ts
-    {
-      exportsOnly?: boolean;
-    }
-    ```
+- Type: `boolean`
 
 실험적 기능:
 
@@ -211,12 +202,6 @@ module.exports = {
 - CSS 추출: webpack은 CSS를 별도의 파일로 추출합니다. 이 기능은 네이티브 지원을 제공하기 때문에 `mini-css-extract-plugin` 및 `css-loader`의 필요성을 대체합니다.
 - CSS import: webpack은 CSS import를 생성된 CSS 파일로 인라인합니다.
 - Hot Module Reload (HMR): webpack은 CSS 파일용 HMR을 지원합니다. 이는 CSS 파일에 대한 변경 사항이 전체 페이지를 다시 로드하지 않고 브라우저에 반영된다는 것을 의미합니다.
-
-#### experiments.css.exportsOnly
-
-스타일시트 생성 및 로드를 막고 css에서 output JavaScript 파일로의 내보내기만 포함합니다.
-
-- Type: `boolean`
 
 ### experiments.cacheUnaffected
 

@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Vale
-        uses: errata-ai/vale-action@v2.0.1
+        uses: errata-ai/vale-action@v2.1.0
         with:
           files: src/content
         env:
@@ -82,14 +82,7 @@ jobs:
       - run: yarn
 
       - name: Enable webpack persistent caching
-        uses: actions/cache@v3
-        id: build-webpack-persistent-cache
-        with:
-          path: node_modules/.cache
-          key: build-${{ hashFiles('**/webpack.*.mjs') }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |-
-            build-${{ hashFiles('**/webpack.*.mjs') }}-${{ hashFiles('**/yarn.lock') }}
-            build-${{ hashFiles('**/webpack.*.mjs') }}-
+        uses: ./.github/actions/webpack-persistent-cache
 
       - name: Cypress run
         uses: cypress-io/github-action@v6

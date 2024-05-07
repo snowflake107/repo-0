@@ -35,6 +35,8 @@ related:
 new webpack.DllPlugin(options);
 ```
 
+W> Webpack 출력에서 [코드 분할](/guides/code-splitting)을 사용하는 경우 webpack이 여러 매니페스트 파일을 생성하도록 `path`에서 [템플릿 문자열](/configuration/output/#template-strings)을 사용해야 합니다.
+
 W> DllPlugin을 `entryOnly: true`와 함께 사용하는 것을 권장합니다. 그렇지 않으면 모든 export가 사용될 수 있으므로 DLL에서 트리 쉐이킹이 작동하지 않습니다.
 
 주어진 `경로`에 기록되는 `manifest.json`을 생성합니다. 여기에는 require와 import 요청에서 모듈 id로의 매핑이 포함됩니다. 이는 `DllReferencePlugin` 에서 사용됩니다.

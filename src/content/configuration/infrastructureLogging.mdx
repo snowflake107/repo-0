@@ -1,0 +1,145 @@
+---
+title: InfrastructureLogging
+sort: 20
+contributors:
+  - snitin315
+---
+
+인프라 레벨의 로깅 옵션입니다.
+
+## infrastructureLogging.appendOnly
+
+<Badge text="5.31.0+" />
+
+`boolean`
+
+기존 출력을 업데이트하는 대신 출력에 행을 추가합니다. 상태 메시지에 유용합니다. 이 옵션은 커스텀 [`console`](#infrastructureloggingconsole)이 제공되지 않은 경우에만 사용됩니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    appendOnly: true,
+    level: 'verbose',
+  },
+  plugins: [
+    (compiler) => {
+      const logger = compiler.getInfrastructureLogger('MyPlugin');
+      logger.status('first output'); // `appendOnly`가 활성화된 상태에서는 재정의되지 않습니다.
+      logger.status('second output');
+    },
+  ],
+};
+```
+
+## infrastructureLogging.colors
+
+<Badge text="5.31.0+" />
+
+`boolean`
+
+인프라 레벨의 로깅을 위해 다채로운 출력을 활성화합니다. 이 옵션은 커스텀 [`console`](#infrastructureloggingconsole)이 제공되지 않은 경우에만 사용됩니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    colors: true,
+    level: 'verbose',
+  },
+  plugins: [
+    (compiler) => {
+      const logger = compiler.getInfrastructureLogger('MyPlugin');
+      logger.log('this output will be colorful');
+    },
+  ],
+};
+```
+
+## infrastructureLogging.console
+
+<Badge text="5.31.0+" />
+
+`Console`
+
+인프라 레벨의 로깅에 사용되는 콘솔을 커스터마이즈 합니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    console: yourCustomConsole(),
+  },
+};
+```
+
+## infrastructureLogging.debug
+
+`string` `boolean = false` `RegExp` `function(name) => boolean` `[string, RegExp, function(name) => boolean]`
+
+플러그인 또는 로더와 같은 지정된 로거의 디버그 정보를 활성화합니다. [`stats.loggingDebug`](/configuration/stats/#statsloggingdebug) 옵션과 유사하지만 인프라 용입니다. 기본값은 `false`입니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    level: 'info',
+    debug: ['MyPlugin', /MyPlugin/, (name) => name.contains('MyPlugin')],
+  },
+};
+```
+
+## infrastructureLogging.level
+
+`string = 'info' : 'none' | 'error' | 'warn' | 'info' | 'log' | 'verbose'`
+
+인프라 로깅 출력을 활성화합니다. [`stats.logging`](/configuration/stats/#statslogging) 옵션과 유사하지만 인프라 용입니다. 기본값은 `'info'` 입니다.
+
+Possible values:
+
+- `'none'` - 로깅을 비활성화
+- `'error'` - 에러
+- `'warn'` - 에러와 경고
+- `'info'` - 에러, 경고 및 정보 메시지
+- `'log'` - 에러, 경고, 정보 메시지, 로그 메시지, 그룹, 삭제. 접힌 그룹은 접힌 상태로 표시됩니다.
+- `'verbose'` - 디버그 및 추적을 제외한 모든 것을 기록합니다. 접힌 그룹은 펼쳐진 상태로 표시됩니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    level: 'info',
+  },
+};
+```
+
+## infrastructureLogging.stream
+
+<Badge text="5.31.0+" />
+
+`NodeJS.WritableStream = process.stderr`
+
+출력 로깅에 사용되는 스트림입니다. 기본값은 `process.stderr`입니다. 이 옵션은 커스텀 [`console`](#infrastructureloggingconsole)이 제공되지 않은 경우에만 사용됩니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    stream: process.stderr,
+  },
+};
+```
+
+T> TTY 스트림의 경우 `colors`가 활성화되고 `appendOnly`가 비활성화되며 그 반대의 경우도 마찬가지입니다.

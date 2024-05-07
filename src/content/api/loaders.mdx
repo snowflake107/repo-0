@@ -52,7 +52,7 @@ module.exports = function (content, map, meta) {
 };
 ```
 
-`this.callback` 메소드는 `content`만 전달하는 것이 아니라 여러 인수를 전달할 수 있으므로 더 유연합니다.
+`this.callback` 메소드는 `content`만 사용하는 것이 아니라 여러 인수를 전달할 수 있으므로 더 유연합니다.
 
 **sync-loader-with-multiple-results.js**
 
@@ -778,8 +778,8 @@ module.exports = function (source) {
 
 ## Logging
 
-로깅 API는 webpack 4.37 릴리즈부터 사용할 수 있습니다. [`stats 설정`](/configuration/stats/#statslogging)에서 `logging`이 활성화되거나 [`infrastructure 로깅`](/configuration/other-options/#infrastructurelogging)이 활성화되면 로더가 메세지를 기록할 수 있으며 이 메세지는 해당 로거 형식(stats, infrastructure)으로 출력됩니다.
+로깅 API는 webpack 4.37 릴리즈부터 사용할 수 있습니다. [`stats 설정`](/configuration/stats/#statslogging)에서 `logging`이 활성화되거나 [`infrastructure 로깅`](/configuration/infrastructureLogging)이 활성화되면 로더가 메세지를 기록할 수 있으며 이 메세지는 해당 로거 형식(stats, infrastructure)으로 출력됩니다.
 
 - 로더는 `this.getLogger()`를 사용하는 것을 선호해야 합니다. 이는 로더 경로와 처리된 파일을 포함한 `compilation.getLogger()`의 단축어입니다. 이러한 종류의 로깅은 stats에 저장되고 그에 따라 형식이 지정됩니다. webpack 사용자가 필터링하고 내보낼 수 있습니다.
 - 로더는 `this.getLogger('name')`를 사용하여 자식 이름을 가진 독립 로거를 얻을 수 있습니다. 로더 경로 및 처리된 파일은 계속 추가됩니다.
-- 로더는 `getLogger` 방식을 지원하지 않는 이전 webpack 버전이 사용되는 경우 대체 코드를 제공하기 위해 `this.getLogger ? this.getLogger() : console`를 감지하는 특수한 대체 코드를 사용할 수 있습니다.
+- 로더는 `getLogger` 방식을 지원하지 않는 이전 webpack 버전이 사용되는 경우 대체 코드를 제공하기 위해 `this.getLogger ? this.getLogger() : console`를 감지하는 특정한 대체 코드를 사용할 수 있습니다.

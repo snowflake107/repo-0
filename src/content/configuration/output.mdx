@@ -29,6 +29,8 @@ contributors:
   - mrzalyaul
   - JakobJingleheimer
   - long76
+  - ahabhgk
+  - tanyabouman
 translators:
   - YukJiSoo
 ---
@@ -37,7 +39,7 @@ translators:
 
 ## output.assetModuleFilename
 
-`string = '[hash][ext][query]'`
+`string = '[hash][ext][query]'` `function (pathData, assetInfo) => string`
 
 [`output.filename`](#outputfilename)과 동일하지만 [애셋 모듈](/guides/asset-modules/)용입니다.
 
@@ -332,6 +334,30 @@ module.exports = {
 - `'anonymous'` - **자격 증명 없이** cross-origin 활성화
 - `'use-credentials'` - **자격 증명과 함께** cross-origin 활성화
 
+## output.cssChunkFilename
+
+`string` `function (pathData, assetInfo) => string`
+
+이 옵션은 디스크의 비초기 CSS 출력 파일의 이름을 결정합니다. 가능한 값에 대한 자세한 내용은 ['output.filename'](#outputfilename) 옵션을 참고하세요.
+
+여기에 절대 경로를 지정하면 **안 됩니다**. 그러나 `'/'`로 구분된 폴더를 포함해도 됩니다. 이 지정된 경로는 [`output.path`](#outputpath) 값과 결합되어 디스크의 위치를 정확히 찾아냅니다.
+
+## output.cssFilename
+
+`string` `function (pathData, assetInfo) => string`
+
+이 옵션은 디스크의 CSS 출력 파일 이름을 결정합니다. 가능한 값에 대한 자세한 내용은 [`output.filename`](#outputfilename) 옵션을 참고하세요.
+
+여기에 절대 경로를 지정하면 **안 됩니다**. 그러나 `'/'`로 구분된 폴더를 포함해도 됩니다. 이 지정된 경로는 [`output.path`](#outputpath) 값과 결합되어 디스크의 위치를 정확히 찾아냅니다.
+
+## output.cssHeadDataCompression
+
+<Badge text="5.91.0+" />
+
+`boolean`
+
+CSS 파일의 head 태그에 생성된 메타데이터를 압축할지 여부를 결정하는 옵션입니다. 이 옵션의 기본값은 각각 `프로덕션`에서는 `true`이고 `개발`[모드](/configuration/mode/)에서는 `false`입니다.
+
 ## output.devtoolFallbackModuleFilenameTemplate
 
 `string` `function (info)`
@@ -454,6 +480,8 @@ module.exports = {
     environment: {
       // 화살표 기능('() => { ... }')을 지원합니다.
       arrowFunction: true,
+      // 해당 환경은 async 함수 그리고 await 함수('async function () { await ... }')를 지원합니다.
+      asyncFunction: true,
       // BigInt를 문자 그대로 지원합니다(예를 들어, 123n).
       bigIntLiteral: false,
       // const 및 let 변수 선언을 지원합니다.
@@ -669,9 +697,9 @@ T> 일부 컨텍스트에서 프로퍼티는 원시 값 대신 JavaScript 코드
 
 `string = 'self'`
 
-라이브러리를 대상으로 할 때, 특히 `libraryTarget`이 `'umd'`인 경우 이 옵션은 라이브러리를 마운트하는 데 사용할 전역 객체를 나타냅니다. UMD빌드를 브라우저와 Node.js에서 모두 사용할 수 있도록 하려면 `output.globalObject`를 `'this'`로 설정하세요. 웹과 유사한 대상의 경우 기본값은 `self`입니다.
+라이브러리를 대상으로 할 때, 특히 `library.type`이 `'umd'`인 경우 이 옵션은 라이브러리를 마운트하는 데 사용할 전역 객체를 나타냅니다. UMD빌드를 브라우저와 Node.js에서 모두 사용할 수 있도록 하려면 `output.globalObject`를 `'this'`로 설정하세요. 웹과 유사한 대상의 경우 기본값은 `self`입니다.
 
-엔트리 포인트의 반환 값은 `output.library.name` 값을 사용하여 전역 객체에 할당됩니다. `target` 옵션의 값에 따라 전역 객체가 각각 저마다 변경될 수 있습니다. (예: `self`, `global`, `globalThis`)
+엔트리 포인트의 반환 값은 `output.library.name` 값을 사용하여 전역 객체에 할당됩니다. `type` 옵션의 값에 따라 전역 객체가 각각 저마다 변경될 수 있습니다. (예: `self`, `global`, `globalThis`)
 
 예제:
 
@@ -681,8 +709,10 @@ T> 일부 컨텍스트에서 프로퍼티는 원시 값 대신 JavaScript 코드
 module.exports = {
   // ...
   output: {
-    library: 'myLib',
-    libraryTarget: 'umd',
+    library: {
+      name: 'myLib',
+      type: 'umd',
+    },
     filename: 'myLib.js',
     globalObject: 'this',
   },
@@ -812,6 +842,23 @@ module.exports = {
   //...
   output: {
     importFunctionName: '__import__',
+  },
+};
+```
+
+## output.importMetaName
+
+`string`
+
+네이티브 `import.meta` 객체의 이름입니다(폴리필로 교체 가능).
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  output: {
+    importMetaName: 'pseudoImport.meta',
   },
 };
 ```
@@ -1361,7 +1408,7 @@ module.exports = {
 module.exports = {
   //...
   output: {
-    libraryTarget: 'umd',
+    type: 'umd',
   },
 };
 ```
@@ -2253,13 +2300,13 @@ require('module'); // <- 예외 발생
 
 ## output.trustedTypes
 
-`boolean = false` `string` `object`
+`true` `string` `object`
 
 <Badge text="5.37.0+" />
 
 [신뢰할 수 있는 타입](https://web.dev/trusted-types) 호환성을 제어합니다. 활성화되면 webpack은 신뢰할 수 있는 타입 지원을 감지하고 지원하는 경우 신뢰할 수 있는 타입 정책을 사용하여 동적으로 로드하는 스크립트 URL을 생성합니다. 애플리케이션이 [`require-trusted-types-for`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/require-trusted) 콘텐츠 보안 정책 지침에 따라 실행될 때 사용합니다.
 
-기본값은 `false`입니다(호환성 없음, 스크립트 URL은 문자열).
+기본적으로 비활성화되어 있습니다(호환성 없음, 스크립트 URL은 문자열).
 
 - `true`로 설정하면 webpack은 [`output.uniqueName`](#outputuniquename)을 신뢰할 수 있는 타입 정책 이름으로 사용합니다.
 - 비어 있지 않은 문자열로 설정하면 해당 값이 정책 이름으로 사용됩니다.
@@ -2340,7 +2387,7 @@ module.exports = {
 
 ## output.wasmLoading
 
-`boolean = false` `string`
+`false` `'fetch-streaming' | 'fetch' | 'async-node'` `string`
 
 WebAssembly 모듈을 로드하는 방법을 설정하는 옵션입니다. 기본적으로 포함된 메소드는 `'fetch'` (web/WebWorker), `'async-node'` (Node.js)이고 다른 것들도 플러그인에 의해 추가될 수 있습니다.
 
@@ -2354,6 +2401,21 @@ module.exports = {
   //...
   output: {
     wasmLoading: 'fetch',
+  },
+};
+```
+
+## output.webassemblyModuleFilename
+
+`string = '[hash].module.wasm'`
+
+WebAssembly 모듈의 파일 이름을 지정합니다. `output.path` 디렉토리 내 상대 경로로 제공되어야 합니다.
+
+```javascript
+module.exports = {
+  //...
+  output: {
+    webassemblyModuleFilename: '[id].[hash].wasm',
   },
 };
 ```
@@ -2390,6 +2452,23 @@ module.exports = {
   //...
   output: {
     workerPublicPath: '/workerPublicPath2/',
+  },
+};
+```
+
+## output.workerWasmLoading
+
+`false` `'fetch-streaming' | 'fetch' | 'async-node'` `string`
+
+Worker에서 WebAssembly 모듈을 로드하는 방법을 설정하는 옵션이며 기본값은 [output.wasmLoading](#outputwasmloading) 값입니다.
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  output: {
+    workerWasmLoading: 'fetch',
   },
 };
 ```

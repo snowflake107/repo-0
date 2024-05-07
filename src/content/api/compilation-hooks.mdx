@@ -11,6 +11,7 @@ contributors:
   - EugeneHlushko
   - chenxsan
   - jamesgeorge007
+  - snitin315
 translators:
   - YukJiSoo
 ---
@@ -30,6 +31,8 @@ compilation.hooks.someHook.tap(/* ... */);
 
 `compiler`와 마찬가지로 `tapAsync` 및 `tapPromise`도 훅 유형에 따라
 사용할 수 있습니다.
+
+W> Webpack 5부터 훅은 더 이상 확장할 수 없습니다. 사용자 정의 훅을 추가하려면 `WeakMap`을 사용하세요.
 
 ### buildModule
 
@@ -127,7 +130,7 @@ compilation.hooks.buildModule.tap(
 
 다음은 `compilation.hooks.afterChunks` 훅을 활용하는 방법에 대한 [예시](https://github.com/webpack/webpack/blob/10be3f9e3fb34078af8c5841a77025a6722f11bf/lib/wasm-sync/WebAssemblyModulesPlugin.js#L114-L137)입니다.
 
-- Callback Parameters: `chunks`
+- 콜백 파라미터: `chunks`
 
 ### optimize
 
@@ -648,3 +651,97 @@ compilation.hooks.processAssets.tap(
 ### normalModuleLoader
 
 webpack v5부터 `normalModuleLoader` 훅이 제거되었기 때문에, 이제 로더에 액세스하려면 `NormalModule.getCompilationHooks(compilation).loader`를 사용하세요.
+
+### statsPreset
+
+`HookMap`
+
+이 HookMap은 사전 설정이 사용될 때 트리거되는 작업 목록과 같습니다. 옵션 객체를 사용합니다. 플러그인이 사전 설정을 관리할 때에는 기존 설정을 바꾸지 않고 이 객체의 설정을 신중하게 변경해야 합니다.
+
+- 콜백 파라미터: `options` `context`
+
+플러그인 예시는 다음과 같습니다.
+
+```js
+compilation.hooks.statsPreset.for('my-preset').tap('MyPlugin', (options) => {
+  if (options.all === undefined) options.all = true;
+});
+```
+
+이 플러그인은 사전 설정 `'my-preset'`에 대해 `all` 옵션이 정의되지 않은 경우 기본값이 true로 설정되도록 합니다.
+
+### statsNormalize
+
+`SyncHook`
+
+이 훅은 옵션 객체를 후속 흑에서 쉽게 사용할 수 있는 일관된 형식으로 변환하는 데 사용됩니다. 또한 누락된 옵션이 기본값으로 설정되도록 보장합니다.
+
+- 콜백 파라미터: `options` `context`
+
+플러그인 예시는 다음과 같습니다.
+
+```js
+compilation.hooks.statsNormalize.tap('MyPlugin', (options) => {
+  if (options.myOption === undefined) options.myOption = [];
+
+  if (!Array.isArray(options.myOption)) options.myOptions = [options.myOptions];
+});
+```
+
+이 플러그인에서는 `myOption`이 없으면 빈 배열로 설정합니다. 또한 `myOption`이 원래 단일 값으로 정의된 경우에도 항상 배열임을 보장합니다.
+
+### statsFactory
+
+이 훅은 특정 옵션에서 [`StatsFactory` 클래스](https://github.com/webpack/webpack/blob/main/lib/stats/StatsFactory.js)에 대한 액세스를 제공합니다.
+
+- 콜백 파라미터: `statsFactory` `options`
+
+#### StatsFactory.hooks.extract
+
+`HookMap`
+
+- 콜백 파라미터: `object` `data` `context`
+
+`data`에는 클래스가 포함되어 있습니다. object는 속성을 추가해야 하는 객체입니다. `context`는 경로의 클래스와 같은 상황별 정보를 제공합니다.
+
+Example:
+
+```js
+compilation.hooks.statsFactory.tap('MyPlugin', (statsFactory, options) => {
+  statsFactory.hooks.extract
+    .for('compilation')
+    .tap('MyPlugin', (object, compilation) => {
+      object.customProperty = MyPlugin.getCustomValue(compilation);
+    });
+});
+```
+
+#### StatsFactory.hooks.result
+
+`HookMap`
+
+각 레벨의 결과와 함께 호출됩니다.
+
+- 콜백 파라미터: `result` `context`
+
+### statsPrinter
+
+이 훅은 특정 옵션에서 [`StatsPrinter` 클래스](https://github.com/webpack/webpack/blob/main/lib/stats/StatsPrinter.js)에 대한 액세스를 제공합니다.
+
+- 콜백 파라미터: `statsPrinter` `options`
+
+#### StatsPrinter.hooks.print
+
+`HookMap`
+
+이 훅은 파트를 출력해야 할 때 호출됩니다.
+
+- 콜백 파라미터: `object` `context`
+
+#### StatsPrinter.hooks.result
+
+`HookMap`
+
+이 훅은 파트의 결과 문자열에 대해 호출됩니다.
+
+- 콜백 파라미터: `result` `context`

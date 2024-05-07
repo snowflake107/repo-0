@@ -173,6 +173,22 @@ export default function (source) {
 }
 ```
 
+### Data Sharing
+
+Webpack에서는 로더를 체인화하여 체인의 후속 로더와 데이터를 공유할 수 있습니다. 이를 위해서는 raw 로더에서 `this.callback` 메소드를 사용하여 콘텐츠(소스 코드)와 함께 데이터를 전달할 수 있습니다. Raw 로더의 기본 내보내기 함수에서는 `this.callback`의 네 번째 인수를 사용하여 데이터를 전달할 수 있습니다.
+
+```javascript
+export default function (source) {
+  const options = getOptions(this);
+  // Pass data using the fourth argument of this.callback
+  this.callback(null, `export default ${JSON.stringify(source)}`, null, {
+    some: data,
+  });
+}
+```
+
+위의 예에서 `this.callback`의 네 번째 인수에 있는 `some` 속성은 다음 체인 로더에 데이터를 전달하는 데 사용됩니다.
+
 ### Loader Dependencies
 
 로더가 외부 리소스(예를 들면, 파일 시스템으로부터 읽는 것)를 사용한다면, **반드시** 표기해야 합니다. 이 정보는 캐시 가능한 로더를 무효로 하고 읽기 모드로 다시 컴파일하기 위해 사용됩니다. `addDependency` 메소드를 사용해서 완수하는 방법의 간략한 예시가 있습니다.

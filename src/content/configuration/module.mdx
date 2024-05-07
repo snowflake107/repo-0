@@ -22,6 +22,7 @@ contributors:
   - chenxsan
   - snitin315
   - vabushkevich
+  - ahabhgk
 translators:
   - YukJiSoo
 ---
@@ -74,7 +75,7 @@ module.exports = {
       asset: {
         // asset 모듈 제너레이터 옵션
 
-        // 데이터 URL 제너레이터 옵션
+        // 데이터 URL 제너레이터 옵션입니다.
         dataUrl: {
           // 애셋 인코딩(기본값은 "base64")
           // type: 'base64' | false
@@ -144,6 +145,41 @@ module.exports = {
       'javascript/esm': {
         // 위와 동일
       },
+      css: {
+        // CSS 모듈용 제너레이터 옵션
+
+        // 스타일시트를 생성하고 로드하는 것을 피하고 출력 자바스크립트 파일에 css의 내보내기만 포함합니다.
+        // type: boolean, webpack 5.90.0부터 사용 가능합니다.
+        exportsOnly: true,
+
+        // CSS 내보내기 이름을 그대로 유지하거나 카멜 케이스로 변환하는 등 javascript 모듈로 내보내는 방법을 사용자 정의합니다.
+        // type: 'as-is' | 'camel-case' | 'camel-case-only' | 'dashes' | 'dashes-only' | ((name: string) => string)
+        // webpack 5.90.4부터 사용 가능합니다.
+        exportsConvention: 'camel-case-only',
+      },
+      'css/auto': {
+        // CSS/자동 모듈 생성용 옵션
+
+        // 스타일시트를 생성하고 로드하는 것을 피하고 출력 자바스크립트 파일에 css의 내보내기만 포함합니다.
+        // type: boolean, webpack 5.90.0부터 사용 가능합니다.
+        exportsOnly: true,
+
+        // CSS 내보내기 이름을 그대로 유지하거나 카멜 케이스로 변환하는 등 javascript 모듈로 내보내는 방법을 사용자 정의합니다.
+        // type: 'as-is' | 'camel-case' | 'camel-case-only' | 'dashes' | 'dashes-only' | ((name: string) => string)
+        // webpack 5.90.4부터 사용 가능합니다.
+        exportsConvention: 'camel-case-only',
+
+        // CSS 모듈에 대해 생성된 로컬 클래스 이름의 형식을 사용자 정의합니다.
+        // type: string, https://webpack.js.org/configuration/output/#template-strings의 파일 수준 및 모듈 수준 대체 외에도 [uniqueName] 및 [local]도 포함됩니다.
+        // webpack 5.90.4부터 사용 가능합니다.
+        localIdentName: '[uniqueName]-[id]-[local]',
+      },
+      'css/global': {
+        // ditto
+      },
+      'css/module': {
+        // ditto
+      },
       // 그외 다른 옵션들…
     },
   },
@@ -164,6 +200,32 @@ module.exports = {
     parser: {
       asset: {
         // asset 모듈 파서 옵션
+
+        // 데이터 URL 제너레이터 옵션입니다.
+        dataUrl: {
+          // 애셋 인코딩(기본값은 "base64")
+          // type: 'base64' | false
+          encoding: 'base64',
+          // 애셋 Mimetype (기본적으로 파일 확장자에서 가져옵니다).
+          // type: string
+          mimetype: 'image/png',
+        },
+
+        // 이 애셋 모듈에서 출력 애셋을 내보냅니다. 예를 들어 SSR의 경우 내보내기를 생략하려면 'false'로 설정할 수 있습니다.
+        // type: boolean
+        emit: true,
+
+        // 이 애셋 모듈의 파일 이름을 사용자 정의합니다.
+        // type: string | ((pathData: PathData, assetInfo?: AssetInfo) => string)
+        filename: 'static/[path][name][ext]',
+
+        // asset 모듈을 위한 publicPath 사용자 정의. webpack 5.28.0 이후로 사용 가능.
+        // type: string | ((pathData: PathData, assetInfo?: AssetInfo) => string)
+        publicPath: 'https://cdn/assets/',
+
+        // Webpack 5.67.0부터 사용 가능한 'output.path'를 기준으로 지정된 폴더의 애셋을 내보냅니다.
+        // type: string | ((pathData: PathData, assetInfo?: AssetInfo) => string)
+        outputPath: 'cdn-assets/',
       },
       'asset/inline': {
         // 이 모듈 유형에는 아직 파서 옵션이 지원되지 않습니다.
@@ -186,6 +248,22 @@ module.exports = {
         // 위와 동일
       },
       'javascript/esm': {
+        // 위와 동일
+      },
+      css: {
+        // CSS 모듈의 파서 옵션
+
+        // Webpack 5.90.0부터 사용할 수 있는 CSS 내보내기를 위해 export라는 이름의 ES 모듈을 사용하세요.
+        // type: boolean
+        namedExports: true,
+      },
+      'css/auto': {
+        // 위와 동일
+      },
+      'css/global': {
+        // 위와 동일
+      },
+      'css/module': {
         // 위와 동일
       },
       // 그외 다른 옵션들…
@@ -243,9 +321,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 동적 import를 위해 전역 [fetchPriority](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/fetchPriority)를 지정합니다.
 
-- Type: `'low' | 'high' | 'auto' | false`
-- Available: 5.87.0+
-- Example:
+- 타입: `'low' | 'high' | 'auto' | false`
+- 가능한 버전: 5.87.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -263,9 +341,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 동적 import를 위한 전역 프리로드를 지정합니다.
 
-- Type: `'eager' | 'weak' | 'lazy' | 'lazy-once'`
-- Available: 5.73.0+
-- Example:
+- 타입: `'eager' | 'weak' | 'lazy' | 'lazy-once'`
+- 가능한 버전: 5.73.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -283,9 +361,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 동적 import를 위한 전역 프리로드를 지정합니다.
 
-- Type: ` number | boolean`
-- Available: 5.73.0+
-- Example:
+- 타입: ` number | boolean`
+- 가능한 버전: 5.73.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -303,9 +381,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 동적 import를 위한 전역 프리로드를 지정합니다.
 
-- Type: ` number | boolean`
-- Available: 5.73.0+
-- Example:
+- 타입: ` number | boolean`
+- 가능한 버전: 5.73.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -323,9 +401,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 `\"import ... from ...\"` 와 `\"export ... from ...\"`에서 내보내기 이름이 잘못된 경우의 동작을 지정합니다.
 
-- Type: `'error' | 'warn' | 'auto' | false`
-- Available: 5.62.0+
-- Example:
+- 타입: `'error' | 'warn' | 'auto' | false`
+- 가능한 버전: 5.62.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -343,9 +421,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 `\"import ... from ...\"`에서 내보내기 이름이 잘못된 경우의 동작을 지정합니다.
 
-- Type: `'error' | 'warn' | 'auto' | false`
-- Available: 5.62.0+
-- Example:
+- 타입: `'error' | 'warn' | 'auto' | false`
+- 가능한 버전: 5.62.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -363,9 +441,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 `import.meta` 평가를 활성화 또는 비활성화합니다.
 
-- Type: `boolean = true`
-- Available: 5.68.0+
-- Example:
+- 타입: `boolean = true`
+- 가능한 버전: 5.68.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -383,9 +461,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 [`import.meta.webpackContext`](/api/module-variables/#importmetawebpackcontext) 평가를 사용하거나 사용하지 않도록 설정합니다.
 
-- Type: `boolean`
-- Available: 5.70.0+
-- Example:
+- 타입: `boolean`
+- 가능한 버전: 5.70.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -403,9 +481,9 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 `\"export ... from ...\"`에서 내보내기 이름이 잘못된 경우의 동작을 지정합니다. 이것은 TypeScript에서 타입을 다시 내보낼때 `\"export ... from ...\"`에서 `\"export type ... from ...\"`으로 마이그레이션하는 동안 비활성화하는 데 유용합니다.
 
-- Type: `'error' | 'warn' | 'auto' | false`
-- Available: 5.62.0+
-- Example:
+- 타입: `'error' | 'warn' | 'auto' | false`
+- 가능한 버전: 5.62.0+
+- 예제:
 
   ```js
   module.exports = {
@@ -457,13 +535,18 @@ const x = require(/* webpackIgnore: true */ 'x');
 
 webpack이 주어진 정규식과 일치하는 파일을 파싱하지 못하도록 합니다. 제외된 파일에는 `import`, `require`, `define` 또는 기타 import 메커니즘의 호출이 **없어야 합니다**. 이렇게 하면 큰 라이브러리를 무시할 때 빌드 성능을 향상 시킬 수 있습니다.
 
+'noParse'는 모든 'import', 'require', 'define' 등의 호출이 런타임에서 도달할 수 없는 경우 확장을 의도적으로 방지하는 방법으로도 사용할 수 있습니다.
+예를 들어 '브라우저' [대상](/configuration/target/)용 프로젝트를 빌드하고 브라우저와 Node.js 모두에 대해 사전 빌드된 타사 라이브러리를 사용할 때, 예를 들면 `require('os')`와 같은 Node.js의 내장 기능이 필요합니다.
+
+T> Windows에서는 `\`, Mac/Linux에서는 `/`와 일치시키려면 정규식에서 `[\\/]`를 사용해야 할 수도 있습니다.
+
 **webpack.config.js**
 
 ```javascript
 module.exports = {
   //...
   module: {
-    noParse: /jquery|lodash/,
+    noParse: /jquery|lodash|src[\\/]vendor[\\/]somelib/,
   },
 };
 ```
@@ -472,7 +555,8 @@ module.exports = {
 module.exports = {
   //...
   module: {
-    noParse: (content) => /jquery|lodash/.test(content),
+    noParse: (content) =>
+      /jquery|lodash|src[\\/]vendor[\\/]somelib/.test(content),
   },
 };
 ```
@@ -876,9 +960,9 @@ module.exports = {
 
 [애셋 모듈](/guides/asset-modules/)에서 애셋 쓰기를 하지 않는 경우, 서버 사이드 랜더링에서 사용할 수 있습니다.
 
-- Type: `boolean = true`
-- Available: <Badge text='5.25.0+' />
-- Example:
+- 타입: `boolean = true`
+- 가능한 버전: <Badge text='5.25.0+' />
+- 예제:
 
   ```js
   module.exports = {
@@ -931,8 +1015,8 @@ module.exports = {
 
 특정 애셋 모듈에 대해 `publicPath`를 사용자 지정합니다.
 
-- Type: `string | ((pathData: PathData, assetInfo?: AssetInfo) => string)`
-- Available: <Badge text='5.28.0+' />
+- 타입: `string | ((pathData: PathData, assetInfo?: AssetInfo) => string)`
+- 가능한 버전: <Badge text='5.28.0+' />
 
 ```js
 module.exports = {
@@ -958,8 +1042,8 @@ module.exports = {
 
 'output.path'를 기준으로 지정된 폴더의 애셋을 내보냅니다. 사용자 지정 'publicPath'가 폴더 구조와 일치하도록 지정된 경우에만 필요합니다.
 
-- Type: `string | ((pathData: PathData, assetInfo?: AssetInfo) => string)`
-- Available: <Badge text='5.67.0+' />
+- 타입: `string | ((pathData: PathData, assetInfo?: AssetInfo) => string)`
+- 가능한 버전: <Badge text='5.67.0+' />
 
 ```js
 module.exports = {
@@ -1338,7 +1422,7 @@ module.exports = {
 
 호환성을 위해 `options` 프로퍼티의 별칭인 `query` 속성도 가능합니다. `options` 프로퍼티를 사용하는 것을 권장합니다.
 
-webpack은 옵션을 포함한 모든 로더와 리소스에서 고유한 모듈 식별자를 생성해야합니다. 옵션 객체의 `JSON.stringify`로 이를 시도합니다. 99.9%의 경우에 문제가 없지만 리소스에 다른 옵션이 있는 동일한 로더를 적용하고 옵션에 일부 문자열 값이 있는 경우 고유하지 않을 수 있습니다.
+webpack은 옵션을 포함한 모든 로더와 리소스에서 고유한 모듈 식별자를 생성해야합니다. 옵션 객체의 `JSON.stringify`로 이를 시도합니다. 99.9%의 경우에 문제가 없지만 리소스에 다른 옵션이 있는 동일한 로더를 적용하고 옵션에 동일한 문자열 값이 있는 경우 고유하지 않을 수 있습니다.
 
 순환 JSON 같은 옵션 객체를 문자열화 할 수 없는 경우에도 중단됩니다. 이를 해결하기 위해 고유 식별자로 사용되는 옵션 객체에서 `ident` 속성을 가질 수 있습니다.
 

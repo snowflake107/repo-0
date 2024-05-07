@@ -11,6 +11,7 @@ contributors:
   - smelukov
   - anshumanv
   - snitin315
+  - hai-x
 translators:
   - choilim
 ---
@@ -38,7 +39,7 @@ module.exports = {
 
 ## entry
 
-`string` `[string]` `object = { <key> string | [string] | object = { import string | [string], dependOn string | [string], filename string, layer string }}` `(function() => string | [string] | object = { <key> string | [string] } | object = { import string | [string], dependOn string | [string], filename string })`
+`string` `[string]` `object = { <key> string | [string] | object = { import string | [string], dependOn string | [string], filename string, layer string, runtime string | false }}` `(function() => string | [string] | object = { <key> string | [string] } | object = { import string | [string], dependOn string | [string], filename string, layer string, runtime string | false })`
 
 애플리케이션 번들 처리를 시작할 지점입니다. 배열이 전달되면 배열의 모든 항목이 처리됩니다.
 
@@ -187,3 +188,25 @@ module.exports = {
 ```
 
 [`output.library`](/configuration/output/#outputlibrary) 옵션과 결합하는 경우, 배열이 전달되면 마지막 항목만 내보냅니다.
+
+### Runtime chunk
+
+Webpack 'v5.43.0' 이후 새로운 런타임 청크를 방지하기 위해 엔트리포인트에 대한 런타임 청크를 설정하고 이를 'false'로 설정할 수 있습니다.
+
+`optimization.runtimeChunk`를 사용하면 지정되지 않은 엔트리포인트에 대해 전역적으로 설정할 수 있습니다.
+
+```js
+module.exports = {
+  //...
+  entry: {
+    home: {
+      import: './home.js',
+      runtime: 'home-runtime',
+    },
+    about: {
+      import: './about.js',
+      runtime: false,
+    },
+  },
+};
+```

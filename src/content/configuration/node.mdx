@@ -10,6 +10,7 @@ contributors:
   - EugeneHlushko
   - anikethsaha
   - chenxsan
+  - snitin315
 translators:
   - choilim
 ---
@@ -22,7 +23,7 @@ W> webpack5 부터, `node` 옵션에서 `global`, `__filename` 또는 `__dirname
 
 ## node
 
-`boolean: false` `object`
+`false` `object`
 
 **webpack.config.js**
 
@@ -37,7 +38,7 @@ module.exports = {
 };
 ```
 
-webpack 3.0.0부터, `node` 옵션을 `false`로 설정하여 `NodeStuffPlugin` 플러그인을 완전히 끌 수 있습니다.
+`node` 옵션을 `false`로 설정하여 `NodeStuffPlugin` 플러그인을 완전히 끌 수 있습니다.
 
 ## node.global
 
@@ -55,7 +56,7 @@ T> 전역변수가 필요한 모듈을 사용하는 경우 `global` 대신 `Prov
 
 ## node.\_\_filename
 
-`boolean` `'mock' | 'warn-mock' | 'eval-only'`
+`boolean` `'mock' | 'warn-mock' | 'node-module' | 'eval-only'`
 
 옵션:
 
@@ -63,11 +64,12 @@ T> 전역변수가 필요한 모듈을 사용하는 경우 `global` 대신 `Prov
 - `false`: Webpack은 `__filename` 코드를 건드리지 않습니다. 즉 일반적인 Node.js `__filename` 동작이 있음을 의미합니다. Node.js 환경에서 실행할 때 **출력** 파일 이름입니다.
 - `'mock'`: 고정값 `'/index.js'`.
 - `'warn-mock'`: `'/index.js'`의 고정값을 사용하되 경고를 표시합니다.
+- `node-module`: `output.module`이 활성화되면 CommonJS 모듈의 `__filename`을 `fileURLToPath(import.meta.url)`로 바꿉니다.
 - `'eval-only'`
 
 ## node.\_\_dirname
 
-`boolean` `'mock' | 'warn-mock' | 'eval-only'`
+`boolean` `'mock' | 'warn-mock' | 'node-module' | 'eval-only'`
 
 옵션:
 
@@ -75,4 +77,5 @@ T> 전역변수가 필요한 모듈을 사용하는 경우 `global` 대신 `Prov
 - `false`: Webpack은 `__dirname` 코드를 건드리지 않습니다. 즉 일반적인 Node.js `__dirname` 동작이 있음을 의미합니다. Node.js 환경에서 실행할 때 **출력** 파일 이름입니다.
 - `'mock'`: 고정값 `'/'`.
 - `'warn-mock'`: `'/'`의 고정값을 사용하되 경고를 표시합니다.
+- `node-module`: `output.module`이 활성화된 경우 CommonJS 모듈의 `__dirname`을 `fileURLToPath(import.meta.url + "/..")`로 바꿉니다.
 - `'eval-only'`
