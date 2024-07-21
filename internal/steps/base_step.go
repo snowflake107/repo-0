@@ -5,9 +5,11 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/state"
 )
 
 type BaseStep struct {
+	State state.State
 }
 
 func (s BaseStep) BuildNavigation(previousCallback func(), nextCallback func()) (*fyne.Container, *widget.Button, *widget.Button) {

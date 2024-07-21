@@ -7,7 +7,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
-	"log"
 	"os/exec"
 )
 
@@ -19,9 +18,13 @@ type TestTerraformStep struct {
 func (s TestTerraformStep) GetContainer() *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(WelcomeStep{Wizard: s.Wizard})
+		s.Wizard.ShowWizardStep(WelcomeStep{
+			Wizard:   s.Wizard,
+			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		log.Println("Next")
+		s.Wizard.ShowWizardStep(OctopusDetails{
+			Wizard:   s.Wizard,
+			BaseStep: BaseStep{State: s.State}})
 	})
 	next.Disable()
 
@@ -35,7 +38,7 @@ func (s TestTerraformStep) GetContainer() *fyne.Container {
 		if err := cmd.Run(); err != nil {
 			result.SetText("Terraform does not appear to be installed. You must install Terraform before proceeding.")
 		} else {
-			result.SetText("Terraform is installed. You may proceed.")
+			result.SetText("Terraform is installed. Click the Next button to proceed.")
 			next.Enable()
 		}
 	})
