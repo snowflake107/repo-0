@@ -25,13 +25,22 @@ func (s OctopusDetails) GetContainer() *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
-		s.Wizard.ShowWizardStep(TestTerraformStep{
+		s.Wizard.ShowWizardStep(SpreadVariablesStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	})
-	next.Disable()
 
-	label1 := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export.")
+	validation := func(input string) {
+		if s.server != nil && s.server.Text != "" && s.apiKey != nil && s.apiKey.Text != "" && s.spaceId != nil && s.spaceId.Text != "" {
+			next.Enable()
+		} else {
+			next.Disabled()
+		}
+	}
+
+	validation("")
+
+	introText := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export.")
 	linkUrl, _ := url.Parse("https://octopus.com/docs/octopus-rest-api/how-to-create-an-api-key")
 	link := widget.NewHyperlink("Learn how to create an API key.", linkUrl)
 
@@ -41,7 +50,7 @@ func (s OctopusDetails) GetContainer() *fyne.Container {
 	s.server.SetText(s.State.Server)
 
 	apiKeyLabel := widget.NewLabel("API Key")
-	s.apiKey = widget.NewEntry()
+	s.apiKey = widget.NewPasswordEntry()
 	s.apiKey.SetPlaceHolder("API-xxxxxxxxxxxxxxxxxxxxxxxxxx")
 	s.apiKey.SetText(s.State.ApiKey)
 
@@ -50,21 +59,13 @@ func (s OctopusDetails) GetContainer() *fyne.Container {
 	s.spaceId.SetPlaceHolder("Spaces-#")
 	s.spaceId.SetText(s.State.Space)
 
-	validation := func(input string) {
-		if s.server.Text != "" && s.apiKey.Text != "" && s.spaceId.Text != "" {
-			next.Enable()
-		} else {
-			next.Disabled()
-		}
-	}
-
 	s.server.OnChanged = validation
 	s.apiKey.OnChanged = validation
 	s.spaceId.OnChanged = validation
 
 	formLayout := container.New(layout.NewFormLayout(), serverLabel, s.server, apiKeyLabel, s.apiKey, spaceIdLabel, s.spaceId)
 
-	middle := container.New(layout.NewVBoxLayout(), label1, link, formLayout)
+	middle := container.New(layout.NewVBoxLayout(), introText, link, formLayout)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

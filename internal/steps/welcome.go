@@ -26,7 +26,7 @@ func (s WelcomeStep) GetContainer() *fyne.Container {
 	middle := container.New(layout.NewVBoxLayout(), label1, link)
 
 	bottom, previous, _ := s.BuildNavigation(func() {}, func() {
-		s.Wizard.ShowWizardStep(TestTerraformStep{Wizard: s.Wizard})
+		s.Wizard.ShowWizardStep(TestTerraformStep{Wizard: s.Wizard, BaseStep: BaseStep{State: s.State}})
 	})
 	previous.Disable()
 
