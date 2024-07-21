@@ -7,6 +7,6 @@ import (
 
 func main() {
 	wiz := wizard.NewWizard()
-	wiz.ShowWizardStep(steps.WelcomeStep{})
+	wiz.ShowWizardStep(steps.WelcomeStep{Wizard: *wiz})
 	wiz.Window.ShowAndRun()
 }
