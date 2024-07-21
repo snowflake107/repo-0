@@ -5,19 +5,29 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
 )
 
 type OctopusDetails struct {
 	BaseStep
-	Wizard wizard.Wizard
+	Wizard  wizard.Wizard
+	server  *widget.Entry
+	apiKey  *widget.Entry
+	spaceId *widget.Entry
 }
 
 func (s OctopusDetails) GetContainer() *fyne.Container {
 
-	bottom, _, next := s.BuildNavigation(func() {}, func() {
-		s.Wizard.ShowWizardStep(TestTerraformStep{Wizard: s.Wizard})
+	bottom, _, next := s.BuildNavigation(func() {
+		s.Wizard.ShowWizardStep(TestTerraformStep{
+			Wizard:   s.Wizard,
+			BaseStep: BaseStep{State: s.getState()}})
+	}, func() {
+		s.Wizard.ShowWizardStep(TestTerraformStep{
+			Wizard:   s.Wizard,
+			BaseStep: BaseStep{State: s.getState()}})
 	})
 	next.Disable()
 
@@ -26,34 +36,45 @@ func (s OctopusDetails) GetContainer() *fyne.Container {
 	link := widget.NewHyperlink("Learn how to create an API key.", linkUrl)
 
 	serverLabel := widget.NewLabel("Server URL")
-	server := widget.NewEntry()
-	server.SetPlaceHolder("https://octopus.example.com")
+	s.server = widget.NewEntry()
+	s.server.SetPlaceHolder("https://octopus.example.com")
+	s.server.SetText(s.State.Server)
 
 	apiKeyLabel := widget.NewLabel("API Key")
-	apiKey := widget.NewEntry()
-	apiKey.SetPlaceHolder("API-xxxxxxxxxxxxxxxxxxxxxxxxxx")
+	s.apiKey = widget.NewEntry()
+	s.apiKey.SetPlaceHolder("API-xxxxxxxxxxxxxxxxxxxxxxxxxx")
+	s.apiKey.SetText(s.State.ApiKey)
 
 	spaceIdLabel := widget.NewLabel("Space ID")
-	spaceId := widget.NewEntry()
-	spaceId.SetPlaceHolder("Spaces-#")
+	s.spaceId = widget.NewEntry()
+	s.spaceId.SetPlaceHolder("Spaces-#")
+	s.spaceId.SetText(s.State.Space)
 
 	validation := func(input string) {
-		if server.Text != "" && apiKey.Text != "" && spaceId.Text != "" {
+		if s.server.Text != "" && s.apiKey.Text != "" && s.spaceId.Text != "" {
 			next.Enable()
 		} else {
 			next.Disabled()
 		}
 	}
 
-	server.OnChanged = validation
-	apiKey.OnChanged = validation
-	spaceId.OnChanged = validation
+	s.server.OnChanged = validation
+	s.apiKey.OnChanged = validation
+	s.spaceId.OnChanged = validation
 
-	formLayout := container.New(layout.NewFormLayout(), serverLabel, server, apiKeyLabel, apiKey, spaceIdLabel, spaceId)
+	formLayout := container.New(layout.NewFormLayout(), serverLabel, s.server, apiKeyLabel, s.apiKey, spaceIdLabel, s.spaceId)
 
 	middle := container.New(layout.NewVBoxLayout(), label1, link, formLayout)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
 	return content
+}
+
+func (s OctopusDetails) getState() state.State {
+	return state.State{
+		Server: s.server.Text,
+		ApiKey: s.apiKey.Text,
+		Space:  s.spaceId.Text,
+	}
 }
