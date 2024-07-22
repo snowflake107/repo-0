@@ -31,7 +31,12 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		s.result.SetText("")
 
 		if !validators.ValidateAWS(s.getState()) {
-			s.result.SetText("🔴 Unable to connect to the AWS S3 bucket. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
+			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
+			return
+		}
+
+		if !validators.TestS3Bucket(s.getState()) {
+			s.result.SetText("🔴 Unable to connect to the S3 bucket. Please check that the bucket exists and that the supplied credentials can access it.")
 			return
 		}
 
