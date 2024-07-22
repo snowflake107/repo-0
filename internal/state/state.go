@@ -12,4 +12,5 @@ type State struct {
 	AwsSecretKey      string
 	AwsS3Bucket       string
 	AwsS3BucketRegion string
+	PromptForDelete   bool
 }

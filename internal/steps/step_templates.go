@@ -25,7 +25,7 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(SpaceExportStep{Wizard: s.Wizard, BaseStep: BaseStep{State: s.State}})
+		s.Wizard.ShowWizardStep(PromptRemovalStep{Wizard: s.Wizard, BaseStep: BaseStep{State: s.State}})
 	})
 	next.Disable()
 

@@ -20,7 +20,7 @@ type SpreadVariablesStep struct {
 func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, previous, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(OctopusDetails{
+		s.Wizard.ShowWizardStep(AwsTerraformStateStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {

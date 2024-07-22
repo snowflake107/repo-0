@@ -85,5 +85,6 @@ func (s OctopusDestinationDetails) getState() state.State {
 		AwsS3BucketRegion: s.State.AwsS3BucketRegion,
 		AwsAccessKey:      s.State.AwsAccessKey,
 		AwsSecretKey:      s.State.AwsSecretKey,
+		PromptForDelete:   s.State.PromptForDelete,
 	}
 }

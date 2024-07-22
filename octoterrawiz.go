@@ -49,6 +49,7 @@ func main() {
 			AwsSecretKey:      os.Getenv("AWS_SECRET_ACCESS_KEY"),
 			AwsS3Bucket:       os.Getenv("AWS_DEFAULT_BUCKET"),
 			AwsS3BucketRegion: os.Getenv("AWS_DEFAULT_REGION"),
+			PromptForDelete:   false,
 		}},
 	})
 	wiz.Window.ShowAndRun()

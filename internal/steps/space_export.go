@@ -56,7 +56,7 @@ type SpaceExportStep struct {
 func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, thisPrevious, thisNext := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
+		s.Wizard.ShowWizardStep(PromptRemovalStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
@@ -113,45 +113,54 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete
 		projExists, project, err := s.projectExists(myclient)
 
 		if projExists {
-			dialog.NewConfirm("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			deleteProjectFunc := func(b bool) {
 				if b {
 					if err := s.deleteProject(myclient, project); err != nil {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
-					} else {
+					} else if s.State.PromptForDelete {
 						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
-			}, parent).Show()
+			}
 
-			// We can't go further until the group is deleted
-			return
+			if s.State.PromptForDelete {
+				dialog.NewConfirm("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProjectFunc, parent).Show()
+				// We can't go further until the group is deleted
+				return
+			} else {
+				deleteProjectFunc(true)
+			}
 		}
 
 		pgExists, pggroup, err := s.projectGroupExists(myclient)
 
 		if pgExists {
-			dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			deleteProgGroupFunc := func(b bool) {
 				if b {
 					if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
-					} else {
+					} else if s.State.PromptForDelete {
 						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
-			}, parent).Show()
+			}
 
-			// We can't go further until the group is deleted
-			return
+			if s.State.PromptForDelete {
+				dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProgGroupFunc, parent).Show()
+				// We can't go further until the group is deleted
+				return
+			} else {
+				deleteProgGroupFunc(true)
+			}
 		}
 
 		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
 
 		if lvsExists && !attemptedLvsDelete {
-			dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", func(b bool) {
+			deleteLvsFunc := func(b bool) {
 				if b {
-
 					// got to start by unlinking the project from all the projects
 					var body io.Reader
 					req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
@@ -219,51 +228,70 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete
 						fmt.Print(err.Error())
 					}
 
-					// Tolerate the inability to delete a LVS, because it might have been
-					// captured in a release or runbook snapshot, which becomes very hard
-					// to unwind.
-					s.createNewProject(parent, true, attemptedAccountDelete)
-
+					if s.State.PromptForDelete {
+						// Tolerate the inability to delete a LVS, because it might have been
+						// captured in a release or runbook snapshot, which becomes very hard
+						// to unwind.
+						s.createNewProject(parent, true, attemptedAccountDelete)
+					}
 				}
-			}, parent).Show()
+			}
 
-			// We can't go further until the group is deleted
-			return
+			if s.State.PromptForDelete {
+				dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", deleteLvsFunc, parent).Show()
+				// We can't go further until the group is deleted
+				return
+			} else {
+				deleteLvsFunc(true)
+			}
+
 		}
 
 		feedExists, feed, err := s.feedExists(myclient)
 
 		if feedExists {
-			dialog.NewConfirm("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			delteFeedFunc := func(b bool) {
 				if b {
 					if err := s.deleteFeed(myclient, feed); err != nil {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
-					} else {
+					} else if s.State.PromptForDelete {
 						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
-			}, parent).Show()
+			}
 
-			// We can't go further until the feed is deleted
-			return
+			if s.State.PromptForDelete {
+				dialog.NewConfirm("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", delteFeedFunc, parent).Show()
+				// We can't go further until the feed is deleted
+				return
+			} else {
+				delteFeedFunc(true)
+			}
 		}
 
 		accountExists, account, err := s.accountExists(myclient)
 
 		if accountExists && !attemptedAccountDelete {
-			dialog.NewConfirm("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			deleteAccountFunc := func(b bool) {
 				if b {
 					if err := s.deleteAccount(myclient, account); err != nil {
 						fmt.Println(err.Error())
 					}
 
-					s.createNewProject(parent, attemptedLvsDelete, true)
+					if s.State.PromptForDelete {
+						s.createNewProject(parent, attemptedLvsDelete, true)
+					}
 				}
-			}, parent).Show()
+			}
 
-			// We can't go further until the account is deleted
-			return
+			if s.State.PromptForDelete {
+				dialog.NewConfirm("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc, parent).Show()
+				// We can't go further until the account is deleted
+				return
+			} else {
+				deleteAccountFunc(true)
+			}
 		}
 
 		// Find the step template ID
