@@ -3,6 +3,7 @@ package steps
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -192,7 +193,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			return
 		}
 
-		for _, project := range allProjects {
+		for index, project := range allProjects {
 			// Save and apply the module
 			dir, err := ioutil.TempDir("", "octoterra")
 			if err != nil {
@@ -247,7 +248,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				s.logs.SetText(stdout.String() + stderr.String())
 				return
 			} else {
-				s.result.SetText("Terraform apply succeeded")
+				s.result.SetText("🟢 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
 				s.logs.SetText(stdout.String() + stderr.String())
 			}
 
