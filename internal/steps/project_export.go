@@ -71,6 +71,7 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 }
 
 func (s ProjectExportStep) createNewProject(parent fyne.Window) {
+	s.result.SetText("")
 	s.logs.SetText("")
 	s.next.Disable()
 	s.previous.Disable()
@@ -84,10 +85,13 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 		s.result.SetText(message)
 		s.logs.SetText(err.Error())
 		s.previous.Enable()
+		s.next.Disable()
 		s.infinite.Hide()
 		s.createProject.Enable()
 	}, func(message string) {
 		s.result.SetText(message)
+		s.logs.SetText("")
+		s.next.Enable()
 		s.previous.Enable()
 		s.infinite.Hide()
 		s.createProject.Enable()
