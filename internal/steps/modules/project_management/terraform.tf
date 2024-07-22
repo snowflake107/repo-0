@@ -76,11 +76,25 @@ variable "terraform_state_bucket_region" {
   sensitive   = false
   description = "The S3 bucket region used to save Terraform state"
 }
+variable "octopus_project_name" {
+  type        = string
+  nullable    = false
+  sensitive   = false
+  description = "The project name to apply"
+}
 
 data "octopusdeploy_feeds" "docker_feed" {
   feed_type    = "Docker"
   ids          = null
   partial_name = "Octoterra Docker Feed"
+  skip         = 0
+  take         = 1
+}
+
+data "octopusdeploy_feeds" "built_in_feed" {
+  feed_type    = "BuiltIn"
+  ids          = null
+  partial_name = ""
   skip         = 0
   take         = 1
 }
@@ -148,4 +162,104 @@ resource "octopusdeploy_runbook_process" "runbook" {
     properties   = {}
     target_roles = []
   }
+}
+
+resource "octopusdeploy_runbook" "deploy_project" {
+  project_id         = var.octopus_project_id
+  name               = "__ 2. Deploy Project"
+  description        = "Deploy the serialized Terraform module to a space"
+  multi_tenancy_mode = "Untenanted"
+  connectivity_policy {
+    allow_deployments_to_no_targets = false
+    exclude_unhealthy_targets       = false
+    skip_machine_behavior           = "SkipUnavailableMachines"
+  }
+  retention_policy {
+    quantity_to_keep = 10
+  }
+  environment_scope           = "All"
+  environments                = []
+  default_guided_failure_mode = "EnvironmentDefault"
+  force_package_download      = true
+}
+
+resource "octopusdeploy_runbook_process" "deploy_project" {
+  runbook_id = octopusdeploy_runbook.deploy_project.id
+
+  step {
+    condition           = "Success"
+    name                = "Octopus - Populate Octoterra Space (S3 Backend)"
+    package_requirement = "LetOctopusDecide"
+    start_trigger       = "StartAfterPrevious"
+
+    action {
+      action_type                        = "Octopus.TerraformApply"
+      name                               = "Octopus - Populate Octoterra Space (S3 Backend)"
+      condition                          = "Success"
+      run_on_server                      = true
+      is_disabled                        = false
+      can_be_used_for_project_versioning = true
+      is_required                        = false
+      properties                         = {
+        "OctoterraApply.AWS.S3.BucketName" = var.terraform_state_bucket
+        "OctoterraApply.AWS.S3.BucketRegion" =  var.terraform_state_bucket_region
+        "OctoterraApply.AWS.Account" = "Terraform.AWS.Account"
+        "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
+        "Octopus.Action.Terraform.Workspace" = "#{OctoterraApply.Terraform.Workspace.Name}"
+        "Octopus.Action.AwsAccount.UseInstanceRole" = "False"
+        "Octopus.Action.AwsAccount.Variable" = "OctoterraApply.AWS.Account"
+        "Octopus.Action.Aws.Region" = "#{OctoterraApply.AWS.S3.BucketRegion}"
+        "Octopus.Action.Template.Id" = var.octopus_deploys3_actiontemplateid
+        "Octopus.Action.Terraform.RunAutomaticFileSubstitution" = "False"
+        "Octopus.Action.Terraform.AdditionalInitParams" = "-backend-config=\"bucket=#{OctoterraApply.AWS.S3.BucketName}\" -backend-config=\"region=#{OctoterraApply.AWS.S3.BucketRegion}\" -backend-config=\"key=#{OctoterraApply.AWS.S3.BucketKey}\" #{if OctoterraApply.Terraform.AdditionalInitParams}#{OctoterraApply.Terraform.AdditionalInitParams}#{/if}"
+        "Octopus.Action.Terraform.TemplateDirectory" = "space_population"
+        "Octopus.Action.Package.DownloadOnTentacle" = "False"
+        "Octopus.Action.Terraform.AllowPluginDownloads" = "True"
+        "OctoterraApply.Octopus.ServerUrl" = "#{Octopus.Destination.Server}"
+        "Octopus.Action.RunOnServer" = "true"
+        "Octopus.Action.Terraform.PlanJsonOutput" = "False"
+        "Octopus.Action.Terraform.AzureAccount" = "False"
+        "OctoterraApply.Octopus.ApiKey" = "#{Octopus.Destination.ApiKey}"
+        "Octopus.Action.GoogleCloud.ImpersonateServiceAccount" = "False"
+        "Octopus.Action.Terraform.GoogleCloudAccount" = "False"
+        "Octopus.Action.Terraform.AdditionalActionParams" = "-var=octopus_server=#{OctoterraApply.Octopus.ServerUrl} -var=octopus_apikey=#{OctoterraApply.Octopus.ApiKey} -var=octopus_space_id=#{OctoterraApply.Octopus.SpaceID} #{if OctoterraApply.Terraform.AdditionalApplyParams}#{OctoterraApply.Terraform.AdditionalApplyParams}#{/if}"
+        "Octopus.Action.Terraform.FileSubstitution" = "**/project_variable_sensitive*.tf"
+        "Octopus.Action.Script.ScriptSource" = "Package"
+        "Octopus.Action.Template.Version" = "3"
+        "Octopus.Action.GoogleCloud.UseVMServiceAccount" = "True"
+        "Octopus.Action.Terraform.ManagedAccount" = "AWS"
+        "Octopus.Action.Aws.AssumeRole" = "False"
+        "OctoterraApply.Terraform.Package.Id" = jsonencode({
+          "PackageId" = "${replace(var.octopus_project_name, "[^A-Za-z0-9]", "_")}"
+          "FeedId" = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+        })
+        "OctoterraApply.Terraform.Workspace.Name" = "#{OctoterraApply.Octopus.SpaceID}"
+        "OctoterraApply.Octopus.SpaceID" = "#{Octopus.Destination.SpaceID}"
+        "OctopusUseBundledTooling" = "False"
+      }
+
+      container {
+        feed_id = data.octopusdeploy_feeds.docker_feed.feeds[0].id
+        image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
+      }
+
+      environments          = []
+      excluded_environments = []
+      channels              = []
+      tenant_tags           = []
+
+      primary_package {
+        package_id           = "Acme"
+        acquisition_location = "Server"
+        feed_id              = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+        properties           = { PackageParameterName = "OctoterraApply.Terraform.Package.Id", SelectionMode = "deferred" }
+      }
+
+      features = []
+    }
+
+    properties   = {}
+    target_roles = []
+  }
+
 }

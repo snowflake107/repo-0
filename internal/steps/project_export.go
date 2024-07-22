@@ -200,7 +200,8 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
 				"-var=octopus_destination_server="+s.State.DestinationServer,
 				"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
-				"-var=octopus_destination_space_id="+s.State.DestinationSpace)
+				"-var=octopus_destination_space_id="+s.State.DestinationSpace,
+				"-var=octopus_project_name="+project.Name)
 			applyCmd.Dir = dir
 
 			var stdout, stderr bytes.Buffer
