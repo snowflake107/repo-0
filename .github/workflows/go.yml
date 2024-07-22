@@ -299,7 +299,7 @@ jobs:
       - name: Install Dependencies
         run: go get ./...
         shell: pwsh
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_windows_amd64.exe octoterrawiz.go
         env:
           GOOS: windows
           GOARCH: amd64
@@ -310,7 +310,7 @@ jobs:
         with:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
           files: |
-            octoterrawiza_windows_amd64.exe
+            octoterrawiz_windows_amd64.exe
 
   build-mac:
     runs-on: macos-14
@@ -339,7 +339,7 @@ jobs:
       - name: Install Dependencies
         run: go get ./...
         shell: pwsh
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_macos_arm64 octoterrawiz.go
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_arm64 octoterrawiz.go
         env:
           GOOS: darwin
           GOARCH: arm64
@@ -350,4 +350,4 @@ jobs:
         with:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
           files: |
-            octoterrawiza_macos_arm64
+            octoterrawiz_macos_arm64
