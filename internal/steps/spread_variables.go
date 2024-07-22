@@ -38,7 +38,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 	intro3.Wrapping = fyne.TextWrapWord
 	intro4 := widget.NewLabel(strutil.TrimMultilineWhitespace(`Modifying variables in this way means steps can continue to refer to the original sensitive variable name, so no changes are required to the deployment process. However, removing the scopes from the sensitive variables does have security implications. In particular, all sensitive variables are exposed to all deployments and runbook runs.`))
 	intro4.Wrapping = fyne.TextWrapWord
-	s.confirmChanges = widget.NewCheck("I understand the security risks associated with spreading sensitive variables", func(value bool) {
+	s.confirmChanges = widget.NewCheck("I understand and accept the security risks associated with spreading sensitive variables", func(value bool) {
 		if value {
 			s.spreadVariables.Enable()
 		} else {

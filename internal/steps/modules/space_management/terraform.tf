@@ -207,6 +207,10 @@ resource "octopusdeploy_docker_container_registry" "feed_docker" {
   package_acquisition_location_options = ["ExecutionTarget", "NotAcquired"]
 }
 
+data "octopusdeploy_library_variable_sets" "all_variable_sets" {
+  skip         = 0
+  take         = 10000
+}
 
 resource "octopusdeploy_project" "space_management_project" {
   auto_create_release                  = false
@@ -221,7 +225,8 @@ resource "octopusdeploy_project" "space_management_project" {
   name                                 = "Octoterra Space Management"
   project_group_id                     = octopusdeploy_project_group.octoterra.id
   tenanted_deployment_participation    = "Untenanted"
-  included_library_variable_sets       = [length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? octopusdeploy_library_variable_set.octopus_library_variable_set[0].id : data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets[0].id]
+  included_library_variable_sets       = concat(data.octopusdeploy_library_variable_sets.all_variable_sets.library_variable_sets[*].id, [length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? octopusdeploy_library_variable_set.octopus_library_variable_set[0].id : data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets[0].id])
+
   versioning_strategy {
     template = "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.LastPatch}.#{Octopus.Version.NextRevision}"
   }

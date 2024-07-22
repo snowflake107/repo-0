@@ -249,21 +249,6 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 1
-#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
-#        env:
-#          GOOS: windows
-#          GOARCH: amd64
-#          CGO_ENABLED: 1
-#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_amd64 octoterrawiz.go
-#        env:
-#          GOOS: darwin
-#          GOARCH: amd64
-#          CGO_ENABLED: 1
-#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_arm64 octoterrawiz.go
-#        env:
-#          GOOS: darwin
-#          GOARCH: arm64
-#          CGO_ENABLED: 1
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         continue-on-error: true
