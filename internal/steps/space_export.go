@@ -104,9 +104,11 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete
 		s.result.SetText(title)
 		s.logs.SetText(err.Error())
 		s.infinite.Hide()
+		s.previous.Enable()
 	}, func(message string) {
 		s.result.SetText(message)
 		s.next.Enable()
+		s.previous.Enable()
 		s.infinite.Hide()
 	}, false, false)
 
