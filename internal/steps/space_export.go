@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/feeds"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projectgroups"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
@@ -225,11 +226,46 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			return
 		}
 
+		feedExists, feed, err := s.feedExists(myclient)
+
+		if feedExists {
+			dialog.NewConfirm("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+				if b {
+					if err := s.deleteFeed(myclient, feed); err != nil {
+						s.result.SetText("🔴 Failed to delete the resource")
+						s.logs.SetText(err.Error())
+					} else {
+						s.createNewProject(parent)
+					}
+				}
+			}, parent).Show()
+
+			// We can't go further until the group is deleted
+			return
+		}
+
 		// Find the step template ID
 		serializeSpaceTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Space to Terraform")
 
 		if err != nil {
 			s.result.SetText(message)
+			s.logs.SetText(err.Error())
+			return
+		}
+
+		deploySpaceTemplateS3, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (S3 Backend)")
+
+		if err != nil {
+			s.result.SetText(message)
+			s.logs.SetText(err.Error())
+			return
+		}
+
+		// Find space name
+		spaceName, err := query.GetSpaceName(myclient, s.State)
+
+		if err != nil {
+			s.result.SetText("🔴 Failed to get the space name")
 			s.logs.SetText(err.Error())
 			return
 		}
@@ -265,10 +301,12 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			"apply",
 			"-auto-approve",
 			"-no-color",
-			"-var=octopus_actiontemplateid="+serializeSpaceTemplate,
+			"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
+			"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
 			"-var=octopus_server="+s.State.Server,
 			"-var=octopus_apikey="+s.State.ApiKey,
 			"-var=octopus_space_id="+s.State.Space,
+			"-var=octopus_space_name="+spaceName,
 			"-var=octopus_destination_server="+s.State.DestinationServer,
 			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
 			"-var=octopus_destination_space_id="+s.State.DestinationSpace)
@@ -308,6 +346,14 @@ func (s SpaceExportStep) deleteProject(myclient *client.Client, project *project
 	return nil
 }
 
+func (s SpaceExportStep) deleteFeed(myclient *client.Client, feed feeds.IFeed) error {
+	if err := myclient.Feeds.DeleteByID(feed.GetID()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s SpaceExportStep) projectExists(myclient *client.Client) (bool, *projects.Project, error) {
 	if project, err := projects.GetByName(myclient, myclient.GetSpaceID(), spaceManagementProject); err == nil {
 		return true, project, nil
@@ -338,4 +384,20 @@ func (s SpaceExportStep) deleteLibraryVariableSet(myclient *client.Client, lvs *
 	}
 
 	return nil
+}
+
+func (s SpaceExportStep) feedExists(myclient *client.Client) (bool, feeds.IFeed, error) {
+	if allFeeds, err := feeds.GetAll(myclient, myclient.GetSpaceID()); err == nil {
+		filteredFeeds := lo.Filter(allFeeds, func(feed feeds.IFeed, index int) bool {
+			return feed.GetName() == "Octoterra Docker Feed"
+		})
+
+		if len(filteredFeeds) != 0 {
+			return true, filteredFeeds[0], nil
+		}
+
+		return false, nil, nil
+	} else {
+		return false, nil, err
+	}
 }

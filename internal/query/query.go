@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/spaces"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/samber/lo"
@@ -28,6 +29,16 @@ type StepTemplates struct {
 type StepTemplate struct {
 	Id   string `json:"Id"`
 	Name string `json:"Name"`
+}
+
+func GetSpaceName(myclient *client.Client, state state.State) (string, error) {
+	space, err := spaces.GetByID(myclient, state.Space)
+
+	if err != nil {
+		return "", err
+	}
+
+	return space.Name, nil
 }
 
 func GetStepTemplateId(myclient *client.Client, state state.State, name string) (string, error, string) {
