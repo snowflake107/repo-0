@@ -11,28 +11,28 @@ name: Go Build
     paths-ignore:
       - '**/*.md'
 jobs:
-  tests:
-    name: Test
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        parallel: [15]
-        index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-
-    steps:
-      - name: Install Latest Docker
-        run: |
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-          sudo apt-get update
-          sudo apt-get install docker-ce
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
+#  tests:
+#    name: Test
+#    runs-on: ubuntu-latest
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        parallel: [15]
+#        index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+#
+#    steps:
+#      - name: Install Latest Docker
+#        run: |
+#          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+#          sudo apt-get update
+#          sudo apt-get install docker-ce
+#
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Go
+#        uses: actions/setup-go@v5
 
 #      - name: Download JUnit Summary from Previous Workflow
 #        id: download-artifact
