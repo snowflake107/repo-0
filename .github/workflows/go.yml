@@ -1,0 +1,252 @@
+permissions:
+  id-token: write
+  checks: write
+  contents: write
+  packages: write
+
+name: Go Build
+'on':
+  workflow_dispatch: {}
+  push:
+    paths-ignore:
+      - '**/*.md'
+jobs:
+  tests:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        parallel: [15]
+        index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
+    steps:
+      - name: Install Latest Docker
+        run: |
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+          sudo apt-get update
+          sudo apt-get install docker-ce
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Download JUnit Summary from Previous Workflow
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow_conclusion: success
+          name: junit-test-summary
+          if_no_artifact_found: warn
+          branch: main
+
+      - name: Install Dependencies
+        run: go get ./...
+        shell: bash
+
+      - name: Split integration tests
+        id: test_split
+        uses: hashicorp-forge/go-test-split-action@v1
+        with:
+          index: ${{ matrix.index }}
+          total: ${{ matrix.parallel }}
+          junit-summary: ./junit-test-summary.xml
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Clone the Terraform provider source
+        run: git clone https://github.com/OctopusDeployLabs/terraform-provider-octopusdeploy.git
+        shell: bash
+
+      - name: Build the Terraform provider from source
+        run: go build -o terraform-provider-octopusdeploy
+        working-directory: terraform-provider-octopusdeploy
+
+      - name: Override the location used by Terraform provider
+        run: |-
+          cat <<EOT >> ~/.terraformrc
+          provider_installation {
+              dev_overrides {
+              "octopusdeploylabs/octopusdeploy" = "${{ github.workspace }}/terraform-provider-octopusdeploy"
+            }
+            direct {}
+          }
+          EOT
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Go test
+        shell: bash
+        env:
+          LICENSE: ${{ secrets.LICENSE }}
+          ECR_ACCESS_KEY: ${{ secrets.ECR_ACCESS_KEY }}
+          ECR_SECRET_KEY: ${{ secrets.ECR_SECRET_KEY }}
+          GIT_CREDENTIAL: ${{ secrets.GIT_CREDENTIAL }}
+          OCTOTESTSKIPINIT: false
+          OCTODISABLEOCTOCONTAINERLOGGING: true
+          OCTOTESTDUMPSTATE: true
+          OCTOTESTDEFAULTSPACEID: Spaces-2
+          GOMAXPROCS: 2
+          OCTOTESTRETRYCOUNT: 5
+          # This avoids errors like
+          # Error response from daemon: No such container: d7447146fc04ed2253f9f73644b59ca856c255c603099414e6f50b800719b05b: creating network reaper failed: failed to create network
+          TESTCONTAINERS_RYUK_DISABLED: true
+
+          # Override these values to test a specific container and version.
+          OCTOTESTIMAGEURL: octopusdeploy/linuxoctopus
+          OCTOTESTVERSION: 2024.3.3434
+        run: |
+          sudo apt install gotestsum
+          gotestsum --junitfile node-summary.xml --format short-verbose -- -run "${{ steps.test_split.outputs.run }}" -timeout 0 ./...
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: junit-test-summary-${{ matrix.index }}
+          path: node-summary.xml
+          retention-days: 1
+
+  tests-combine-summaries:
+    name: Combine Test Reports
+    needs: [ tests ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Install junit-report-merger
+        run: npm install -g junit-report-merger
+
+      - name: Merge reports
+        run: >
+          jrm ./junit-test-summary.xml 
+          "junit-test-summary-0/*.xml" 
+          "junit-test-summary-1/*.xml" 
+          "junit-test-summary-2/*.xml" 
+          "junit-test-summary-3/*.xml" 
+          "junit-test-summary-4/*.xml" 
+          "junit-test-summary-5/*.xml" 
+          "junit-test-summary-6/*.xml" 
+          "junit-test-summary-7/*.xml" 
+          "junit-test-summary-8/*.xml" 
+          "junit-test-summary-9/*.xml"
+          "junit-test-summary-10/*.xml"
+          "junit-test-summary-11/*.xml"
+          "junit-test-summary-12/*.xml"
+          "junit-test-summary-13/*.xml"
+          "junit-test-summary-14/*.xml"
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: junit-test-summary
+          path: ./junit-test-summary.xml
+
+      - name: Report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Go Tests
+          path: junit-test-summary.xml
+          reporter: java-junit
+          fail-on-error: 'true'
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [ tests-combine-summaries ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v8
+      - name: Set up Go
+        uses: actions/setup-go@v3
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.15
+        with:
+          versionSpec: 5.x
+      - id: determine_version
+        name: Determine Version
+        uses: gittools/actions/gitversion/execute@v0.9.15
+        with:
+          additionalArguments: /overrideconfig mode=Mainline
+      - name: Install Dependencies
+        run: go get ./...
+        shell: bash
+      - name: List Dependencies
+        run: go list -m all > dependencies.txt
+        shell: bash
+      - name: Collect Dependencies
+        uses: actions/upload-artifact@v3
+        with:
+          name: Dependencies
+          path: dependencies.txt
+#      - name: List Dependency Updates
+#        run: go list -u -m -f "{{if .Update}}{{.}}{{end}}" all > dependencyUpdates.txt
+#        shell: bash
+      - name: Collect Dependency Updates
+        uses: actions/upload-artifact@v3
+        with:
+          name: Dependencies Updates
+          path: dependencyUpdates.txt
+      - name: Generate SBOM
+        uses: CycloneDX/gh-gomod-generate-sbom@v2
+        with:
+          version: v1
+          args: mod -licenses -json -output functions/bom.json
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_linux_amd64 octoterrawiz.go
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        working-directory: functions
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: 0
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_amd64 octoterrawiz.go
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+          CGO_ENABLED: 0
+      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_arm64 octoterrawiz.go
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+          CGO_ENABLED: 0
+      - name: Tag Release
+        uses: mathieudutour/github-tag-action@v6.1
+        continue-on-error: true
+        with:
+          custom_tag: ${{ steps.determine_version.outputs.semVer }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        continue-on-error: true
+        with:
+          tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
+          files: |
+            octoterrawiz_linux_amd64
+            octoterrawiza_windows_amd64.exe
+            octoterrawiz_macos_amd64
+            octoterrawiz_macos_arm64
