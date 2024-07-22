@@ -223,21 +223,21 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 1
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          CGO_ENABLED: 1
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_amd64 octoterrawiz.go
-        env:
-          GOOS: darwin
-          GOARCH: amd64
-          CGO_ENABLED: 1
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_arm64 octoterrawiz.go
-        env:
-          GOOS: darwin
-          GOARCH: arm64
-          CGO_ENABLED: 1
+#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
+#        env:
+#          GOOS: windows
+#          GOARCH: amd64
+#          CGO_ENABLED: 1
+#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_amd64 octoterrawiz.go
+#        env:
+#          GOOS: darwin
+#          GOARCH: amd64
+#          CGO_ENABLED: 1
+#      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_macos_arm64 octoterrawiz.go
+#        env:
+#          GOOS: darwin
+#          GOARCH: arm64
+#          CGO_ENABLED: 1
       - name: Tag Release
         uses: mathieudutour/github-tag-action@v6.1
         continue-on-error: true
@@ -251,6 +251,3 @@ jobs:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
           files: |
             octoterrawiz_linux_amd64
-            octoterrawiza_windows_amd64.exe
-            octoterrawiz_macos_amd64
-            octoterrawiz_macos_arm64
