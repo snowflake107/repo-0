@@ -81,7 +81,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Disable()
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
-	s.createProject = widget.NewButton("Create Project", func() { s.createNewProject(parent) })
+	s.createProject = widget.NewButton("Create Project", func() { s.createNewProject(parent, false, false) })
 	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
@@ -89,7 +89,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	return content
 }
 
-func (s SpaceExportStep) createNewProject(parent fyne.Window) {
+func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete bool, attemptedAccountDelete bool) {
 	s.logs.SetText("")
 	s.next.Disable()
 	s.previous.Disable()
@@ -119,7 +119,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
-						s.createNewProject(parent)
+						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
 			}, parent).Show()
@@ -137,7 +137,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
-						s.createNewProject(parent)
+						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
 			}, parent).Show()
@@ -148,7 +148,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
 
-		if lvsExists {
+		if lvsExists && !attemptedLvsDelete {
 			dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 
@@ -215,11 +215,15 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 					// then we can delete the variable set
 					if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
-						s.result.SetText("🔴 Failed to delete the resource")
-						s.logs.SetText(err.Error())
-					} else {
-						s.createNewProject(parent)
+						// basically a silent fail here
+						fmt.Print(err.Error())
 					}
+
+					// Tolerate the inability to delete a LVS, because it might have been
+					// captured in a release or runbook snapshot, which becomes very hard
+					// to unwind.
+					s.createNewProject(parent, true, attemptedAccountDelete)
+
 				}
 			}, parent).Show()
 
@@ -236,7 +240,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
-						s.createNewProject(parent)
+						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
 					}
 				}
 			}, parent).Show()
@@ -247,15 +251,14 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 		accountExists, account, err := s.accountExists(myclient)
 
-		if accountExists {
+		if accountExists && !attemptedAccountDelete {
 			dialog.NewConfirm("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteAccount(myclient, account); err != nil {
-						s.result.SetText("🔴 Failed to delete the resource")
-						s.logs.SetText(err.Error())
-					} else {
-						s.createNewProject(parent)
+						fmt.Println(err.Error())
 					}
+
+					s.createNewProject(parent, attemptedLvsDelete, true)
 				}
 			}, parent).Show()
 
