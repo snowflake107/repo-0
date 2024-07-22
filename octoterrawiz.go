@@ -39,7 +39,7 @@ func main() {
 			BackendType:       "",
 			Server:            os.Getenv("OCTOPUS_CLI_SERVER"),
 			ApiKey:            os.Getenv("OCTOPUS_CLI_API_KEY"),
-			Space:             "Spaces-282",
+			Space:             "Spaces-2048",
 			DestinationServer: os.Getenv("OCTOPUS_CLI_SERVER"),
 			DestinationApiKey: os.Getenv("OCTOPUS_CLI_API_KEY"),
 			DestinationSpace:  "Spaces-2808",

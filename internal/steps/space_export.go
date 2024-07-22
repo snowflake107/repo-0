@@ -25,6 +25,8 @@ import (
 //go:embed modules/space_management/terraform.tf
 var module string
 
+var spaceManagementProject = "Octoterra Space Management"
+
 type SpaceExportStep struct {
 	BaseStep
 	Wizard        wizard.Wizard
@@ -39,11 +41,11 @@ type SpaceExportStep struct {
 func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, thisPrevious, thisNext := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(WelcomeStep{
+		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(OctopusDetails{
+		s.Wizard.ShowWizardStep(ProjectExportStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
@@ -96,7 +98,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		projExists, project, err := s.projectExists(myclient)
 
 		if projExists {
-			dialog.NewConfirm("Project Group Exists", "The project Octoterra Space Management already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			dialog.NewConfirm("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteProject(myclient, project); err != nil {
 						s.result.SetText("Failed to delete the resource")
@@ -221,7 +223,7 @@ func (s SpaceExportStep) deleteProject(myclient *client.Client, project *project
 }
 
 func (s SpaceExportStep) projectExists(myclient *client.Client) (bool, *projects.Project, error) {
-	if project, err := projects.GetByName(myclient, myclient.GetSpaceID(), "Octoterra Space Management"); err == nil {
+	if project, err := projects.GetByName(myclient, myclient.GetSpaceID(), spaceManagementProject); err == nil {
 		return true, project, nil
 	} else {
 		return false, nil, err
