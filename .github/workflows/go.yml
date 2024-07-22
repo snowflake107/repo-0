@@ -189,6 +189,9 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.9.15
         with:
           additionalArguments: /overrideconfig mode=Mainline
+      - name: Install Fyne Dependencies
+        run: sudo apt-get -y install golang gcc libgl1-mesa-dev xorg-dev
+        shell: bash
       - name: Install Dependencies
         run: go get ./...
         shell: bash
