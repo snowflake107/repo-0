@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -97,291 +98,274 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete
 	s.createProject.Disable()
 	s.result.SetText("🔵 Creating project. This can take a little while.")
 
-	go func() {
-		defer s.previous.Enable()
-		defer s.infinite.Hide()
-		defer s.createProject.Enable()
+	message, err := s.Execute(func(title string, message string, callback func(bool)) {
+		dialog.NewConfirm(title, message, callback, parent).Show()
+	}, func(title string, err error) {
+		s.result.SetText(title)
+		s.logs.SetText(err.Error())
+	}, false, false)
 
-		myclient, err := octoclient.CreateClient(s.State)
+	s.result.SetText(message)
 
-		if err != nil {
-			s.logs.SetText("🔴 Failed to create the client:\n" + err.Error())
-			return
-		}
+	if err != nil {
+		s.logs.SetText(err.Error())
+	}
+}
 
-		// Best effort at deleting existing project and project group
-		projExists, project, err := s.projectExists(myclient)
+func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), attemptedLvsDelete bool, attemptedAccountDelete bool) (string, error) {
+	myclient, err := octoclient.CreateClient(s.State)
 
-		if projExists {
-			deleteProjectFunc := func(b bool) {
-				if b {
-					if err := s.deleteProject(myclient, project); err != nil {
-						s.result.SetText("🔴 Failed to delete the resource")
-						s.logs.SetText(err.Error())
-					} else if s.State.PromptForDelete {
-						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
-					}
+	if err != nil {
+		return "🔴 Failed to create the client", err
+	}
+
+	// Best effort at deleting existing project and project group
+	projExists, project, err := s.projectExists(myclient)
+
+	if projExists {
+		deleteProjectFunc := func(b bool) {
+			if b {
+				if err := s.deleteProject(myclient, project); err != nil {
+					handleError("🔴 Failed to delete the resource", err)
+				} else if s.State.PromptForDelete {
+					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
 				}
 			}
-
-			if s.State.PromptForDelete {
-				dialog.NewConfirm("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProjectFunc, parent).Show()
-				// We can't go further until the group is deleted
-				return
-			} else {
-				deleteProjectFunc(true)
-			}
 		}
 
-		pgExists, pggroup, err := s.projectGroupExists(myclient)
-
-		if pgExists {
-			deleteProgGroupFunc := func(b bool) {
-				if b {
-					if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
-						s.result.SetText("🔴 Failed to delete the resource")
-						s.logs.SetText(err.Error())
-					} else if s.State.PromptForDelete {
-						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
-					}
-				}
-			}
-
-			if s.State.PromptForDelete {
-				dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProgGroupFunc, parent).Show()
-				// We can't go further until the group is deleted
-				return
-			} else {
-				deleteProgGroupFunc(true)
-			}
-		}
-
-		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
-
-		if lvsExists && !attemptedLvsDelete {
-			deleteLvsFunc := func(b bool) {
-				if b {
-					// got to start by unlinking the project from all the projects
-					var body io.Reader
-					req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
-
-					if err != nil {
-						s.result.SetText("🔴 Failed to create the library variable set usage request")
-						s.logs.SetText(err.Error())
-						return
-					}
-
-					response, err := myclient.HttpSession().DoRawRequest(req)
-
-					if err != nil {
-						s.result.SetText("🔴 Failed to get the library variable set usage")
-						s.logs.SetText(err.Error())
-						return
-					}
-
-					responseBody, err := io.ReadAll(response.Body)
-
-					if err != nil {
-						s.result.SetText("🔴 Failed to read the library variable set query body")
-						s.logs.SetText(err.Error())
-						return
-					}
-
-					fmt.Print(string(responseBody))
-
-					usage := LibraryVariableSetUsage{}
-					if err := json.Unmarshal(responseBody, &usage); err != nil {
-						s.result.SetText("🔴 Failed to unmarshal the library variable set usage response")
-						s.logs.SetText(err.Error())
-						return
-					}
-
-					if usage.Projects == nil {
-						usage.Projects = []LibraryVariableSetUsageProjects{}
-					}
-
-					for _, projectReference := range usage.Projects {
-						project, err := projects.GetByID(myclient, myclient.GetSpaceID(), projectReference.ProjectId)
-
-						if err != nil {
-							s.result.SetText("🔴 Failed to get project " + projectReference.ProjectId)
-							s.logs.SetText(err.Error())
-							return
-						}
-
-						project.IncludedLibraryVariableSets = lo.Filter(project.IncludedLibraryVariableSets, func(projectLvs string, index int) bool {
-							return projectLvs != lvs.ID
-						})
-
-						_, err = projects.Update(myclient, project)
-
-						if err != nil {
-							s.result.SetText("🔴 Failed to update project " + projectReference.ProjectId)
-							s.logs.SetText(err.Error())
-							return
-						}
-					}
-
-					// then we can delete the variable set
-					if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
-						// basically a silent fail here
-						fmt.Print(err.Error())
-					}
-
-					if s.State.PromptForDelete {
-						// Tolerate the inability to delete a LVS, because it might have been
-						// captured in a release or runbook snapshot, which becomes very hard
-						// to unwind.
-						s.createNewProject(parent, true, attemptedAccountDelete)
-					}
-				}
-			}
-
-			if s.State.PromptForDelete {
-				dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", deleteLvsFunc, parent).Show()
-				// We can't go further until the group is deleted
-				return
-			} else {
-				deleteLvsFunc(true)
-			}
-
-		}
-
-		feedExists, feed, err := s.feedExists(myclient)
-
-		if feedExists {
-			delteFeedFunc := func(b bool) {
-				if b {
-					if err := s.deleteFeed(myclient, feed); err != nil {
-						s.result.SetText("🔴 Failed to delete the resource")
-						s.logs.SetText(err.Error())
-					} else if s.State.PromptForDelete {
-						s.createNewProject(parent, attemptedLvsDelete, attemptedAccountDelete)
-					}
-				}
-			}
-
-			if s.State.PromptForDelete {
-				dialog.NewConfirm("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", delteFeedFunc, parent).Show()
-				// We can't go further until the feed is deleted
-				return
-			} else {
-				delteFeedFunc(true)
-			}
-		}
-
-		accountExists, account, err := s.accountExists(myclient)
-
-		if accountExists && !attemptedAccountDelete {
-			deleteAccountFunc := func(b bool) {
-				if b {
-					if err := s.deleteAccount(myclient, account); err != nil {
-						fmt.Println(err.Error())
-					}
-
-					if s.State.PromptForDelete {
-						s.createNewProject(parent, attemptedLvsDelete, true)
-					}
-				}
-			}
-
-			if s.State.PromptForDelete {
-				dialog.NewConfirm("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc, parent).Show()
-				// We can't go further until the account is deleted
-				return
-			} else {
-				deleteAccountFunc(true)
-			}
-		}
-
-		// Find the step template ID
-		serializeSpaceTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Space to Terraform")
-
-		if err != nil {
-			s.result.SetText(message)
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		deploySpaceTemplateS3, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (S3 Backend)")
-
-		if err != nil {
-			s.result.SetText(message)
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		// Find space name
-		spaceName, err := query.GetSpaceName(myclient, s.State)
-
-		if err != nil {
-			s.result.SetText("🔴 Failed to get the space name")
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		// Save and apply the module
-		dir, err := ioutil.TempDir("", "octoterra")
-		if err != nil {
-			s.logs.SetText("🔴 An error occurred while creating a temporary directory:\n" + err.Error())
-			return
-		}
-
-		filePath := filepath.Join(dir, "terraform.tf")
-
-		if err := os.WriteFile(filePath, []byte(module), 0644); err != nil {
-			s.logs.SetText("🔴 An error occurred while writing the Terraform file:\n" + err.Error())
-			return
-		}
-
-		initCmd := exec.Command("terraform", "init", "-no-color")
-		initCmd.Dir = dir
-
-		var initStdout, initStderr bytes.Buffer
-		initCmd.Stdout = &initStdout
-		initCmd.Stderr = &initStderr
-
-		if err := initCmd.Run(); err != nil {
-			s.result.SetText("🔴 Terraform init failed.")
-			s.logs.SetText(err.Error() + "\n" + initStdout.String() + initCmd.String())
-			return
-		}
-
-		applyCmd := exec.Command("terraform",
-			"apply",
-			"-auto-approve",
-			"-no-color",
-			"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
-			"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
-			"-var=octopus_server="+s.State.Server,
-			"-var=octopus_apikey="+s.State.ApiKey,
-			"-var=octopus_space_id="+s.State.Space,
-			"-var=octopus_space_name="+spaceName,
-			"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
-			"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
-			"-var=terraform_state_aws_accesskey="+s.State.AwsAccessKey,
-			"-var=terraform_state_aws_secretkey="+s.State.AwsSecretKey,
-			"-var=octopus_destination_server="+s.State.DestinationServer,
-			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
-			"-var=octopus_destination_space_id="+s.State.DestinationSpace)
-		applyCmd.Dir = dir
-
-		var stdout, stderr bytes.Buffer
-		applyCmd.Stdout = &stdout
-		applyCmd.Stderr = &stderr
-
-		if err := applyCmd.Run(); err != nil {
-			s.result.SetText("🔴 Terraform apply failed")
-			s.logs.SetText(stdout.String() + stderr.String())
-			return
+		if s.State.PromptForDelete {
+			prompt("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProjectFunc)
+			// We can't go further until the group is deleted
+			return "", nil
 		} else {
-			s.result.SetText("🟢 Terraform apply succeeded")
-			s.logs.SetText(stdout.String() + stderr.String())
+			deleteProjectFunc(true)
+		}
+	}
+
+	pgExists, pggroup, err := s.projectGroupExists(myclient)
+
+	if pgExists {
+		deleteProgGroupFunc := func(b bool) {
+			if b {
+				if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
+					handleError("🔴 Failed to delete the resource", err)
+				} else if s.State.PromptForDelete {
+					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
+				}
+			}
 		}
 
-		s.next.Enable()
-	}()
+		if s.State.PromptForDelete {
+			prompt("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProgGroupFunc)
+			// We can't go further until the group is deleted
+			return "", nil
+		} else {
+			deleteProgGroupFunc(true)
+		}
+	}
 
+	lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
+
+	if lvsExists && !attemptedLvsDelete {
+		deleteLvsFunc := func(b bool) {
+			if b {
+				// got to start by unlinking the project from all the projects
+				var body io.Reader
+				req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
+
+				if err != nil {
+					handleError("🔴 Failed to create the library variable set usage request", err)
+					return
+				}
+
+				response, err := myclient.HttpSession().DoRawRequest(req)
+
+				if err != nil {
+					handleError("🔴 Failed to get the library variable set usage", err)
+					return
+				}
+
+				responseBody, err := io.ReadAll(response.Body)
+
+				if err != nil {
+					handleError("🔴 Failed to read the library variable set query body", err)
+					return
+				}
+
+				fmt.Print(string(responseBody))
+
+				usage := LibraryVariableSetUsage{}
+				if err := json.Unmarshal(responseBody, &usage); err != nil {
+					handleError("🔴 Failed to unmarshal the library variable set usage response", err)
+					return
+				}
+
+				if usage.Projects == nil {
+					usage.Projects = []LibraryVariableSetUsageProjects{}
+				}
+
+				for _, projectReference := range usage.Projects {
+					project, err := projects.GetByID(myclient, myclient.GetSpaceID(), projectReference.ProjectId)
+
+					if err != nil {
+						handleError("🔴 Failed to get project "+projectReference.ProjectId, err)
+						return
+					}
+
+					project.IncludedLibraryVariableSets = lo.Filter(project.IncludedLibraryVariableSets, func(projectLvs string, index int) bool {
+						return projectLvs != lvs.ID
+					})
+
+					_, err = projects.Update(myclient, project)
+
+					if err != nil {
+						handleError("🔴 Failed to update project "+projectReference.ProjectId, err)
+						return
+					}
+				}
+
+				// then we can delete the variable set
+				if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
+					// basically a silent fail here
+					fmt.Print(err.Error())
+				}
+
+				if s.State.PromptForDelete {
+					// Tolerate the inability to delete a LVS, because it might have been
+					// captured in a release or runbook snapshot, which becomes very hard
+					// to unwind.
+					s.Execute(prompt, handleError, true, attemptedAccountDelete)
+				}
+			}
+		}
+
+		if s.State.PromptForDelete {
+			prompt("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", deleteLvsFunc)
+			// We can't go further until the group is deleted
+			return "", nil
+		} else {
+			deleteLvsFunc(true)
+		}
+
+	}
+
+	feedExists, feed, err := s.feedExists(myclient)
+
+	if feedExists {
+		delteFeedFunc := func(b bool) {
+			if b {
+				if err := s.deleteFeed(myclient, feed); err != nil {
+					handleError("🔴 Failed to delete the resource", err)
+				} else if s.State.PromptForDelete {
+					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
+				}
+			}
+		}
+
+		if s.State.PromptForDelete {
+			prompt("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", delteFeedFunc)
+			// We can't go further until the feed is deleted
+			return "", nil
+		} else {
+			delteFeedFunc(true)
+		}
+	}
+
+	accountExists, account, err := s.accountExists(myclient)
+
+	if accountExists && !attemptedAccountDelete {
+		deleteAccountFunc := func(b bool) {
+			if b {
+				if err := s.deleteAccount(myclient, account); err != nil {
+					fmt.Println(err.Error())
+				}
+
+				if s.State.PromptForDelete {
+					s.Execute(prompt, handleError, attemptedLvsDelete, true)
+				}
+			}
+		}
+
+		if s.State.PromptForDelete {
+			prompt("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc)
+			// We can't go further until the account is deleted
+			return "", nil
+		} else {
+			deleteAccountFunc(true)
+		}
+	}
+
+	// Find the step template ID
+	serializeSpaceTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Space to Terraform")
+
+	if err != nil {
+		return message, err
+	}
+
+	deploySpaceTemplateS3, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (S3 Backend)")
+
+	if err != nil {
+		return message, err
+	}
+
+	// Find space name
+	spaceName, err := query.GetSpaceName(myclient, s.State)
+
+	if err != nil {
+		return message, err
+	}
+
+	// Save and apply the module
+	dir, err := ioutil.TempDir("", "octoterra")
+	if err != nil {
+		return "🔴 An error occurred while creating a temporary directory", err
+	}
+
+	filePath := filepath.Join(dir, "terraform.tf")
+
+	if err := os.WriteFile(filePath, []byte(module), 0644); err != nil {
+		return "🔴 An error occurred while writing the Terraform file", err
+	}
+
+	initCmd := exec.Command("terraform", "init", "-no-color")
+	initCmd.Dir = dir
+
+	var initStdout, initStderr bytes.Buffer
+	initCmd.Stdout = &initStdout
+	initCmd.Stderr = &initStderr
+
+	if err := initCmd.Run(); err != nil {
+		return "🔴 Terraform init failed.", errors.New(err.Error() + "\n" + initStdout.String() + initCmd.String())
+	}
+
+	applyCmd := exec.Command("terraform",
+		"apply",
+		"-auto-approve",
+		"-no-color",
+		"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
+		"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
+		"-var=octopus_server="+s.State.Server,
+		"-var=octopus_apikey="+s.State.ApiKey,
+		"-var=octopus_space_id="+s.State.Space,
+		"-var=octopus_space_name="+spaceName,
+		"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
+		"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
+		"-var=terraform_state_aws_accesskey="+s.State.AwsAccessKey,
+		"-var=terraform_state_aws_secretkey="+s.State.AwsSecretKey,
+		"-var=octopus_destination_server="+s.State.DestinationServer,
+		"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
+		"-var=octopus_destination_space_id="+s.State.DestinationSpace)
+	applyCmd.Dir = dir
+
+	var stdout, stderr bytes.Buffer
+	applyCmd.Stdout = &stdout
+	applyCmd.Stderr = &stderr
+
+	if err := applyCmd.Run(); err != nil {
+		return "🔴 Terraform apply failed", errors.New(stdout.String() + stderr.String())
+	} else {
+		return "🟢 Terraform apply succeeded", nil
+	}
 }
 
 func (s SpaceExportStep) deleteProjectGroup(myclient *client.Client, projectGroup *projectgroups.ProjectGroup) error {

@@ -42,41 +42,10 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	installSteps := widget.NewButton("Install Step Templates", func() {
 		s.logs.Hide()
 		s.result.SetText("🔵 Installing step templates.")
-		myclient, err := octoclient.CreateClient(s.State)
 
+		message, err := s.Execute()
 		if err != nil {
-			s.logs.SetText("🔴 Failed to create the client:\n" + err.Error())
-			return
-		}
-
-		// Octopus - Serialize Space to Terraform
-		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e03c56a4-f660-48f6-9d09-df07e1ac90bd"); err != nil {
 			s.result.SetText(message)
-			s.logs.Show()
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		// Octopus - Serialize Project to Terraform
-		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e9526501-09d5-490f-ac3f-5079735fe041"); err != nil {
-			s.result.SetText(message)
-			s.logs.Show()
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		// Octopus - Populate Octoterra Space (S3 Backend)
-		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/14d51af4-1c3d-4d41-9044-4304111d0cd8"); err != nil {
-			s.result.SetText(message)
-			s.logs.Show()
-			s.logs.SetText(err.Error())
-			return
-		}
-
-		// Octopus - Populate Octoterra Space (Azure Backend)
-		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/c15be981-3138-47c8-a935-ab388b7840be"); err != nil {
-			s.result.SetText(message)
-			s.logs.Show()
 			s.logs.SetText(err.Error())
 			return
 		}
@@ -89,4 +58,34 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
 	return content
+}
+
+func (s StepTemplateStep) Execute() (string, error) {
+	myclient, err := octoclient.CreateClient(s.State)
+
+	if err != nil {
+		return "🔴 Failed to create the client", err
+	}
+
+	// Octopus - Serialize Space to Terraform
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e03c56a4-f660-48f6-9d09-df07e1ac90bd"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Serialize Project to Terraform
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e9526501-09d5-490f-ac3f-5079735fe041"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Populate Octoterra Space (S3 Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/14d51af4-1c3d-4d41-9044-4304111d0cd8"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Populate Octoterra Space (Azure Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/c15be981-3138-47c8-a935-ab388b7840be"); err != nil {
+		return message, err
+	}
+
+	return "🟢 Step templates installed.", nil
 }

@@ -61,7 +61,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 		go func() {
 			defer previous.Enable()
 			defer infinite.Hide()
-			if err := spreadvariables.SpreadAllVariables(s.State); err != nil {
+			if err := s.Execute(); err != nil {
 				result.SetText("🔴 An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
 			} else {
 				result.SetText("🟢 Sensitive variables have been spread.")
@@ -75,4 +75,8 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
 	return content
+}
+
+func (s SpreadVariablesStep) Execute() error {
+	return spreadvariables.SpreadAllVariables(s.State)
 }
