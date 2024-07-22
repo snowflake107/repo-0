@@ -225,6 +225,15 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			return
 		}
 
+		// Find the step template ID
+		serializeSpaceTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Space to Terraform")
+
+		if err != nil {
+			s.result.SetText(message)
+			s.logs.SetText(err.Error())
+			return
+		}
+
 		// Save and apply the module
 		dir, err := ioutil.TempDir("", "octoterra")
 		if err != nil {
@@ -248,7 +257,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 		if err := initCmd.Run(); err != nil {
 			s.result.SetText("🔴 Terraform init failed.")
-			s.logs.SetText(initStdout.String() + initCmd.String())
+			s.logs.SetText(err.Error() + "\n" + initStdout.String() + initCmd.String())
 			return
 		}
 
@@ -256,6 +265,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			"apply",
 			"-auto-approve",
 			"-no-color",
+			"-var=octopus_actiontemplateid="+serializeSpaceTemplate,
 			"-var=octopus_server="+s.State.Server,
 			"-var=octopus_apikey="+s.State.ApiKey,
 			"-var=octopus_space_id="+s.State.Space,

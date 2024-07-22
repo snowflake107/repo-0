@@ -12,13 +12,62 @@ import (
 	"net/http"
 )
 
+type CommunityStepTemplates struct {
+	Items []CommunityStepTemplate `json:"Items"`
+}
+
+type CommunityStepTemplate struct {
+	Id      string `json:"Id"`
+	Website string `json:"Website"`
+}
+
 type StepTemplates struct {
 	Items []StepTemplate `json:"Items"`
 }
 
 type StepTemplate struct {
-	Id      string `json:"Id"`
-	Website string `json:"Website"`
+	Id   string `json:"Id"`
+	Name string `json:"Name"`
+}
+
+func GetStepTemplateId(myclient *client.Client, state state.State, name string) (string, error, string) {
+	var body io.Reader
+	req, err := http.NewRequest("GET", state.Server+"/api/"+state.Space+"/actiontemplates?take=10000", body)
+
+	if err != nil {
+		return "", err, "🔴 Failed to create the step templates request"
+	}
+
+	response, err := myclient.HttpSession().DoRawRequest(req)
+
+	if err != nil {
+		return "", err, "🔴 Failed to get the step templates"
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+
+	if err != nil {
+		return "", err, "🔴 Failed to read the step templates query body"
+	}
+
+	stepTemplates := StepTemplates{}
+	if err := json.Unmarshal(responseBody, &stepTemplates); err != nil {
+		return "", err, "🔴 Failed to unmarshal the step templates response"
+	}
+
+	if stepTemplates.Items == nil {
+		stepTemplates.Items = []StepTemplate{}
+	}
+
+	filteredStepTemplates := lo.Filter(stepTemplates.Items, func(stepTemplate StepTemplate, index int) bool {
+		return stepTemplate.Name == name
+	})
+
+	if len(filteredStepTemplates) == 0 {
+		return "", errors.New("could not find the step template"), "🔴 Failed to find the step template called " + name
+	}
+
+	return filteredStepTemplates[0].Id, nil, ""
 }
 
 func LibraryVariableSetExists(myclient *client.Client) (bool, *variables.LibraryVariableSet, error) {
@@ -59,16 +108,16 @@ func InstallStepTemplate(myclient *client.Client, state state.State, website str
 		return err, "🔴 Failed to read the step templates query body"
 	}
 
-	stepTemplates := StepTemplates{}
+	stepTemplates := CommunityStepTemplates{}
 	if err := json.Unmarshal(responseBody, &stepTemplates); err != nil {
 		return err, "🔴 Failed to unmarshal the step templates response"
 	}
 
 	if stepTemplates.Items == nil {
-		stepTemplates.Items = []StepTemplate{}
+		stepTemplates.Items = []CommunityStepTemplate{}
 	}
 
-	serializeSpaceTemplate := lo.Filter(stepTemplates.Items, func(stepTemplate StepTemplate, index int) bool {
+	serializeSpaceTemplate := lo.Filter(stepTemplates.Items, func(stepTemplate CommunityStepTemplate, index int) bool {
 		return stepTemplate.Website == website
 	})
 
