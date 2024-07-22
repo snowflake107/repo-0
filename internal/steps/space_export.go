@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/accounts"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/feeds"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projectgroups"
@@ -240,7 +241,25 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 				}
 			}, parent).Show()
 
-			// We can't go further until the group is deleted
+			// We can't go further until the feed is deleted
+			return
+		}
+
+		accountExists, account, err := s.accountExists(myclient)
+
+		if accountExists {
+			dialog.NewConfirm("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+				if b {
+					if err := s.deleteAccount(myclient, account); err != nil {
+						s.result.SetText("🔴 Failed to delete the resource")
+						s.logs.SetText(err.Error())
+					} else {
+						s.createNewProject(parent)
+					}
+				}
+			}, parent).Show()
+
+			// We can't go further until the account is deleted
 			return
 		}
 
@@ -309,6 +328,8 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			"-var=octopus_space_name="+spaceName,
 			"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
 			"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
+			"-var=terraform_state_aws_accesskey="+s.State.AwsAccessKey,
+			"-var=terraform_state_aws_secretkey="+s.State.AwsSecretKey,
 			"-var=octopus_destination_server="+s.State.DestinationServer,
 			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
 			"-var=octopus_destination_space_id="+s.State.DestinationSpace)
@@ -356,6 +377,14 @@ func (s SpaceExportStep) deleteFeed(myclient *client.Client, feed feeds.IFeed) e
 	return nil
 }
 
+func (s SpaceExportStep) deleteAccount(myclient *client.Client, account accounts.IAccount) error {
+	if err := myclient.Accounts.DeleteByID(account.GetID()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s SpaceExportStep) projectExists(myclient *client.Client) (bool, *projects.Project, error) {
 	if project, err := projects.GetByName(myclient, myclient.GetSpaceID(), spaceManagementProject); err == nil {
 		return true, project, nil
@@ -396,6 +425,22 @@ func (s SpaceExportStep) feedExists(myclient *client.Client) (bool, feeds.IFeed,
 
 		if len(filteredFeeds) != 0 {
 			return true, filteredFeeds[0], nil
+		}
+
+		return false, nil, nil
+	} else {
+		return false, nil, err
+	}
+}
+
+func (s SpaceExportStep) accountExists(myclient *client.Client) (bool, accounts.IAccount, error) {
+	if allAccounts, err := accounts.GetAll(myclient, myclient.GetSpaceID()); err == nil {
+		filteredAccounts := lo.Filter(allAccounts, func(account accounts.IAccount, index int) bool {
+			return account.GetName() == "Octoterra AWS Account"
+		})
+
+		if len(filteredAccounts) != 0 {
+			return true, filteredAccounts[0], nil
 		}
 
 		return false, nil, nil

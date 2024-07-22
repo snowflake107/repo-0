@@ -78,6 +78,18 @@ variable "terraform_state_bucket_region" {
   sensitive   = false
   description = "The S3 bucket region used to save Terraform state"
 }
+variable "terraform_state_aws_accesskey" {
+  type        = string
+  nullable    = true
+  sensitive   = false
+  description = "The access key used to access the S3 bucket"
+}
+variable "terraform_state_aws_secretkey" {
+  type        = string
+  nullable    = true
+  sensitive   = true
+  description = "The access key used to access the S3 bucket"
+}
 
 data "octopusdeploy_lifecycles" "lifecycle_default_lifecycle" {
   ids          = null
@@ -93,6 +105,18 @@ data "octopusdeploy_feeds" "built_in_feed" {
   skip         = 0
   take         = 1
 }
+
+resource "octopusdeploy_aws_account" "account_aws_account" {
+  name                              = "Octoterra AWS Account"
+  description                       = ""
+  environments                      = null
+  tenant_tags                       = []
+  tenants                           = null
+  tenanted_deployment_participation = "Untenanted"
+  access_key                        = var.terraform_state_aws_accesskey
+  secret_key                        = var.terraform_state_aws_secretkey
+}
+
 
 resource "octopusdeploy_project_group" "octoterra" {
   name        = "Octoterra"
@@ -134,13 +158,13 @@ resource "octopusdeploy_variable" "destination_api_key" {
 }
 
 resource "octopusdeploy_variable" "source_api_key" {
-  name = "Octopus.Source.ApiKey"
-  type = "Sensitive"
+  name = "Terraform.AWS.Account"
+  type = "AmazonWebServicesAccount"
   description = "Octoterra source server API key"
-  is_sensitive = true
+  is_sensitive = false
   is_editable = true
   owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
-  sensitive_value = var.octopus_apikey
+  value = octopusdeploy_aws_account.account_aws_account.id
 }
 
 resource "octopusdeploy_docker_container_registry" "feed_docker" {
@@ -280,6 +304,7 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
       properties                         = {
         "OctoterraApply.AWS.S3.BucketName" = var.terraform_state_bucket
         "OctoterraApply.AWS.S3.BucketRegion" =  var.terraform_state_bucket_region
+        "OctoterraApply.AWS.Account" = "Terraform.AWS.Account"
         "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
         "Octopus.Action.Terraform.Workspace" = "#{OctoterraApply.Terraform.Workspace.Name}"
         "Octopus.Action.AwsAccount.UseInstanceRole" = "False"
