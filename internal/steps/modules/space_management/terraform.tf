@@ -109,6 +109,16 @@ resource "octopusdeploy_variable" "destination_api_key" {
   sensitive_value = var.octopus_destination_apikey
 }
 
+resource "octopusdeploy_variable" "source_api_key" {
+  name = "Octopus.Source.ApiKey"
+  type = "Sensitive"
+  description = "Octoterra source server API key"
+  is_sensitive = true
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  sensitive_value = var.octopus_apikey
+}
+
 resource "octopusdeploy_project" "space_management_project" {
   auto_create_release                  = false
   default_guided_failure_mode          = "EnvironmentDefault"
