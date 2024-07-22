@@ -17,7 +17,7 @@ type SpreadVariablesStep struct {
 	confirmChanges  *widget.Check
 }
 
-func (s SpreadVariablesStep) GetContainer() *fyne.Container {
+func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, previous, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(OctopusDetails{
@@ -50,7 +50,7 @@ func (s SpreadVariablesStep) GetContainer() *fyne.Container {
 	infinite.Start()
 	infinite.Hide()
 	result := widget.NewLabel("")
-	s.spreadVariables = widget.NewButton("Spread Sensitive Variables", func() {
+	s.spreadVariables = widget.NewButton("Spread Sensitive Variables (click the checkbox above to continue)", func() {
 		next.Disable()
 		previous.Disable()
 		infinite.Show()

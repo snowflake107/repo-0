@@ -22,9 +22,9 @@ func NewWizard() *Wizard {
 }
 
 type WizardStep interface {
-	GetContainer() *fyne.Container
+	GetContainer(parent fyne.Window) *fyne.Container
 }
 
 func (w *Wizard) ShowWizardStep(step WizardStep) {
-	w.Window.SetContent(step.GetContainer())
+	w.Window.SetContent(step.GetContainer(w.Window))
 }

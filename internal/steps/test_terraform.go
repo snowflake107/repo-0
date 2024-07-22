@@ -15,7 +15,7 @@ type TestTerraformStep struct {
 	Wizard wizard.Wizard
 }
 
-func (s TestTerraformStep) GetContainer() *fyne.Container {
+func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(WelcomeStep{

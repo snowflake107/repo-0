@@ -15,7 +15,7 @@ type WelcomeStep struct {
 	Wizard wizard.Wizard
 }
 
-func (s WelcomeStep) GetContainer() *fyne.Container {
+func (s WelcomeStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Welcome to the Octoterra Wizard.

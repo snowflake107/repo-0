@@ -18,7 +18,7 @@ type OctopusDetails struct {
 	spaceId *widget.Entry
 }
 
-func (s OctopusDetails) GetContainer() *fyne.Container {
+func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(SpaceExportStep{
