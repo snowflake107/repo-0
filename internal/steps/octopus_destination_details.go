@@ -83,7 +83,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 	formLayout := container.New(layout.NewFormLayout(), serverLabel, s.server, apiKeyLabel, s.apiKey, spaceIdLabel, s.spaceId)
 
-	middle := container.New(layout.NewVBoxLayout(), introText, link, formLayout)
+	middle := container.New(layout.NewVBoxLayout(), introText, link, formLayout, s.result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
