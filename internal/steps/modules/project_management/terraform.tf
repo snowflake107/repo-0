@@ -136,7 +136,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
       can_be_used_for_project_versioning = false
       is_required                        = false
       properties                         = {
-        "SerializeProject.ThisInstance.Server.Url" = "#{Octopus.Web.ServerUri}"
+        "SerializeProject.ThisInstance.Server.Url" = var.octopus_server
         "Octopus.Action.Template.Id" = var.octopus_serialize_actiontemplateid
         "SerializeProject.ThisInstance.Terraform.Backend" = "s3"
         "Octopus.Action.Template.Version" = "8"
