@@ -95,10 +95,6 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 }
 
 func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), handleSuccess func(string)) {
-	defer s.previous.Enable()
-	defer s.infinite.Hide()
-	defer s.createProject.Enable()
-
 	myclient, err := octoclient.CreateClient(s.State)
 
 	if err != nil {
