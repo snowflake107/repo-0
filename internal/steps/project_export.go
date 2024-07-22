@@ -209,7 +209,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 		// Save and apply the module
 		dir, err := ioutil.TempDir("", "octoterra")
 		if err != nil {
-			handleError("An error occurred while creating a temporary directory", err)
+			handleError("🔴 An error occurred while creating a temporary directory", err)
 			return
 		}
 

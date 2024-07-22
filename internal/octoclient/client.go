@@ -8,7 +8,15 @@ import (
 )
 
 func CreateClient(state state.State) (*client.Client, error) {
-	apiURL, err := url.Parse(state.Server)
+	return createClient(state.Server, state.ApiKey, state.Space)
+}
+
+func CreateDestinationClient(state state.State) (*client.Client, error) {
+	return createClient(state.DestinationServer, state.DestinationApiKey, state.DestinationSpace)
+}
+
+func createClient(server string, apikey string, space string) (*client.Client, error) {
+	apiURL, err := url.Parse(server)
 	if err != nil {
 		_ = fmt.Errorf("error parsing URL for Octopus API: %v", err)
 		return nil, err
@@ -17,7 +25,7 @@ func CreateClient(state state.State) (*client.Client, error) {
 	// the first parameter for NewClient can accept a http.Client if you wish to
 	// override the default; also, the spaceID may be an empty string (i.e. "") if
 	// you wish to load the default space
-	octopusClient, err := client.NewClient(nil, apiURL, state.ApiKey, state.Space)
+	octopusClient, err := client.NewClient(nil, apiURL, apikey, space)
 	if err != nil {
 		_ = fmt.Errorf("error creating API client: %v", err)
 		return nil, err

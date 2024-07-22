@@ -5,6 +5,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/spaces"
+	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
@@ -16,6 +18,7 @@ type OctopusDestinationDetails struct {
 	server  *widget.Entry
 	apiKey  *widget.Entry
 	spaceId *widget.Entry
+	result  *widget.Label
 }
 
 func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Container {
@@ -25,17 +28,32 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
+		s.result.SetText("")
+		if myclient, err := octoclient.CreateDestinationClient(s.getState()); err != nil {
+			s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
+			return
+		} else {
+			if _, err := spaces.GetByID(myclient, myclient.GetSpaceID()); err != nil {
+				s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
+				return
+			}
+		}
+
 		s.Wizard.ShowWizardStep(AwsTerraformStateStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	})
 
+	s.result = widget.NewLabel("")
+
 	validation := func(input string) {
+		next.Disabled()
+
 		if s.server != nil && s.server.Text != "" && s.apiKey != nil && s.apiKey.Text != "" && s.spaceId != nil && s.spaceId.Text != "" {
-			next.Enable()
-		} else {
-			next.Disabled()
+			return
 		}
+
+		next.Enable()
 	}
 
 	validation("")
