@@ -299,11 +299,6 @@ jobs:
       - name: Install Dependencies
         run: go get ./...
         shell: bash
-      - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_linux_amd64 octoterrawiz.go
-        env:
-          GOOS: linux
-          GOARCH: amd64
-          CGO_ENABLED: 1
       - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
         env:
           GOOS: windows
