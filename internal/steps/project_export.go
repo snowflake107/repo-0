@@ -248,7 +248,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				s.logs.SetText(stdout.String() + stderr.String())
 				return
 			} else {
-				s.result.SetText("🟢 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
+				s.result.SetText("🔵 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
 				s.logs.SetText(stdout.String() + stderr.String())
 			}
 
