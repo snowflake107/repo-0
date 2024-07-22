@@ -12,6 +12,7 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/runbooks"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
+	"github.com/mcasperson/OctoterraWizard/internal/query"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
@@ -98,8 +99,15 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			return project.Name != spaceManagementProject
 		})
 
+		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
+
 		if err != nil {
-			s.logs.SetText("Failed to get all the projects:\n" + err.Error())
+			s.logs.SetText("Failed to get the library variable set Octoterra:\n" + err.Error())
+			return
+		}
+
+		if !lvsExists {
+			s.logs.SetText("The library variable set Octoterra could not be found")
 			return
 		}
 
@@ -182,6 +190,23 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			} else {
 				s.result.SetText("Terraform apply succeeded")
 				s.logs.SetText(stdout.String() + stderr.String())
+			}
+
+			// link the library variable set
+			project, err := myclient.Projects.GetByID(project.ID)
+
+			if err != nil {
+				s.logs.SetText("Failed to get the project:\n" + err.Error())
+				return
+			}
+
+			project.IncludedLibraryVariableSets = append(project.IncludedLibraryVariableSets, lvs.ID)
+
+			_, err = projects.Update(myclient, project)
+
+			if err != nil {
+				s.logs.SetText("Failed to update the project:\n" + err.Error())
+				return
 			}
 
 		}

@@ -3,6 +3,7 @@ package steps
 import (
 	"bytes"
 	_ "embed"
+	"encoding/json"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -13,10 +14,13 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
+	"github.com/mcasperson/OctoterraWizard/internal/query"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,6 +30,14 @@ import (
 var module string
 
 var spaceManagementProject = "Octoterra Space Management"
+
+type LibraryVariableSetUsage struct {
+	Projects []LibraryVariableSetUsageProjects `json:"Projects"`
+}
+
+type LibraryVariableSetUsageProjects struct {
+	ProjectId string `json:"ProjectId"`
+}
 
 type SpaceExportStep struct {
 	BaseStep
@@ -131,11 +143,72 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			return
 		}
 
-		lvsExists, lvs, err := s.libraryVariableSetExists(myclient)
+		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
 
 		if lvsExists {
-			dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
+
+					// got to start by unlinking the project from all the projects
+					var body io.Reader
+					req, err := http.NewRequest("GET", s.State.Server+"/api/LibraryVariableSets/"+lvs.ID+"/usages", body)
+
+					if err != nil {
+						s.result.SetText("Failed to create the library variable set usage request")
+						s.logs.SetText(err.Error())
+						return
+					}
+
+					response, err := myclient.HttpSession().DoRawRequest(req)
+
+					if err != nil {
+						s.result.SetText("Failed to get the library variable set usage")
+						s.logs.SetText(err.Error())
+						return
+					}
+
+					responseBody, err := io.ReadAll(response.Body)
+
+					if err != nil {
+						s.result.SetText("Failed to read the library variable set query body")
+						s.logs.SetText(err.Error())
+						return
+					}
+
+					usage := LibraryVariableSetUsage{}
+					if err := json.Unmarshal(responseBody, &usage); err != nil {
+						s.result.SetText("Failed to unmarshal the library variable set usage response")
+						s.logs.SetText(err.Error())
+						return
+					}
+
+					if usage.Projects == nil {
+						usage.Projects = []LibraryVariableSetUsageProjects{}
+					}
+
+					for _, projectReference := range usage.Projects {
+						project, err := projects.GetByID(myclient, myclient.GetSpaceID(), projectReference.ProjectId)
+
+						if err != nil {
+							s.result.SetText("Failed to get project " + projectReference.ProjectId)
+							s.logs.SetText(err.Error())
+							return
+						}
+
+						project.IncludedLibraryVariableSets = lo.Filter(project.IncludedLibraryVariableSets, func(projectLvs string, index int) bool {
+							return projectLvs != lvs.ID
+						})
+
+						_, err = projects.Update(myclient, project)
+
+						if err != nil {
+							s.result.SetText("Failed to update project " + projectReference.ProjectId)
+							s.logs.SetText(err.Error())
+							return
+						}
+					}
+
+					// then we can delete the variable set
 					if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
 						s.result.SetText("Failed to delete the resource")
 						s.logs.SetText(err.Error())
@@ -241,22 +314,6 @@ func (s SpaceExportStep) projectGroupExists(myclient *client.Client) (bool, *pro
 		}
 
 		return true, groups[0], nil
-	} else {
-		return false, nil, err
-	}
-}
-
-func (s SpaceExportStep) libraryVariableSetExists(myclient *client.Client) (bool, *variables.LibraryVariableSet, error) {
-	if resource, err := myclient.LibraryVariableSets.GetByPartialName("Octoterra"); err == nil {
-		exatchMatch := lo.Filter(resource, func(item *variables.LibraryVariableSet, index int) bool {
-			return item.Name == "Octoterra"
-		})
-
-		if len(exatchMatch) == 0 {
-			return false, nil, nil
-		}
-
-		return true, exatchMatch[0], nil
 	} else {
 		return false, nil, err
 	}
