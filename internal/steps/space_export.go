@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -151,7 +152,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 					// got to start by unlinking the project from all the projects
 					var body io.Reader
-					req, err := http.NewRequest("GET", s.State.Server+"/api/LibraryVariableSets/"+lvs.ID+"/usages", body)
+					req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
 
 					if err != nil {
 						s.result.SetText("Failed to create the library variable set usage request")
@@ -174,6 +175,8 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						s.logs.SetText(err.Error())
 						return
 					}
+
+					fmt.Print(string(responseBody))
 
 					usage := LibraryVariableSetUsage{}
 					if err := json.Unmarshal(responseBody, &usage); err != nil {
