@@ -43,6 +43,10 @@ func main() {
 			DestinationServer: os.Getenv("OCTOPUS_CLI_SERVER"),
 			DestinationApiKey: os.Getenv("OCTOPUS_CLI_API_KEY"),
 			DestinationSpace:  "Spaces-2808",
+			AwsAccessKey:      os.Getenv("AWS_ACCESS_KEY_ID"),
+			AwsSecretKey:      os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			AwsS3Bucket:       os.Getenv("AWS_DEFAULT_BUCKET"),
+			AwsS3BucketRegion: os.Getenv("AWS_DEFAULT_REGION"),
 		}},
 	})
 	wiz.Window.ShowAndRun()

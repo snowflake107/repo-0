@@ -80,5 +80,9 @@ func (s OctopusDetails) getState() state.State {
 		DestinationServer: s.State.DestinationServer,
 		DestinationApiKey: s.State.DestinationApiKey,
 		DestinationSpace:  s.State.DestinationSpace,
+		AwsS3Bucket:       s.State.AwsS3Bucket,
+		AwsS3BucketRegion: s.State.AwsS3BucketRegion,
+		AwsAccessKey:      s.State.AwsAccessKey,
+		AwsSecretKey:      s.State.AwsSecretKey,
 	}
 }

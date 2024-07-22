@@ -66,6 +66,18 @@ variable "octopus_deploys3_actiontemplateid" {
   sensitive   = false
   description = "The ID of the step template used to deploy a space"
 }
+variable "terraform_state_bucket" {
+  type        = string
+  nullable    = true
+  sensitive   = false
+  description = "The S3 bucket used to save Terraform state"
+}
+variable "terraform_state_bucket_region" {
+  type        = string
+  nullable    = true
+  sensitive   = false
+  description = "The S3 bucket region used to save Terraform state"
+}
 
 data "octopusdeploy_lifecycles" "lifecycle_default_lifecycle" {
   ids          = null
@@ -266,6 +278,9 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
       can_be_used_for_project_versioning = true
       is_required                        = false
       properties                         = {
+        "OctoterraApply.AWS.S3.BucketName" = var.terraform_state_bucket
+        "OctoterraApply.AWS.S3.BucketRegion" =  var.terraform_state_bucket_region
+        "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
         "Octopus.Action.Terraform.Workspace" = "#{OctoterraApply.Terraform.Workspace.Name}"
         "Octopus.Action.AwsAccount.UseInstanceRole" = "False"
         "Octopus.Action.AwsAccount.Variable" = "OctoterraApply.AWS.Account"
@@ -278,7 +293,6 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
         "Octopus.Action.Terraform.AllowPluginDownloads" = "True"
         "OctoterraApply.Octopus.ServerUrl" = "#{Octopus.Destination.Server}"
         "Octopus.Action.RunOnServer" = "true"
-        "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
         "Octopus.Action.Terraform.PlanJsonOutput" = "False"
         "Octopus.Action.Terraform.AzureAccount" = "False"
         "OctoterraApply.Octopus.ApiKey" = "#{Octopus.Destination.ApiKey}"

@@ -307,6 +307,8 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			"-var=octopus_apikey="+s.State.ApiKey,
 			"-var=octopus_space_id="+s.State.Space,
 			"-var=octopus_space_name="+spaceName,
+			"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
+			"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
 			"-var=octopus_destination_server="+s.State.DestinationServer,
 			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
 			"-var=octopus_destination_space_id="+s.State.DestinationSpace)
