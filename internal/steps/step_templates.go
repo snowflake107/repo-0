@@ -57,8 +57,24 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 			return
 		}
 
+		// Octopus - Serialize Project to Terraform
+		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e9526501-09d5-490f-ac3f-5079735fe041"); err != nil {
+			s.result.SetText(message)
+			s.logs.Show()
+			s.logs.SetText(err.Error())
+			return
+		}
+
 		// Octopus - Populate Octoterra Space (S3 Backend)
 		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/14d51af4-1c3d-4d41-9044-4304111d0cd8"); err != nil {
+			s.result.SetText(message)
+			s.logs.Show()
+			s.logs.SetText(err.Error())
+			return
+		}
+
+		// Octopus - Populate Octoterra Space (Azure Backend)
+		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/c15be981-3138-47c8-a935-ab388b7840be"); err != nil {
 			s.result.SetText(message)
 			s.logs.Show()
 			s.logs.SetText(err.Error())
