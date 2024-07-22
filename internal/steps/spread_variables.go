@@ -14,6 +14,7 @@ type SpreadVariablesStep struct {
 	BaseStep
 	Wizard          wizard.Wizard
 	spreadVariables *widget.Button
+	confirmChanges  *widget.Check
 }
 
 func (s SpreadVariablesStep) GetContainer() *fyne.Container {
@@ -37,26 +38,32 @@ func (s SpreadVariablesStep) GetContainer() *fyne.Container {
 	intro3.Wrapping = fyne.TextWrapWord
 	intro4 := widget.NewLabel(strutil.TrimMultilineWhitespace(`Modifying variables in this way means steps can continue to refer to the original sensitive variable name, so no changes are required to the deployment process. However, removing the scopes from the sensitive variables does have security implications. In particular, all sensitive variables are exposed to all deployments and runbook runs.`))
 	intro4.Wrapping = fyne.TextWrapWord
-	confirmChanges := widget.NewCheck("I understand the security risks associated with spreading sensitive variables", func(value bool) {
+	s.confirmChanges = widget.NewCheck("I understand the security risks associated with spreading sensitive variables", func(value bool) {
 		if value {
 			s.spreadVariables.Enable()
 		} else {
 			s.spreadVariables.Disable()
 		}
 	})
+
 	result := widget.NewLabel("")
 	s.spreadVariables = widget.NewButton("Spread Sensitive Variables", func() {
+		s.confirmChanges.Disable()
 		s.spreadVariables.Disable()
+		result.SetText("Spreading sensitive variables. This can take a little while.")
 
-		if err := spreadvariables.SpreadAllVariables(s.State); err != nil {
-			result.SetText("An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
-		} else {
-			result.SetText("Sensitive variables have been spread.")
-			next.Enable()
-		}
+		go func() {
+			if err := spreadvariables.SpreadAllVariables(s.State); err != nil {
+				result.SetText("An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
+			} else {
+				result.SetText("Sensitive variables have been spread.")
+				next.Enable()
+			}
+
+		}()
 	})
 	s.spreadVariables.Disable()
-	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4, confirmChanges, s.spreadVariables, result)
+	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
