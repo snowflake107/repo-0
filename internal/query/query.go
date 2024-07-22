@@ -1,10 +1,25 @@
 package query
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
+	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/samber/lo"
+	"io"
+	"net/http"
 )
+
+type StepTemplates struct {
+	Items []StepTemplate `json:"Items"`
+}
+
+type StepTemplate struct {
+	Id      string `json:"Id"`
+	Website string `json:"Website"`
+}
 
 func LibraryVariableSetExists(myclient *client.Client) (bool, *variables.LibraryVariableSet, error) {
 	if resource, err := myclient.LibraryVariableSets.GetByPartialName("Octoterra"); err == nil {
@@ -20,4 +35,63 @@ func LibraryVariableSetExists(myclient *client.Client) (bool, *variables.Library
 	} else {
 		return false, nil, err
 	}
+}
+
+func InstallStepTemplate(myclient *client.Client, state state.State, website string) (error, string) {
+	var body io.Reader
+	req, err := http.NewRequest("GET", state.Server+"/api/communityactiontemplates?take=10000", body)
+
+	if err != nil {
+		return err, "🔴 Failed to get the community step templates"
+	}
+
+	response, err := myclient.HttpSession().DoRawRequest(req)
+
+	if err != nil {
+		return err, "🔴 Failed to get the step templates"
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+
+	//fmt.Print(string(responseBody))
+
+	if err != nil {
+		return err, "🔴 Failed to read the step templates query body"
+	}
+
+	stepTemplates := StepTemplates{}
+	if err := json.Unmarshal(responseBody, &stepTemplates); err != nil {
+		return err, "🔴 Failed to unmarshal the step templates response"
+	}
+
+	if stepTemplates.Items == nil {
+		stepTemplates.Items = []StepTemplate{}
+	}
+
+	serializeSpaceTemplate := lo.Filter(stepTemplates.Items, func(stepTemplate StepTemplate, index int) bool {
+		return stepTemplate.Website == website
+	})
+
+	if len(serializeSpaceTemplate) == 0 {
+		return errors.New("did not find step template"), "🔴 Failed to find the step template"
+	}
+
+	var installBody io.Reader
+	installReq, err := http.NewRequest("POST", state.Server+"/api/communityactiontemplates/"+serializeSpaceTemplate[0].Id+"/installation/"+state.Space, installBody)
+
+	if err != nil {
+		return err, "🔴 Failed to create the request to install the community step templates"
+	}
+
+	installResp, err := myclient.HttpSession().DoRawRequest(installReq)
+
+	if err != nil {
+		return err, "🔴 Failed to install the community step templates"
+	}
+
+	installResponseBody, err := io.ReadAll(installResp.Body)
+
+	fmt.Print(string(installResponseBody))
+
+	return nil, ""
 }

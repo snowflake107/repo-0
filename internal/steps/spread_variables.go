@@ -24,7 +24,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(SpaceExportStep{
+		s.Wizard.ShowWizardStep(StepTemplateStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
