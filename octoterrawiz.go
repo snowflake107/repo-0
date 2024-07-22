@@ -1,14 +1,38 @@
 package main
 
 import (
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/theme"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/steps"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"image/color"
 	"os"
 )
 
+type myTheme struct{}
+
+func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+	return theme.DefaultTheme().Color(name, variant)
+}
+
+func (m myTheme) Font(style fyne.TextStyle) fyne.Resource {
+	return theme.DefaultTheme().Font(style)
+}
+
+func (m myTheme) Size(name fyne.ThemeSizeName) float32 {
+	return theme.DefaultTheme().Size(name)
+}
+
+func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
+	return theme.DefaultTheme().Icon(name)
+}
+
 func main() {
+
 	wiz := wizard.NewWizard()
+	wiz.App.Settings().SetTheme(&myTheme{})
+
 	wiz.ShowWizardStep(steps.WelcomeStep{
 		Wizard: *wiz,
 		BaseStep: steps.BaseStep{State: state.State{

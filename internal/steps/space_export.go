@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -15,7 +14,6 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
-	"image/color"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -52,13 +50,18 @@ func (s SpaceExportStep) GetContainer() *fyne.Container {
 	infinite := widget.NewProgressBarInfinite()
 	infinite.Start()
 	infinite.Hide()
-	result := canvas.NewText("", color.White)
+	result := widget.NewLabel("")
+	logs := widget.NewEntry()
+	logs.Disable()
+	logs.MultiLine = true
+	logs.SetMinRowsVisible(20)
+
 	s.createProject = widget.NewButton("Create Project", func() {
 		next.Disable()
 		previous.Disable()
 		infinite.Show()
 		s.createProject.Disable()
-		result.Text = "Creating project. This can take a little while."
+		result.SetText("Creating project. This can take a little while.")
 
 		go func() {
 			defer previous.Enable()
@@ -66,7 +69,7 @@ func (s SpaceExportStep) GetContainer() *fyne.Container {
 			myclient, err := octoclient.CreateClient(s.State)
 
 			if err != nil {
-				result.Text = "Failed to create the client:\n" + err.Error()
+				logs.SetText("Failed to create the client:\n" + err.Error())
 				return
 			}
 
@@ -91,22 +94,27 @@ func (s SpaceExportStep) GetContainer() *fyne.Container {
 			// Save and apply the module
 			dir, err := ioutil.TempDir("", "octoterra")
 			if err != nil {
-				result.Text = "An error occurred while creating a temporary directory:\n" + err.Error()
+				logs.SetText("An error occurred while creating a temporary directory:\n" + err.Error())
 				return
 			}
 
 			filePath := filepath.Join(dir, "terraform.tf")
 
 			if err := os.WriteFile(filePath, []byte(module), 0644); err != nil {
-				result.Text = "An error occurred while writing the Terraform file:\n" + err.Error()
+				logs.SetText("An error occurred while writing the Terraform file:\n" + err.Error())
 				return
 			}
 
-			initCmd := exec.Command("terraform", "init")
+			initCmd := exec.Command("terraform", "init", "-no-color")
 			initCmd.Dir = dir
 
+			var initStdout, initStderr bytes.Buffer
+			initCmd.Stdout = &initStdout
+			initCmd.Stderr = &initStderr
+
 			if err := initCmd.Run(); err != nil {
-				result.Text = "terraform init failed."
+				result.SetText("Terraform init failed.")
+				logs.SetText(initStdout.String() + initCmd.String())
 				return
 			}
 
@@ -124,16 +132,18 @@ func (s SpaceExportStep) GetContainer() *fyne.Container {
 			applyCmd.Stderr = &stderr
 
 			if err := applyCmd.Run(); err != nil {
-				result.Text = "terraform apply failed:\n" + stderr.String()
+				result.SetText("Terraform apply failed")
+				logs.SetText(stdout.String() + stderr.String())
 				return
 			} else {
-				result.Text = "terraform apply succeeded"
+				result.SetText("Terraform apply succeeded")
+				logs.SetText(stdout.String() + stderr.String())
 			}
 
 			next.Enable()
 		}()
 	})
-	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, infinite, result)
+	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, infinite, result, logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
