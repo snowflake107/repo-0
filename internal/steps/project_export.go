@@ -43,9 +43,9 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		//s.Wizard.ShowWizardStep(OctopusDetails{
-		//	Wizard:   s.Wizard,
-		//	BaseStep: BaseStep{State: s.State}})
+		s.Wizard.ShowWizardStep(FinishStep{
+			Wizard:   s.Wizard,
+			BaseStep: BaseStep{State: s.State}})
 	})
 	s.next = thisNext
 	s.previous = thisPrevious
@@ -74,7 +74,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 	s.previous.Disable()
 	s.infinite.Show()
 	s.createProject.Disable()
-	s.result.SetText("Creating runbooks. This can take a little while.")
+	s.result.SetText("🔵 Creating runbooks. This can take a little while.")
 
 	go func() {
 		defer s.previous.Enable()
@@ -84,14 +84,14 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 		myclient, err := octoclient.CreateClient(s.State)
 
 		if err != nil {
-			s.logs.SetText("Failed to create the client:\n" + err.Error())
+			s.logs.SetText("🔴 Failed to create the client:\n" + err.Error())
 			return
 		}
 
 		allProjects, err := s.getProjects(myclient)
 
 		if err != nil {
-			s.logs.SetText("Failed to get all the projects:\n" + err.Error())
+			s.logs.SetText("🔴 Failed to get all the projects:\n" + err.Error())
 			return
 		}
 
@@ -102,12 +102,12 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 		lvsExists, lvs, err := query.LibraryVariableSetExists(myclient)
 
 		if err != nil {
-			s.logs.SetText("Failed to get the library variable set Octoterra:\n" + err.Error())
+			s.logs.SetText("🔴 Failed to get the library variable set Octoterra:\n" + err.Error())
 			return
 		}
 
 		if !lvsExists {
-			s.logs.SetText("The library variable set Octoterra could not be found")
+			s.logs.SetText("🔴 The library variable set Octoterra could not be found")
 			return
 		}
 
@@ -120,7 +120,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			projExists, runbook, err := s.runbookExists(myclient, project.ID, "__ 1. Serialize Project")
 
 			if err != nil {
-				s.logs.SetText("Failed to find runbook:\n" + err.Error())
+				s.logs.SetText("🔴 Failed to find runbook:\n" + err.Error())
 				return
 			}
 
@@ -128,7 +128,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				dialog.NewConfirm("Project Group Exists", "The runbook \"__ 1. Serialize Project\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 					if b {
 						if err := s.deleteRunbook(myclient, runbook); err != nil {
-							s.result.SetText("Failed to delete the resource")
+							s.result.SetText("🔴 Failed to delete the resource")
 							s.logs.SetText(err.Error())
 						} else {
 							s.createNewProject(parent)
@@ -152,7 +152,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			filePath := filepath.Join(dir, "terraform.tf")
 
 			if err := os.WriteFile(filePath, []byte(runbookModule), 0644); err != nil {
-				s.logs.SetText("An error occurred while writing the Terraform file:\n" + err.Error())
+				s.logs.SetText("🔴 An error occurred while writing the Terraform file:\n" + err.Error())
 				return
 			}
 
@@ -164,7 +164,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			initCmd.Stderr = &initStderr
 
 			if err := initCmd.Run(); err != nil {
-				s.result.SetText("Terraform init failed.")
+				s.result.SetText("🔴 Terraform init failed.")
 				s.logs.SetText(initStdout.String() + initCmd.String())
 				return
 			}
@@ -184,7 +184,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			applyCmd.Stderr = &stderr
 
 			if err := applyCmd.Run(); err != nil {
-				s.result.SetText("Terraform apply failed")
+				s.result.SetText("🔴 Terraform apply failed")
 				s.logs.SetText(stdout.String() + stderr.String())
 				return
 			} else {
@@ -196,7 +196,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			project, err := myclient.Projects.GetByID(project.ID)
 
 			if err != nil {
-				s.logs.SetText("Failed to get the project:\n" + err.Error())
+				s.logs.SetText("🔴 Failed to get the project:\n" + err.Error())
 				return
 			}
 
@@ -205,11 +205,13 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			_, err = projects.Update(myclient, project)
 
 			if err != nil {
-				s.logs.SetText("Failed to update the project:\n" + err.Error())
+				s.logs.SetText("🔴 Failed to update the project:\n" + err.Error())
 				return
 			}
 
 		}
+
+		s.result.SetText("🟢 Added runbooks to all projects")
 		s.next.Enable()
 	}()
 }

@@ -33,12 +33,12 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 		Click the "Test" button to check if Terraform is installed.
 	`))
 	result := widget.NewLabel("")
-	testTerraform := widget.NewButton("Test", func() {
+	testTerraform := widget.NewButton("Test Terraform is Installed", func() {
 		cmd := exec.Command("terraform", "-version")
 		if err := cmd.Run(); err != nil {
-			result.SetText("Terraform does not appear to be installed. You must install Terraform before proceeding.")
+			result.SetText("🔴 Terraform does not appear to be installed. You must install Terraform before proceeding.")
 		} else {
-			result.SetText("Terraform is installed. Click the Next button to proceed.")
+			result.SetText("🟢 Terraform is installed. Click the Next button to proceed.")
 			next.Enable()
 		}
 	})

@@ -56,15 +56,15 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 		infinite.Show()
 		s.confirmChanges.Disable()
 		s.spreadVariables.Disable()
-		result.SetText("Spreading sensitive variables. This can take a little while.")
+		result.SetText("🔵 Spreading sensitive variables. This can take a little while.")
 
 		go func() {
 			defer previous.Enable()
 			defer infinite.Hide()
 			if err := spreadvariables.SpreadAllVariables(s.State); err != nil {
-				result.SetText("An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
+				result.SetText("🔴 An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
 			} else {
-				result.SetText("Sensitive variables have been spread.")
+				result.SetText("🟢 Sensitive variables have been spread.")
 				next.Enable()
 			}
 		}()

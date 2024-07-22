@@ -93,7 +93,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 	s.previous.Disable()
 	s.infinite.Show()
 	s.createProject.Disable()
-	s.result.SetText("Creating project. This can take a little while.")
+	s.result.SetText("🔵 Creating project. This can take a little while.")
 
 	go func() {
 		defer s.previous.Enable()
@@ -103,7 +103,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		myclient, err := octoclient.CreateClient(s.State)
 
 		if err != nil {
-			s.logs.SetText("Failed to create the client:\n" + err.Error())
+			s.logs.SetText("🔴 Failed to create the client:\n" + err.Error())
 			return
 		}
 
@@ -114,7 +114,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			dialog.NewConfirm("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteProject(myclient, project); err != nil {
-						s.result.SetText("Failed to delete the resource")
+						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
 						s.createNewProject(parent)
@@ -132,7 +132,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
-						s.result.SetText("Failed to delete the resource")
+						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
 						s.createNewProject(parent)
@@ -155,7 +155,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 					req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
 
 					if err != nil {
-						s.result.SetText("Failed to create the library variable set usage request")
+						s.result.SetText("🔴 Failed to create the library variable set usage request")
 						s.logs.SetText(err.Error())
 						return
 					}
@@ -163,7 +163,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 					response, err := myclient.HttpSession().DoRawRequest(req)
 
 					if err != nil {
-						s.result.SetText("Failed to get the library variable set usage")
+						s.result.SetText("🔴 Failed to get the library variable set usage")
 						s.logs.SetText(err.Error())
 						return
 					}
@@ -171,7 +171,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 					responseBody, err := io.ReadAll(response.Body)
 
 					if err != nil {
-						s.result.SetText("Failed to read the library variable set query body")
+						s.result.SetText("🔴 Failed to read the library variable set query body")
 						s.logs.SetText(err.Error())
 						return
 					}
@@ -180,7 +180,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 					usage := LibraryVariableSetUsage{}
 					if err := json.Unmarshal(responseBody, &usage); err != nil {
-						s.result.SetText("Failed to unmarshal the library variable set usage response")
+						s.result.SetText("🔴 Failed to unmarshal the library variable set usage response")
 						s.logs.SetText(err.Error())
 						return
 					}
@@ -193,7 +193,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						project, err := projects.GetByID(myclient, myclient.GetSpaceID(), projectReference.ProjectId)
 
 						if err != nil {
-							s.result.SetText("Failed to get project " + projectReference.ProjectId)
+							s.result.SetText("🔴 Failed to get project " + projectReference.ProjectId)
 							s.logs.SetText(err.Error())
 							return
 						}
@@ -205,7 +205,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 						_, err = projects.Update(myclient, project)
 
 						if err != nil {
-							s.result.SetText("Failed to update project " + projectReference.ProjectId)
+							s.result.SetText("🔴 Failed to update project " + projectReference.ProjectId)
 							s.logs.SetText(err.Error())
 							return
 						}
@@ -213,7 +213,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 
 					// then we can delete the variable set
 					if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
-						s.result.SetText("Failed to delete the resource")
+						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
 						s.createNewProject(parent)
@@ -228,14 +228,14 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		// Save and apply the module
 		dir, err := ioutil.TempDir("", "octoterra")
 		if err != nil {
-			s.logs.SetText("An error occurred while creating a temporary directory:\n" + err.Error())
+			s.logs.SetText("🔴 An error occurred while creating a temporary directory:\n" + err.Error())
 			return
 		}
 
 		filePath := filepath.Join(dir, "terraform.tf")
 
 		if err := os.WriteFile(filePath, []byte(module), 0644); err != nil {
-			s.logs.SetText("An error occurred while writing the Terraform file:\n" + err.Error())
+			s.logs.SetText("🔴 An error occurred while writing the Terraform file:\n" + err.Error())
 			return
 		}
 
@@ -247,7 +247,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		initCmd.Stderr = &initStderr
 
 		if err := initCmd.Run(); err != nil {
-			s.result.SetText("Terraform init failed.")
+			s.result.SetText("🔴 Terraform init failed.")
 			s.logs.SetText(initStdout.String() + initCmd.String())
 			return
 		}
@@ -269,11 +269,11 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		applyCmd.Stderr = &stderr
 
 		if err := applyCmd.Run(); err != nil {
-			s.result.SetText("Terraform apply failed")
+			s.result.SetText("🔴 Terraform apply failed")
 			s.logs.SetText(stdout.String() + stderr.String())
 			return
 		} else {
-			s.result.SetText("Terraform apply succeeded")
+			s.result.SetText("🟢 Terraform apply succeeded")
 			s.logs.SetText(stdout.String() + stderr.String())
 		}
 
