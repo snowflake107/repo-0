@@ -30,6 +30,24 @@ variable "octopus_space_id" {
   sensitive   = false
   description = "The space ID to populate"
 }
+variable "octopus_destination_server" {
+  type        = string
+  nullable    = false
+  sensitive   = false
+  description = "The URL of the Octopus server e.g. https://myinstance.octopus.app."
+}
+variable "octopus_destination_apikey" {
+  type        = string
+  nullable    = false
+  sensitive   = true
+  description = "The API key used to access the Octopus server. See https://octopus.com/docs/octopus-rest-api/how-to-create-an-api-key for details on creating an API key."
+}
+variable "octopus_destination_space_id" {
+  type        = string
+  nullable    = false
+  sensitive   = false
+  description = "The space ID to populate"
+}
 
 
 data "octopusdeploy_lifecycles" "lifecycle_default_lifecycle" {
@@ -51,6 +69,40 @@ resource "octopusdeploy_project_group" "octoterra" {
   name        = "Octoterra"
 }
 
+resource "octopusdeploy_library_variable_set" "octopus_library_variable_set" {
+  name = "Octoterra"
+  description = "Common variables used by Octoterra to deploy Octopus resources"
+}
+
+resource "octopusdeploy_variable" "destination_server" {
+  name = "Octopus.Destination.Server"
+  type = "String"
+  description = "Octoterra destination server"
+  is_sensitive = false
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  value = var.octopus_destination_server
+}
+
+resource "octopusdeploy_variable" "destination_spaceid" {
+  name = "Octopus.Destination.SpaceID"
+  type = "String"
+  description = "Octoterra destination server space ID"
+  is_sensitive = false
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  value = var.octopus_destination_space_id
+}
+
+resource "octopusdeploy_variable" "destination_api_key" {
+  name = "Octopus.Destination.ApiKey"
+  type = "Sensitive"
+  description = "Octoterra destination server API key"
+  is_sensitive = true
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  sensitive_value = var.octopus_destination_apikey
+}
 
 resource "octopusdeploy_project" "deploy_frontend_project" {
   auto_create_release                  = false
@@ -65,7 +117,7 @@ resource "octopusdeploy_project" "deploy_frontend_project" {
   name                                 = "Octoterra Space Management"
   project_group_id                     = octopusdeploy_project_group.octoterra.id
   tenanted_deployment_participation    = "Untenanted"
-  included_library_variable_sets       = []
+  included_library_variable_sets       = [octopusdeploy_library_variable_set.octopus_library_variable_set.id]
   versioning_strategy {
     template = "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.LastPatch}.#{Octopus.Version.NextRevision}"
   }

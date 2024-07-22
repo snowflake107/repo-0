@@ -36,10 +36,13 @@ func main() {
 	wiz.ShowWizardStep(steps.WelcomeStep{
 		Wizard: *wiz,
 		BaseStep: steps.BaseStep{State: state.State{
-			BackendType: "",
-			Server:      os.Getenv("OCTOPUS_CLI_SERVER"),
-			ApiKey:      os.Getenv("OCTOPUS_CLI_API_KEY"),
-			Space:       "Spaces-1",
+			BackendType:       "",
+			Server:            os.Getenv("OCTOPUS_CLI_SERVER"),
+			ApiKey:            os.Getenv("OCTOPUS_CLI_API_KEY"),
+			Space:             "Spaces-282",
+			DestinationServer: os.Getenv("OCTOPUS_CLI_SERVER"),
+			DestinationApiKey: os.Getenv("OCTOPUS_CLI_API_KEY"),
+			DestinationSpace:  "Spaces-2808",
 		}},
 	})
 	wiz.Window.ShowAndRun()

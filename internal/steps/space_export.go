@@ -11,6 +11,7 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projectgroups"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
@@ -72,7 +73,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 }
 
 func (s SpaceExportStep) createNewProject(parent fyne.Window) {
-
+	s.logs.SetText("")
 	s.next.Disable()
 	s.previous.Disable()
 	s.infinite.Show()
@@ -95,10 +96,10 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		projExists, project, err := s.projectExists(myclient)
 
 		if projExists {
-			dialog.NewConfirm("Project Group Exists", "The project Octoterra Space Management already exists. Do you want to delete it? It is usually safe to delete this project.", func(b bool) {
+			dialog.NewConfirm("Project Group Exists", "The project Octoterra Space Management already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteProject(myclient, project); err != nil {
-						s.result.SetText("Failed to delete the project")
+						s.result.SetText("Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
 						s.createNewProject(parent)
@@ -113,10 +114,28 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		pgExists, pggroup, err := s.projectGroupExists(myclient)
 
 		if pgExists {
-			dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete the project group.", func(b bool) {
+			dialog.NewConfirm("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 				if b {
 					if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
-						s.result.SetText("Failed to delete the project group")
+						s.result.SetText("Failed to delete the resource")
+						s.logs.SetText(err.Error())
+					} else {
+						s.createNewProject(parent)
+					}
+				}
+			}, parent).Show()
+
+			// We can't go further until the group is deleted
+			return
+		}
+
+		lvsExists, lvs, err := s.libraryVariableSetExists(myclient)
+
+		if lvsExists {
+			dialog.NewConfirm("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+				if b {
+					if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
+						s.result.SetText("Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else {
 						s.createNewProject(parent)
@@ -161,7 +180,10 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 			"-no-color",
 			"-var=octopus_server="+s.State.Server,
 			"-var=octopus_apikey="+s.State.ApiKey,
-			"-var=octopus_space_id="+s.State.Space)
+			"-var=octopus_space_id="+s.State.Space,
+			"-var=octopus_destination_server="+s.State.DestinationServer,
+			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
+			"-var=octopus_destination_space_id="+s.State.DestinationSpace)
 		applyCmd.Dir = dir
 
 		var stdout, stderr bytes.Buffer
@@ -220,4 +242,28 @@ func (s SpaceExportStep) projectGroupExists(myclient *client.Client) (bool, *pro
 	} else {
 		return false, nil, err
 	}
+}
+
+func (s SpaceExportStep) libraryVariableSetExists(myclient *client.Client) (bool, *variables.LibraryVariableSet, error) {
+	if resource, err := myclient.LibraryVariableSets.GetByPartialName("Octoterra"); err == nil {
+		exatchMatch := lo.Filter(resource, func(item *variables.LibraryVariableSet, index int) bool {
+			return item.Name == "Octoterra"
+		})
+
+		if len(exatchMatch) == 0 {
+			return false, nil, nil
+		}
+
+		return true, exatchMatch[0], nil
+	} else {
+		return false, nil, err
+	}
+}
+
+func (s SpaceExportStep) deleteLibraryVariableSet(myclient *client.Client, lvs *variables.LibraryVariableSet) error {
+	if err := myclient.LibraryVariableSets.DeleteByID(lvs.ID); err != nil {
+		return err
+	}
+
+	return nil
 }

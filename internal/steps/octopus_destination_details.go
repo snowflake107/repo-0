@@ -10,7 +10,7 @@ import (
 	"net/url"
 )
 
-type OctopusDetails struct {
+type OctopusDestinationDetails struct {
 	BaseStep
 	Wizard  wizard.Wizard
 	server  *widget.Entry
@@ -18,14 +18,14 @@ type OctopusDetails struct {
 	spaceId *widget.Entry
 }
 
-func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
+func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(SpaceExportStep{
+		s.Wizard.ShowWizardStep(OctopusDetails{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
-		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
+		s.Wizard.ShowWizardStep(SpreadVariablesStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	})
@@ -40,24 +40,24 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 	validation("")
 
-	introText := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export from (i.e. the source server).")
+	introText := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export to (i.e. the destination server).")
 	linkUrl, _ := url.Parse("https://octopus.com/docs/octopus-rest-api/how-to-create-an-api-key")
 	link := widget.NewHyperlink("Learn how to create an API key.", linkUrl)
 
-	serverLabel := widget.NewLabel("Source Server URL")
+	serverLabel := widget.NewLabel("Destination Server URL")
 	s.server = widget.NewEntry()
 	s.server.SetPlaceHolder("https://octopus.example.com")
-	s.server.SetText(s.State.Server)
+	s.server.SetText(s.State.DestinationServer)
 
-	apiKeyLabel := widget.NewLabel("Source API Key")
+	apiKeyLabel := widget.NewLabel("Destination API Key")
 	s.apiKey = widget.NewPasswordEntry()
 	s.apiKey.SetPlaceHolder("API-xxxxxxxxxxxxxxxxxxxxxxxxxx")
-	s.apiKey.SetText(s.State.ApiKey)
+	s.apiKey.SetText(s.State.DestinationApiKey)
 
-	spaceIdLabel := widget.NewLabel("Source Space ID")
+	spaceIdLabel := widget.NewLabel("Destination Space ID")
 	s.spaceId = widget.NewEntry()
 	s.spaceId.SetPlaceHolder("Spaces-#")
-	s.spaceId.SetText(s.State.Space)
+	s.spaceId.SetText(s.State.DestinationSpace)
 
 	s.server.OnChanged = validation
 	s.apiKey.OnChanged = validation
@@ -72,13 +72,13 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 	return content
 }
 
-func (s OctopusDetails) getState() state.State {
+func (s OctopusDestinationDetails) getState() state.State {
 	return state.State{
-		Server:            s.server.Text,
-		ApiKey:            s.apiKey.Text,
-		Space:             s.spaceId.Text,
-		DestinationServer: s.State.DestinationServer,
-		DestinationApiKey: s.State.DestinationApiKey,
-		DestinationSpace:  s.State.DestinationSpace,
+		Server:            s.State.Server,
+		ApiKey:            s.State.ApiKey,
+		Space:             s.State.Space,
+		DestinationServer: s.server.Text,
+		DestinationApiKey: s.apiKey.Text,
+		DestinationSpace:  s.spaceId.Text,
 	}
 }
