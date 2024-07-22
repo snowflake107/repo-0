@@ -158,6 +158,16 @@ resource "octopusdeploy_variable" "destination_api_key" {
 }
 
 resource "octopusdeploy_variable" "source_api_key" {
+  name = "Octopus.Source.ApiKey"
+  type = "Sensitive"
+  description = "Octoterra source server API key"
+  is_sensitive = true
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  sensitive_value = var.octopus_apikey
+}
+
+resource "octopusdeploy_variable" "aws_account" {
   name = "Terraform.AWS.Account"
   type = "AmazonWebServicesAccount"
   description = "Octoterra source server API key"
