@@ -98,25 +98,26 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete
 	s.createProject.Disable()
 	s.result.SetText("🔵 Creating project. This can take a little while.")
 
-	message, err := s.Execute(func(title string, message string, callback func(bool)) {
+	s.Execute(func(title string, message string, callback func(bool)) {
 		dialog.NewConfirm(title, message, callback, parent).Show()
 	}, func(title string, err error) {
 		s.result.SetText(title)
 		s.logs.SetText(err.Error())
+		s.infinite.Hide()
+	}, func(message string) {
+		s.result.SetText(message)
+		s.next.Enable()
+		s.infinite.Hide()
 	}, false, false)
 
-	s.result.SetText(message)
-
-	if err != nil {
-		s.logs.SetText(err.Error())
-	}
 }
 
-func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), attemptedLvsDelete bool, attemptedAccountDelete bool) (string, error) {
+func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), handleSuccess func(string), attemptedLvsDelete bool, attemptedAccountDelete bool) {
 	myclient, err := octoclient.CreateClient(s.State)
 
 	if err != nil {
-		return "🔴 Failed to create the client", err
+		handleError("🔴 Failed to create the client", err)
+		return
 	}
 
 	// Best effort at deleting existing project and project group
@@ -128,7 +129,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 				if err := s.deleteProject(myclient, project); err != nil {
 					handleError("🔴 Failed to delete the resource", err)
 				} else if s.State.PromptForDelete {
-					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
+					s.Execute(prompt, handleError, handleSuccess, attemptedLvsDelete, attemptedAccountDelete)
 				}
 			}
 		}
@@ -136,7 +137,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		if s.State.PromptForDelete {
 			prompt("Project Group Exists", "The project "+spaceManagementProject+" already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProjectFunc)
 			// We can't go further until the group is deleted
-			return "", nil
+			return
 		} else {
 			deleteProjectFunc(true)
 		}
@@ -150,7 +151,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 				if err := s.deleteProjectGroup(myclient, pggroup); err != nil {
 					handleError("🔴 Failed to delete the resource", err)
 				} else if s.State.PromptForDelete {
-					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
+					s.Execute(prompt, handleError, handleSuccess, attemptedLvsDelete, attemptedAccountDelete)
 				}
 			}
 		}
@@ -158,7 +159,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		if s.State.PromptForDelete {
 			prompt("Project Group Exists", "The project group Octoterra already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteProgGroupFunc)
 			// We can't go further until the group is deleted
-			return "", nil
+			return
 		} else {
 			deleteProgGroupFunc(true)
 		}
@@ -234,7 +235,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 					// Tolerate the inability to delete a LVS, because it might have been
 					// captured in a release or runbook snapshot, which becomes very hard
 					// to unwind.
-					s.Execute(prompt, handleError, true, attemptedAccountDelete)
+					s.Execute(prompt, handleError, handleSuccess, true, attemptedAccountDelete)
 				}
 			}
 		}
@@ -242,7 +243,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		if s.State.PromptForDelete {
 			prompt("Library Variable Set Exists", "The library variable set Octoterra already exists. Do you want to unlink it from all the projects and delete it? It is usually safe to delete this resource.", deleteLvsFunc)
 			// We can't go further until the group is deleted
-			return "", nil
+			return
 		} else {
 			deleteLvsFunc(true)
 		}
@@ -257,7 +258,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 				if err := s.deleteFeed(myclient, feed); err != nil {
 					handleError("🔴 Failed to delete the resource", err)
 				} else if s.State.PromptForDelete {
-					s.Execute(prompt, handleError, attemptedLvsDelete, attemptedAccountDelete)
+					s.Execute(prompt, handleError, handleSuccess, attemptedLvsDelete, attemptedAccountDelete)
 				}
 			}
 		}
@@ -265,7 +266,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		if s.State.PromptForDelete {
 			prompt("Feed Exists", "The feed Octoterra Docker Feed already exists. Do you want to delete it? It is usually safe to delete this resource.", delteFeedFunc)
 			// We can't go further until the feed is deleted
-			return "", nil
+			return
 		} else {
 			delteFeedFunc(true)
 		}
@@ -281,7 +282,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 				}
 
 				if s.State.PromptForDelete {
-					s.Execute(prompt, handleError, attemptedLvsDelete, true)
+					s.Execute(prompt, handleError, handleSuccess, attemptedLvsDelete, true)
 				}
 			}
 		}
@@ -289,7 +290,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		if s.State.PromptForDelete {
 			prompt("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc)
 			// We can't go further until the account is deleted
-			return "", nil
+			return
 		} else {
 			deleteAccountFunc(true)
 		}
@@ -299,32 +300,32 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 	serializeSpaceTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Space to Terraform")
 
 	if err != nil {
-		return message, err
+		handleError(message, err)
 	}
 
 	deploySpaceTemplateS3, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (S3 Backend)")
 
 	if err != nil {
-		return message, err
+		handleError(message, err)
 	}
 
 	// Find space name
 	spaceName, err := query.GetSpaceName(myclient, s.State)
 
 	if err != nil {
-		return message, err
+		handleError(message, err)
 	}
 
 	// Save and apply the module
 	dir, err := ioutil.TempDir("", "octoterra")
 	if err != nil {
-		return "🔴 An error occurred while creating a temporary directory", err
+		handleError("🔴 An error occurred while creating a temporary directory", err)
 	}
 
 	filePath := filepath.Join(dir, "terraform.tf")
 
 	if err := os.WriteFile(filePath, []byte(module), 0644); err != nil {
-		return "🔴 An error occurred while writing the Terraform file", err
+		handleError("🔴 An error occurred while writing the Terraform file", err)
 	}
 
 	initCmd := exec.Command("terraform", "init", "-no-color")
@@ -335,7 +336,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 	initCmd.Stderr = &initStderr
 
 	if err := initCmd.Run(); err != nil {
-		return "🔴 Terraform init failed.", errors.New(err.Error() + "\n" + initStdout.String() + initCmd.String())
+		handleError("🔴 Terraform init failed.", errors.New(err.Error()+"\n"+initStdout.String()+initCmd.String()))
 	}
 
 	applyCmd := exec.Command("terraform",
@@ -362,9 +363,9 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 	applyCmd.Stderr = &stderr
 
 	if err := applyCmd.Run(); err != nil {
-		return "🔴 Terraform apply failed", errors.New(stdout.String() + stderr.String())
+		handleError("🔴 Terraform apply failed", errors.New(stdout.String()+stderr.String()))
 	} else {
-		return "🟢 Terraform apply succeeded", nil
+		handleSuccess("🟢 Terraform apply succeeded")
 	}
 }
 
