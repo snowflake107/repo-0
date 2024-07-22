@@ -212,13 +212,12 @@ jobs:
         uses: CycloneDX/gh-gomod-generate-sbom@v2
         with:
           version: v1
-          args: mod -licenses -json -output functions/bom.json
+          args: mod -licenses -json -output bom.json
       - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiz_linux_amd64 octoterrawiz.go
         env:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
-        working-directory: functions
       - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
         env:
           GOOS: windows
