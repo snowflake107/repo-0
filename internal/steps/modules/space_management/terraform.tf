@@ -362,7 +362,7 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
         "Octopus.Action.Terraform.ManagedAccount" = "AWS"
         "Octopus.Action.Aws.AssumeRole" = "False"
         "OctoterraApply.Terraform.Package.Id" = jsonencode({
-          "PackageId" = "${replace(var.octopus_space_name, "[^A-Za-z0-9]", "_")}"
+          "PackageId" = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
           "FeedId" = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
         })
         "OctoterraApply.Terraform.Workspace.Name" = "#{OctoterraApply.Octopus.SpaceID}"
@@ -381,7 +381,7 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
       tenant_tags           = []
 
       primary_package {
-        package_id           = "Acme"
+        package_id           = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
         acquisition_location = "Server"
         feed_id              = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
         properties           = { PackageParameterName = "OctoterraApply.Terraform.Package.Id", SelectionMode = "deferred" }

@@ -117,17 +117,40 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				continue
 			}
 
-			projExists, runbook, err := s.runbookExists(myclient, project.ID, "__ 1. Serialize Project")
+			runbookExists, runbook, err := s.runbookExists(myclient, project.ID, "__ 1. Serialize Project")
 
 			if err != nil {
 				s.logs.SetText("🔴 Failed to find runbook:\n" + err.Error())
 				return
 			}
 
-			if projExists {
-				dialog.NewConfirm("Project Group Exists", "The runbook \"__ 1. Serialize Project\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+			if runbookExists {
+				dialog.NewConfirm("Project Group Exists", "The runbook \""+runbook.Name+"\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
 					if b {
 						if err := s.deleteRunbook(myclient, runbook); err != nil {
+							s.result.SetText("🔴 Failed to delete the resource")
+							s.logs.SetText(err.Error())
+						} else {
+							s.createNewProject(parent)
+						}
+					}
+				}, parent).Show()
+
+				// We can't go further until the resource is deleted
+				return
+			}
+
+			runbook2Exists, runbook2, err := s.runbookExists(myclient, project.ID, "__ 2. Deploy Project")
+
+			if err != nil {
+				s.logs.SetText("🔴 Failed to find runbook:\n" + err.Error())
+				return
+			}
+
+			if runbook2Exists {
+				dialog.NewConfirm("Project Group Exists", "The runbook \""+runbook2.Name+"\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", func(b bool) {
+					if b {
+						if err := s.deleteRunbook(myclient, runbook2); err != nil {
 							s.result.SetText("🔴 Failed to delete the resource")
 							s.logs.SetText(err.Error())
 						} else {
