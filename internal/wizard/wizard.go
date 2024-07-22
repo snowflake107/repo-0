@@ -10,9 +10,9 @@ type Wizard struct {
 	Window fyne.Window
 }
 
-func NewWizard() *Wizard {
+func NewWizard(title string) *Wizard {
 	newApp := app.New()
-	window := newApp.NewWindow("Octoterra Wizard")
+	window := newApp.NewWindow(title)
 	window.Resize(fyne.NewSize(800, 600))
 
 	return &Wizard{

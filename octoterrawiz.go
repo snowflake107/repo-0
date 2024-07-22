@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+var Version = "development"
+
 type myTheme struct{}
 
 func (m myTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
@@ -30,7 +32,7 @@ func (m myTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 
 func main() {
 
-	wiz := wizard.NewWizard()
+	wiz := wizard.NewWizard("Octoterra Wizard (" + Version + ")")
 	wiz.App.Settings().SetTheme(&myTheme{})
 
 	wiz.ShowWizardStep(steps.WelcomeStep{
