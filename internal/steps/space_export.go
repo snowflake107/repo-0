@@ -82,7 +82,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Disable()
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
-	s.createProject = widget.NewButton("Create Project", func() { s.createNewProject(parent, false, false) })
+	s.createProject = widget.NewButton("Create Project", func() { s.createNewProject(parent) })
 	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
@@ -90,7 +90,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	return content
 }
 
-func (s SpaceExportStep) createNewProject(parent fyne.Window, attemptedLvsDelete bool, attemptedAccountDelete bool) {
+func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 	s.logs.SetText("")
 	s.next.Disable()
 	s.previous.Disable()
