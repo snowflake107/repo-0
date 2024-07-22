@@ -141,6 +141,23 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 			}
 		}
 
+		// Find the step template ID
+		serializeProjectTemplate, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Serialize Project to Terraform")
+
+		if err != nil {
+			s.result.SetText(message)
+			s.logs.SetText(err.Error())
+			return
+		}
+
+		deploySpaceTemplateS3, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (S3 Backend)")
+
+		if err != nil {
+			s.result.SetText(message)
+			s.logs.SetText(err.Error())
+			return
+		}
+
 		for _, project := range allProjects {
 			// Save and apply the module
 			dir, err := ioutil.TempDir("", "octoterra")
@@ -173,10 +190,17 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 				"apply",
 				"-auto-approve",
 				"-no-color",
+				"-var=octopus_serialize_actiontemplateid="+serializeProjectTemplate,
+				"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
 				"-var=octopus_server="+s.State.Server,
 				"-var=octopus_apikey="+s.State.ApiKey,
 				"-var=octopus_space_id="+s.State.Space,
-				"-var=octopus_project_id="+project.ID)
+				"-var=octopus_project_id="+project.ID,
+				"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
+				"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
+				"-var=octopus_destination_server="+s.State.DestinationServer,
+				"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
+				"-var=octopus_destination_space_id="+s.State.DestinationSpace)
 			applyCmd.Dir = dir
 
 			var stdout, stderr bytes.Buffer
