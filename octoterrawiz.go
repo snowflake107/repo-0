@@ -35,16 +35,46 @@ func main() {
 	wiz := wizard.NewWizard("Octoterra Wizard (" + Version + ")")
 	wiz.App.Settings().SetTheme(&myTheme{})
 
+	defaultSourceServer := os.Getenv("OCTOTERRAWIZ_SOURCE_SERVER")
+	if defaultSourceServer == "" {
+		defaultSourceServer = os.Getenv("OCTOPUS_CLI_SERVER")
+	}
+
+	defaultSourceServerApi := os.Getenv("OCTOTERRAWIZ_SOURCE_API_KEY")
+	if defaultSourceServerApi == "" {
+		defaultSourceServerApi = os.Getenv("OCTOPUS_CLI_API_KEY")
+	}
+
+	defaultSourceServerSpace := os.Getenv("OCTOTERRAWIZ_SOURCE_SPACE_ID")
+	if defaultSourceServerSpace == "" {
+		defaultSourceServerSpace = "Spaces-1"
+	}
+
+	defaultDestinationServer := os.Getenv("OCTOTERRAWIZ_DESTINATION_SERVER")
+	if defaultDestinationServer == "" {
+		defaultDestinationServer = os.Getenv("OCTOPUS_CLI_SERVER")
+	}
+
+	defaultDestinationServerApi := os.Getenv("OCTOTERRAWIZ_DESTINATION_API_KEY")
+	if defaultDestinationServerApi == "" {
+		defaultDestinationServerApi = os.Getenv("OCTOPUS_CLI_API_KEY")
+	}
+
+	defaultDestinationServerSpace := os.Getenv("OCTOTERRAWIZ_DESTINATION_SPACE_ID")
+	if defaultDestinationServerSpace == "" {
+		defaultDestinationServerSpace = "Spaces-1"
+	}
+
 	wiz.ShowWizardStep(steps.WelcomeStep{
 		Wizard: *wiz,
 		BaseStep: steps.BaseStep{State: state.State{
 			BackendType:       "",
-			Server:            os.Getenv("OCTOPUS_CLI_SERVER"),
-			ApiKey:            os.Getenv("OCTOPUS_CLI_API_KEY"),
-			Space:             "Spaces-2048",
-			DestinationServer: os.Getenv("OCTOPUS_CLI_SERVER"),
-			DestinationApiKey: os.Getenv("OCTOPUS_CLI_API_KEY"),
-			DestinationSpace:  "Spaces-2808",
+			Server:            defaultSourceServer,
+			ApiKey:            defaultSourceServerApi,
+			Space:             defaultSourceServerSpace,
+			DestinationServer: defaultDestinationServer,
+			DestinationApiKey: defaultDestinationServerApi,
+			DestinationSpace:  defaultDestinationServerSpace,
 			AwsAccessKey:      os.Getenv("AWS_ACCESS_KEY_ID"),
 			AwsSecretKey:      os.Getenv("AWS_SECRET_ACCESS_KEY"),
 			AwsS3Bucket:       os.Getenv("AWS_DEFAULT_BUCKET"),
