@@ -1,18 +1,14 @@
 package steps
 
 import (
-	"context"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
+	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
-	"time"
 )
 
 type AwsTerraformStateStep struct {
@@ -25,22 +21,6 @@ type AwsTerraformStateStep struct {
 	result    *widget.Label
 }
 
-type CustomCredentials struct {
-	State state.State
-}
-
-func (c CustomCredentials) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	return aws.Credentials{
-		AccessKeyID:     c.State.AwsAccessKey,
-		SecretAccessKey: c.State.AwsSecretKey,
-		SessionToken:    "",
-		Source:          "",
-		CanExpire:       false,
-		Expires:         time.Time{},
-		AccountID:       "",
-	}, nil
-}
-
 func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
@@ -50,20 +30,8 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 	}, func() {
 		s.result.SetText("")
 
-		cfg, err := config.LoadDefaultConfig(
-			context.Background(),
-			config.WithCredentialsProvider(CustomCredentials{s.getState()}),
-			config.WithRegion(s.getState().AwsS3BucketRegion))
-		if err != nil {
-			s.result.SetText("🔴 Unable to validate the AWS credentials.")
-			return
-		}
-
-		simpleTokenService := sts.NewFromConfig(cfg)
-
-		_, err = simpleTokenService.GetCallerIdentity(context.Background(), &sts.GetCallerIdentityInput{})
-		if err != nil {
-			s.result.SetText("🔴 Unable to validate the AWS credentials.")
+		if !validators.ValidateAWS(s.getState()) {
+			s.result.SetText("🔴 Unable to connect to the AWS S3 bucket. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
 			return
 		}
 

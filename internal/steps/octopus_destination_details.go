@@ -5,9 +5,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/spaces"
-	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
+	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
 )
@@ -29,14 +28,10 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
 		s.result.SetText("")
-		if myclient, err := octoclient.CreateDestinationClient(s.getState()); err != nil {
+
+		if !validators.ValidateDestinationCreds(s.getState()) {
 			s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
 			return
-		} else {
-			if _, err := spaces.GetByID(myclient, myclient.GetSpaceID()); err != nil {
-				s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
-				return
-			}
 		}
 
 		s.Wizard.ShowWizardStep(AwsTerraformStateStep{
