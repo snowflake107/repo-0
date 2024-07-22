@@ -298,7 +298,7 @@ jobs:
           additionalArguments: /overrideconfig mode=Mainline
       - name: Install Dependencies
         run: go get ./...
-        shell: bash
+        shell: pwsh
       - run: go build -ldflags="-X 'main.Version=${{ steps.determine_version.outputs.semVer }}'" -o octoterrawiza_windows_amd64.exe octoterrawiz.go
         env:
           GOOS: windows
