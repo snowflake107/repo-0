@@ -37,7 +37,10 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Disable()
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
+	s.logs.Hide()
+
 	installSteps := widget.NewButton("Install Step Templates", func() {
+		s.logs.Hide()
 		s.result.SetText("🔵 Installing step templates.")
 		myclient, err := octoclient.CreateClient(s.State)
 
@@ -49,6 +52,7 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 		// Octopus - Serialize Space to Terraform
 		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/e03c56a4-f660-48f6-9d09-df07e1ac90bd"); err != nil {
 			s.result.SetText(message)
+			s.logs.Show()
 			s.logs.SetText(err.Error())
 			return
 		}
@@ -56,6 +60,7 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 		// Octopus - Populate Octoterra Space (S3 Backend)
 		if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/14d51af4-1c3d-4d41-9044-4304111d0cd8"); err != nil {
 			s.result.SetText(message)
+			s.logs.Show()
 			s.logs.SetText(err.Error())
 			return
 		}
