@@ -19,12 +19,12 @@ type SpreadVariablesStep struct {
 
 func (s SpreadVariablesStep) GetContainer() *fyne.Container {
 
-	bottom, _, next := s.BuildNavigation(func() {
+	bottom, previous, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(OctopusDetails{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(OctopusDetails{
+		s.Wizard.ShowWizardStep(SpaceExportStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
@@ -46,24 +46,31 @@ func (s SpreadVariablesStep) GetContainer() *fyne.Container {
 		}
 	})
 
+	infinite := widget.NewProgressBarInfinite()
+	infinite.Start()
+	infinite.Hide()
 	result := widget.NewLabel("")
 	s.spreadVariables = widget.NewButton("Spread Sensitive Variables", func() {
+		next.Disable()
+		previous.Disable()
+		infinite.Show()
 		s.confirmChanges.Disable()
 		s.spreadVariables.Disable()
 		result.SetText("Spreading sensitive variables. This can take a little while.")
 
 		go func() {
+			defer previous.Enable()
+			defer infinite.Hide()
 			if err := spreadvariables.SpreadAllVariables(s.State); err != nil {
 				result.SetText("An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
 			} else {
 				result.SetText("Sensitive variables have been spread.")
 				next.Enable()
 			}
-
 		}()
 	})
 	s.spreadVariables.Disable()
-	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, result)
+	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, infinite, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

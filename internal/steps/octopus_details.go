@@ -21,7 +21,7 @@ type OctopusDetails struct {
 func (s OctopusDetails) GetContainer() *fyne.Container {
 
 	bottom, _, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(TestTerraformStep{
+		s.Wizard.ShowWizardStep(SpaceExportStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
