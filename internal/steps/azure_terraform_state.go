@@ -16,7 +16,6 @@ type AzureTerraformStateStep struct {
 	resourceGroupName  *widget.Entry
 	storageAccountName *widget.Entry
 	containerName      *widget.Entry
-	keyName            *widget.Entry
 	result             *widget.Label
 	subscriptionId     *widget.Entry
 	tenantId           *widget.Entry
@@ -79,7 +78,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.containerName.SetText(s.State.AzureContainerName)
 
 	validation := func(input string) {
-		if s.resourceGroupName != nil && s.resourceGroupName.Text != "" && s.storageAccountName != nil && s.storageAccountName.Text != "" && s.containerName != nil && s.containerName.Text != "" && s.keyName != nil && s.keyName.Text != "" {
+		if s.resourceGroupName != nil && s.resourceGroupName.Text != "" && s.storageAccountName != nil && s.storageAccountName.Text != "" && s.containerName != nil && s.containerName.Text != "" {
 			next.Enable()
 		} else {
 			next.Disabled()
@@ -91,7 +90,6 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.resourceGroupName.OnChanged = validation
 	s.storageAccountName.OnChanged = validation
 	s.containerName.OnChanged = validation
-	s.keyName.OnChanged = validation
 
 	formLayout := container.New(
 		layout.NewFormLayout(),
@@ -101,10 +99,10 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		s.tenantId,
 		applicationIdLabel,
 		s.applicationId,
-		azureResourceGroupLabel,
-		s.resourceGroupName,
 		passwordLabel,
 		s.password,
+		azureResourceGroupLabel,
+		s.resourceGroupName,
 		azureStorageAccountNameLabel,
 		s.storageAccountName,
 		azureContainerNameLabel,
