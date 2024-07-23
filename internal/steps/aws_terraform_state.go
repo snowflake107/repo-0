@@ -19,6 +19,7 @@ type AwsTerraformStateStep struct {
 	s3Bucket  *widget.Entry
 	s3Region  *widget.Entry
 	result    *widget.Label
+	infinite  *widget.ProgressBarInfinite
 }
 
 func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -28,7 +29,9 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
-		s.result.SetText("")
+		s.result.SetText("🔵 Validating AWS credentials and S3 bucket.")
+		s.infinite.Show()
+		defer s.infinite.Hide()
 
 		if !validators.ValidateAWS(s.getState()) {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
@@ -51,6 +54,10 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 	`))
 
 	s.result = widget.NewLabel("")
+
+	s.infinite = widget.NewProgressBarInfinite()
+	s.infinite.Hide()
+	s.infinite.Start()
 
 	accessKeyLabel := widget.NewLabel("AWS Access Key")
 	s.accessKey = widget.NewEntry()
@@ -89,7 +96,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	formLayout := container.New(layout.NewFormLayout(), accessKeyLabel, s.accessKey, secretKeyLabel, s.secretKey, s3BucketLabel, s.s3Bucket, apiKeyLabel, s.s3Region)
 
-	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.result)
+	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.infinite, s.result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
