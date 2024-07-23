@@ -107,5 +107,10 @@ func (s StepTemplateStep) Execute() (string, error) {
 		return message, err
 	}
 
+	// Octopus - Lookup Space ID
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/324f747e-e2cd-439d-a660-774baf4991f2"); err != nil {
+		return message, err
+	}
+
 	return "🟢 Step templates installed.", nil
 }
