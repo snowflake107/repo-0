@@ -60,7 +60,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	passwordLabel := widget.NewLabel("Azure Password")
 	s.password = widget.NewPasswordEntry()
 	s.password.SetPlaceHolder("")
-	s.password.SetText(s.State.AzureApplicationId)
+	s.password.SetText(s.State.AzurePassword)
 
 	azureResourceGroupLabel := widget.NewLabel("Azure Resource Group")
 	s.resourceGroupName = widget.NewEntry()
