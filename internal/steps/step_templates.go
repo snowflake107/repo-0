@@ -87,5 +87,25 @@ func (s StepTemplateStep) Execute() (string, error) {
 		return message, err
 	}
 
+	// Octopus - Add Runbook to Project (Azure Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/9b206752-5a8c-40dd-84a8-94f08a42955c"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Add Runbook to Project (S3 Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/8b8b0386-78f8-42c2-baea-2fdb9a57c32d"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Create Octoterra Space (Azure Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/c9c5a6a2-0ce7-4d7a-8eb5-111ac44df24e"); err != nil {
+		return message, err
+	}
+
+	// Octopus - Create Octoterra Space (S3 Backend)
+	if err, message := query.InstallStepTemplate(myclient, s.State, "https://library.octopus.com/step-templates/90a8dd76-6456-49f9-9c03-baf85442aa57"); err != nil {
+		return message, err
+	}
+
 	return "🟢 Step templates installed.", nil
 }
