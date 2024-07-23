@@ -27,7 +27,13 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
-		s.result.SetText("")
+		s.result.SetText("🔵 Validating Octopus credentials.")
+		s.apiKey.Disable()
+		s.server.Disable()
+		s.spaceId.Disabled()
+		defer s.apiKey.Enable()
+		defer s.server.Enable()
+		defer s.spaceId.Enable()
 
 		if !validators.ValidateSourceCreds(s.getState()) {
 			s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")

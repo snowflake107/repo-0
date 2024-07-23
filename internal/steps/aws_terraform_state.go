@@ -31,7 +31,16 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 	}, func() {
 		s.result.SetText("🔵 Validating AWS credentials and S3 bucket.")
 		s.infinite.Show()
+		s.accessKey.Disable()
+		s.secretKey.Disable()
+		s.s3Bucket.Disable()
+		s.s3Region.Disable()
+
 		defer s.infinite.Hide()
+		defer s.accessKey.Enable()
+		defer s.secretKey.Enable()
+		defer s.s3Bucket.Enable()
+		defer s.s3Region.Enable()
 
 		if !validators.ValidateAWS(s.getState()) {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
