@@ -87,17 +87,21 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 func (s OctopusDetails) getState() state.State {
 	return state.State{
-		BackendType:       "",
-		Server:            s.server.Text,
-		ApiKey:            s.apiKey.Text,
-		Space:             s.spaceId.Text,
-		DestinationServer: s.State.DestinationServer,
-		DestinationApiKey: s.State.DestinationApiKey,
-		DestinationSpace:  s.State.DestinationSpace,
-		AwsAccessKey:      s.State.AwsAccessKey,
-		AwsSecretKey:      s.State.AwsSecretKey,
-		AwsS3Bucket:       s.State.AwsS3Bucket,
-		AwsS3BucketRegion: s.State.AwsS3BucketRegion,
-		PromptForDelete:   s.State.PromptForDelete,
+		BackendType:             s.State.BackendType,
+		Server:                  s.server.Text,
+		ApiKey:                  s.apiKey.Text,
+		Space:                   s.spaceId.Text,
+		DestinationServer:       s.State.DestinationServer,
+		DestinationApiKey:       s.State.DestinationApiKey,
+		DestinationSpace:        s.State.DestinationSpace,
+		AwsAccessKey:            s.State.AwsAccessKey,
+		AwsSecretKey:            s.State.AwsSecretKey,
+		AwsS3Bucket:             s.State.AwsS3Bucket,
+		AwsS3BucketRegion:       s.State.AwsS3BucketRegion,
+		PromptForDelete:         s.State.PromptForDelete,
+		AzureResourceGroupName:  s.State.AzureResourceGroupName,
+		AzureStorageAccountName: s.State.AzureStorageAccountName,
+		AzureContainerName:      s.State.AzureContainerName,
+		AzureKeyName:            s.State.AzureKeyName,
 	}
 }

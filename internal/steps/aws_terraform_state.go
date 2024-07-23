@@ -98,15 +98,21 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 func (s AwsTerraformStateStep) getState() state.State {
 	return state.State{
-		Server:            s.State.Server,
-		ApiKey:            s.State.ApiKey,
-		Space:             s.State.Space,
-		DestinationServer: s.State.DestinationServer,
-		DestinationApiKey: s.State.DestinationApiKey,
-		DestinationSpace:  s.State.DestinationSpace,
-		AwsS3Bucket:       s.s3Bucket.Text,
-		AwsS3BucketRegion: s.s3Region.Text,
-		AwsAccessKey:      s.accessKey.Text,
-		AwsSecretKey:      s.secretKey.Text,
+		BackendType:             s.State.BackendType,
+		Server:                  s.State.Server,
+		ApiKey:                  s.State.ApiKey,
+		Space:                   s.State.Space,
+		DestinationServer:       s.State.DestinationServer,
+		DestinationApiKey:       s.State.DestinationApiKey,
+		DestinationSpace:        s.State.DestinationSpace,
+		AwsAccessKey:            s.accessKey.Text,
+		AwsSecretKey:            s.secretKey.Text,
+		AwsS3Bucket:             s.s3Bucket.Text,
+		AwsS3BucketRegion:       s.s3Region.Text,
+		PromptForDelete:         s.State.PromptForDelete,
+		AzureResourceGroupName:  s.State.AzureResourceGroupName,
+		AzureStorageAccountName: s.State.AzureStorageAccountName,
+		AzureContainerName:      s.State.AzureContainerName,
+		AzureKeyName:            s.State.AzureKeyName,
 	}
 }

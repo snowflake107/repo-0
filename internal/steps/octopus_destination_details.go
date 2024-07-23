@@ -34,7 +34,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 			return
 		}
 
-		s.Wizard.ShowWizardStep(AwsTerraformStateStep{
+		s.Wizard.ShowWizardStep(BackendSelectionStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	})
@@ -87,17 +87,21 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 func (s OctopusDestinationDetails) getState() state.State {
 	return state.State{
-		BackendType:       "",
-		Server:            s.State.Server,
-		ApiKey:            s.State.ApiKey,
-		Space:             s.State.Space,
-		DestinationServer: s.server.Text,
-		DestinationApiKey: s.apiKey.Text,
-		DestinationSpace:  s.spaceId.Text,
-		AwsS3Bucket:       s.State.AwsS3Bucket,
-		AwsS3BucketRegion: s.State.AwsS3BucketRegion,
-		AwsAccessKey:      s.State.AwsAccessKey,
-		AwsSecretKey:      s.State.AwsSecretKey,
-		PromptForDelete:   s.State.PromptForDelete,
+		BackendType:             s.State.BackendType,
+		Server:                  s.State.Server,
+		ApiKey:                  s.State.ApiKey,
+		Space:                   s.State.Space,
+		DestinationServer:       s.server.Text,
+		DestinationApiKey:       s.apiKey.Text,
+		DestinationSpace:        s.spaceId.Text,
+		AwsS3Bucket:             s.State.AwsS3Bucket,
+		AwsS3BucketRegion:       s.State.AwsS3BucketRegion,
+		AwsAccessKey:            s.State.AwsAccessKey,
+		AwsSecretKey:            s.State.AwsSecretKey,
+		PromptForDelete:         s.State.PromptForDelete,
+		AzureResourceGroupName:  s.State.AzureResourceGroupName,
+		AzureStorageAccountName: s.State.AzureStorageAccountName,
+		AzureContainerName:      s.State.AzureContainerName,
+		AzureKeyName:            s.State.AzureKeyName,
 	}
 }
