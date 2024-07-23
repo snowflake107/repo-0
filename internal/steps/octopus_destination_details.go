@@ -102,6 +102,5 @@ func (s OctopusDestinationDetails) getState() state.State {
 		AzureResourceGroupName:  s.State.AzureResourceGroupName,
 		AzureStorageAccountName: s.State.AzureStorageAccountName,
 		AzureContainerName:      s.State.AzureContainerName,
-		AzureKeyName:            s.State.AzureKeyName,
 	}
 }
