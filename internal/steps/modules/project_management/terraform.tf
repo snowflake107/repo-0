@@ -236,6 +236,7 @@ resource "octopusdeploy_runbook_process" "deploy_project" {
         "OctoterraApply.Terraform.Workspace.Name" = "#{OctoterraApply.Octopus.SpaceID}"
         "OctoterraApply.Octopus.SpaceID" = "#{Octopus.Destination.SpaceID}"
         "OctopusUseBundledTooling" = "False"
+        "Octopus.Action.AutoRetry.MaximumCount" = "3"
       }
 
       container {
