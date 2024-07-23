@@ -18,6 +18,10 @@ type AzureTerraformStateStep struct {
 	containerName      *widget.Entry
 	keyName            *widget.Entry
 	result             *widget.Label
+	subscriptionId     *widget.Entry
+	tenantId           *widget.Entry
+	applicationId      *widget.Entry
+	password           *widget.Entry
 }
 
 func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -39,22 +43,42 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 
 	s.result = widget.NewLabel("")
 
-	accessKeyLabel := widget.NewLabel("Azure Resource Group")
+	subscriptionIdLabel := widget.NewLabel("Azure Subscription ID")
+	s.subscriptionId = widget.NewEntry()
+	s.subscriptionId.SetPlaceHolder("")
+	s.subscriptionId.SetText(s.State.AzureSubscriptionId)
+
+	tenantIdLabel := widget.NewLabel("Azure Tenant ID")
+	s.tenantId = widget.NewEntry()
+	s.tenantId.SetPlaceHolder("")
+	s.tenantId.SetText(s.State.AzureTenantId)
+
+	applicationIdLabel := widget.NewLabel("Azure Application ID")
+	s.applicationId = widget.NewEntry()
+	s.applicationId.SetPlaceHolder("")
+	s.applicationId.SetText(s.State.AzureApplicationId)
+
+	passwordLabel := widget.NewLabel("Azure Password")
+	s.password = widget.NewPasswordEntry()
+	s.password.SetPlaceHolder("")
+	s.password.SetText(s.State.AzureApplicationId)
+
+	azureResourceGroupLabel := widget.NewLabel("Azure Resource Group")
 	s.resourceGroupName = widget.NewEntry()
 	s.resourceGroupName.SetPlaceHolder("")
 	s.resourceGroupName.SetText(s.State.AzureResourceGroupName)
 
-	secretKeyLabel := widget.NewLabel("Azure Storage Account Name")
-	s.storageAccountName = widget.NewPasswordEntry()
+	azureStorageAccountNameLabel := widget.NewLabel("Azure Storage Account Name")
+	s.storageAccountName = widget.NewEntry()
 	s.storageAccountName.SetPlaceHolder("")
 	s.storageAccountName.SetText(s.State.AzureStorageAccountName)
 
-	s3BucketLabel := widget.NewLabel("Azure Container Name")
+	azureContainerNameLabel := widget.NewLabel("Azure Container Name")
 	s.containerName = widget.NewEntry()
 	s.containerName.SetPlaceHolder("my-container")
 	s.containerName.SetText(s.State.AzureContainerName)
 
-	apiKeyLabel := widget.NewLabel("Azure Key Name")
+	azureKeyNameLabel := widget.NewLabel("Azure Key Name")
 	s.keyName = widget.NewEntry()
 	s.keyName.SetPlaceHolder("mykey")
 	s.keyName.SetText(s.State.AzureKeyName)
@@ -74,7 +98,24 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.containerName.OnChanged = validation
 	s.keyName.OnChanged = validation
 
-	formLayout := container.New(layout.NewFormLayout(), accessKeyLabel, s.resourceGroupName, secretKeyLabel, s.storageAccountName, s3BucketLabel, s.containerName, apiKeyLabel, s.keyName)
+	formLayout := container.New(
+		layout.NewFormLayout(),
+		subscriptionIdLabel,
+		s.subscriptionId,
+		tenantIdLabel,
+		s.tenantId,
+		applicationIdLabel,
+		s.applicationId,
+		azureResourceGroupLabel,
+		s.resourceGroupName,
+		passwordLabel,
+		s.password,
+		azureStorageAccountNameLabel,
+		s.storageAccountName,
+		azureContainerNameLabel,
+		s.containerName,
+		azureKeyNameLabel,
+		s.keyName)
 
 	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.result)
 

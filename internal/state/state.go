@@ -17,4 +17,8 @@ type State struct {
 	AzureStorageAccountName string
 	AzureContainerName      string
 	AzureKeyName            string
+	AzureSubscriptionId     string
+	AzureTenantId           string
+	AzureApplicationId      string
+	AzurePassword           string
 }

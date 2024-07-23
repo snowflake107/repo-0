@@ -44,7 +44,7 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 	})
 
 	// only aws is supported
-	radio.Disable()
+	//radio.Disable()
 
 	radio.SetSelected(AwsS3)
 
