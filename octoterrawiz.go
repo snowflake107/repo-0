@@ -83,7 +83,6 @@ func main() {
 			AzureResourceGroupName:  os.Getenv("OCTOTERRAWIZ_AZURE_RESOURCE_GROUP"),
 			AzureStorageAccountName: os.Getenv("OCTOTERRAWIZ_AZURE_STORAGE_ACCOUNT"),
 			AzureContainerName:      os.Getenv("OCTOTERRAWIZ_AZURE_CONTAINER"),
-			AzureKeyName:            os.Getenv("OCTOTERRAWIZ_AZURE_KEY"),
 			AzureSubscriptionId:     os.Getenv("AZURE_SUBSCRIPTION_ID"),
 			AzureTenantId:           os.Getenv("AZURE_TENANT_ID"),
 			AzureApplicationId:      os.Getenv("AZURE_CLIENT_ID"),

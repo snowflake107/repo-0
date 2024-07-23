@@ -78,11 +78,6 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.containerName.SetPlaceHolder("my-container")
 	s.containerName.SetText(s.State.AzureContainerName)
 
-	azureKeyNameLabel := widget.NewLabel("Azure Key Name")
-	s.keyName = widget.NewEntry()
-	s.keyName.SetPlaceHolder("mykey")
-	s.keyName.SetText(s.State.AzureKeyName)
-
 	validation := func(input string) {
 		if s.resourceGroupName != nil && s.resourceGroupName.Text != "" && s.storageAccountName != nil && s.storageAccountName.Text != "" && s.containerName != nil && s.containerName.Text != "" && s.keyName != nil && s.keyName.Text != "" {
 			next.Enable()
@@ -113,9 +108,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		azureStorageAccountNameLabel,
 		s.storageAccountName,
 		azureContainerNameLabel,
-		s.containerName,
-		azureKeyNameLabel,
-		s.keyName)
+		s.containerName)
 
 	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.result)
 
@@ -141,6 +134,5 @@ func (s AzureTerraformStateStep) getState() state.State {
 		AzureResourceGroupName:  s.resourceGroupName.Text,
 		AzureStorageAccountName: s.storageAccountName.Text,
 		AzureContainerName:      s.containerName.Text,
-		AzureKeyName:            s.keyName.Text,
 	}
 }
