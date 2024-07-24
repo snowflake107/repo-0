@@ -65,7 +65,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		if err := s.Execute(func(message string) {
 			result.SetText(message)
 		}); err != nil {
-			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks"))
+			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks. The failed tasks are shown below. You can review the task details in the Octopus console to find more information."))
 
 			var failedTasksError octoerrors.FailedTasksError
 			if errors.As(err, &failedTasksError) {
