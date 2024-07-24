@@ -42,8 +42,8 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The projects in the source space are now ready to begin exporting to the destination space.
 		This involves serializing the project level resources (project, runbooks, variables, triggers etc) to a Terraform module and then applying the module to the destination space.
-		First, this wizard runs the "__ 1. Serialize Project" runbook to create the Terraform module.
-		Then this wizard runs the "__ 2. Deploy Project" runbook to apply the Terraform module to the destination space.
+		First, this wizard publishes and runs the "__ 1. Serialize Project" runbook in each project to create the Terraform module.
+		Then this wizard publishes and runs the "__ 2. Deploy Project" runbook in each project to apply the Terraform module to the destination space.
 		Click the "Export Projects" button to execute these runbooks.
 	`))
 	result := widget.NewLabel("")

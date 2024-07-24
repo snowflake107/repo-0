@@ -30,10 +30,10 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	})
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		The source space is now ready to begin exporting to the destination space.
-		We start by serializing the space level resources (feeds, accounts, tenants, certificates, targets etc) using the runbooks in the "Octoterra Space Management" project.
-		First, we run the "__ 1. Serialize Space" runbook to create the Terraform module.
-		Then we run the "__ 2. Deploy Space" runbook to apply the Terraform module to the destination space.
+		The the source space are now ready to begin exporting to the destination space.
+		This involves serializing the space level resources (feeds, accounts, targets, tenants etc) to a Terraform module and then applying the module to the destination space.
+		First, this wizard publishes and runs the "__ 1. Serialize Space" runbook in the "Octoterra Space Management" project to create the Terraform module.
+		Then this wizard publishes and runs the "__ 2. Deploy Space" runbook in the "Octoterra Space Management" project to apply the Terraform module to the destination space.
 		Click the "Export Space" button to execute these runbooks.
 	`))
 	result := widget.NewLabel("")
