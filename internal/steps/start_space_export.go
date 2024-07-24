@@ -24,7 +24,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(FinishStep{
+		s.Wizard.ShowWizardStep(StartProjectExportStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
@@ -52,7 +52,9 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 		result.SetText("🔵 Running the runbooks.")
 
-		if err := s.Execute(); err != nil {
+		if err := s.Execute(func(message string) {
+			result.SetText(message)
+		}); err != nil {
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks: %s", err))
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
@@ -66,15 +68,35 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	return content
 }
 
-func (s StartSpaceExportStep) Execute() (executeError error) {
+func (s StartSpaceExportStep) Execute(statusCallback func(message string)) (executeError error) {
 	if err := infrastructure.PublishRunbook(s.State, "__ 1. Serialize Space", "Octoterra Space Management"); err != nil {
 		return err
 	}
 
+	statusCallback("🔵 Published __ 1. Serialize Space runbook")
+
 	if taskId, err := infrastructure.RunRunbook(s.State, "__ 1. Serialize Space", "Octoterra Space Management"); err != nil {
 		return err
 	} else {
-		if err := infrastructure.WaitForTask(s.State, taskId); err != nil {
+		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
+			statusCallback("🔵 __ 1. Serialize Space is " + message)
+		}); err != nil {
+			return err
+		}
+	}
+
+	if err := infrastructure.PublishRunbook(s.State, "__ 2. Deploy Space", "Octoterra Space Management"); err != nil {
+		return err
+	}
+
+	statusCallback("🔵 Published __ 2. Deploy Space runbook")
+
+	if taskId, err := infrastructure.RunRunbook(s.State, "__ 2. Deploy Space", "Octoterra Space Management"); err != nil {
+		return err
+	} else {
+		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
+			statusCallback("🔵 __ 2. Deploy Space is " + message + ". This runbook can take quite some time (many hours) for large spaces.")
+		}); err != nil {
 			return err
 		}
 	}

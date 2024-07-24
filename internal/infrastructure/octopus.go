@@ -19,15 +19,15 @@ import (
 	"time"
 )
 
-func WaitForTask(state state.State, taskId string) error {
+func WaitForTask(state state.State, taskId string, statusCallback func(message string)) error {
 	myclient, err := octoclient.CreateClient(state)
 
 	if err != nil {
 		return err
 	}
 
-	// wait up to 10 minutes for the task to complete
-	for i := 0; i < 600; i++ {
+	// wait up to 2 hours for the task to complete
+	for i := 0; i < 7200; i++ {
 		mytasks, err := myclient.Tasks.Get(tasks.TasksQuery{
 			Environment:             "",
 			HasPendingInterruptions: false,
@@ -56,12 +56,12 @@ func WaitForTask(state state.State, taskId string) error {
 			if mytasks.Items[0].State != "Success" {
 				return errors.New("task was not successful")
 			}
+			statusCallback(mytasks.Items[0].State)
 			return nil
+		} else {
+			statusCallback(mytasks.Items[0].State)
+			time.Sleep(10 * time.Second)
 		}
-
-		fmt.Println(mytasks.Items[0].State)
-
-		time.Sleep(10 * time.Second)
 	}
 
 	return errors.New("task did not complete in 10 minutes")
