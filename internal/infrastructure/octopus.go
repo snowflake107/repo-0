@@ -53,6 +53,10 @@ func WaitForTask(state state.State, taskId string, statusCallback func(message s
 			return err
 		}
 
+		if len(mytasks.Items) == 0 {
+			return octoerrors.TaskNotFound{TaskId: taskId}
+		}
+
 		if mytasks.Items[0].IsCompleted != nil && *mytasks.Items[0].IsCompleted {
 			if mytasks.Items[0].State != "Success" {
 				return octoerrors.TaskFailedError{TaskId: taskId}
