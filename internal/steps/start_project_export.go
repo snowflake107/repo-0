@@ -1,6 +1,7 @@
 package steps
 
 import (
+	"errors"
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -9,15 +10,18 @@ import (
 	projects2 "github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
+	"github.com/mcasperson/OctoterraWizard/internal/octoerrors"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
+	"strings"
 )
 
 type StartProjectExportStep struct {
 	BaseStep
 	Wizard         wizard.Wizard
 	exportProjects *widget.Button
+	logs           *widget.Entry
 }
 
 func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -31,7 +35,9 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
-	next.Disable()
+	s.logs = widget.NewEntry()
+	s.logs.Disable()
+	s.logs.MultiLine = true
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The projects in the source space are now ready to begin exporting to the destination space.
@@ -51,6 +57,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		infinite.Show()
 		defer s.exportProjects.Enable()
 		defer previous.Enable()
+		defer next.Enable()
 		defer infinite.Hide()
 
 		result.SetText("🔵 Running the runbooks.")
@@ -58,7 +65,14 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		if err := s.Execute(func(message string) {
 			result.SetText(message)
 		}); err != nil {
-			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks: %s", err))
+			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks"))
+
+			var failedTasksError octoerrors.FailedTasksError
+			if errors.As(err, &failedTasksError) {
+				s.logs.SetText(strings.Join(err.(octoerrors.FailedTasksError).TaskId, "\n"))
+			} else {
+				s.logs.SetText(err.Error())
+			}
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
@@ -107,13 +121,18 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) (ex
 	}
 
 	serializeIndex := 0
+	failedSerializeTasks := []string{}
 	for project, taskId := range tasks {
 		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
 			statusCallback("🔵 __ 1. Serialize Project for project " + project + " is " + message + " (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
 		}); err != nil {
-			return err
+			failedSerializeTasks = append(failedSerializeTasks, taskId)
 		}
 		serializeIndex++
+	}
+
+	if len(failedSerializeTasks) != 0 {
+		return octoerrors.FailedTasksError{TaskId: failedSerializeTasks}
 	}
 
 	for _, project := range filteredProjects {
@@ -133,13 +152,18 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) (ex
 	}
 
 	applyIndex := 0
+	failedApplyTasks := []string{}
 	for project, taskId := range applyTasks {
 		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
 			statusCallback("🔵 __ 2. Deploy Space for project " + project + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
 		}); err != nil {
-			return err
+			failedApplyTasks = append(failedApplyTasks, taskId)
 		}
 		applyIndex++
+	}
+
+	if len(failedSerializeTasks) != 0 {
+		return octoerrors.FailedTasksError{TaskId: failedApplyTasks}
 	}
 
 	return nil

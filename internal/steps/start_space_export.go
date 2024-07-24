@@ -28,7 +28,6 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
-	next.Disable()
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The source space is now ready to begin exporting to the destination space.
@@ -43,11 +42,11 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	infinite.Start()
 	s.exportSpace = widget.NewButton("Export Space", func() {
 		s.exportSpace.Disable()
-		next.Disable()
 		previous.Disable()
 		infinite.Show()
 		defer s.exportSpace.Enable()
 		defer previous.Enable()
+		defer next.Enable()
 		defer infinite.Hide()
 
 		result.SetText("🔵 Running the runbooks.")

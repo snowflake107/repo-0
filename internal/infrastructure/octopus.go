@@ -11,6 +11,7 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/runbooks"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/tasks"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
+	"github.com/mcasperson/OctoterraWizard/internal/octoerrors"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/samber/lo"
 	"io"
@@ -54,7 +55,7 @@ func WaitForTask(state state.State, taskId string, statusCallback func(message s
 
 		if mytasks.Items[0].IsCompleted != nil && *mytasks.Items[0].IsCompleted {
 			if mytasks.Items[0].State != "Success" {
-				return errors.New("task was not successful")
+				return octoerrors.TaskFailedError{TaskId: taskId}
 			}
 			statusCallback(mytasks.Items[0].State)
 			return nil
@@ -64,7 +65,7 @@ func WaitForTask(state state.State, taskId string, statusCallback func(message s
 		}
 	}
 
-	return errors.New("task did not complete in 10 minutes")
+	return octoerrors.TaskDidNotCompleteError{TaskId: taskId}
 }
 
 func RunRunbook(state state.State, runbookName string, projectName string) (string, error) {

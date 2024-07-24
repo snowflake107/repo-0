@@ -81,6 +81,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs = widget.NewEntry()
 	s.logs.Disable()
 	s.logs.MultiLine = true
+	s.logs.Hide()
 	s.logs.SetMinRowsVisible(20)
 	s.createProject = widget.NewButton("Create Project", func() { s.createNewProject(parent) })
 	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
@@ -96,12 +97,14 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 	s.previous.Disable()
 	s.infinite.Show()
 	s.createProject.Disable()
+	s.logs.Hide()
 	s.result.SetText("🔵 Creating project. This can take a little while.")
 
 	s.Execute(func(title string, message string, callback func(bool)) {
 		dialog.NewConfirm(title, message, callback, parent).Show()
 	}, func(title string, err error) {
 		s.result.SetText(title)
+		s.logs.Show()
 		s.logs.SetText(err.Error())
 		s.infinite.Hide()
 		s.previous.Enable()
@@ -110,6 +113,7 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 		s.next.Enable()
 		s.previous.Enable()
 		s.infinite.Hide()
+		s.logs.Hide()
 	}, false, false)
 
 }

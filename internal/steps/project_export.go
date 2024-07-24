@@ -62,6 +62,7 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Disable()
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
+	s.logs.Hide()
 	s.createProject = widget.NewButton("Add Runbooks", func() { s.createNewProject(parent) })
 	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
 
@@ -76,6 +77,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 	s.next.Disable()
 	s.previous.Disable()
 	s.infinite.Show()
+	s.logs.Hide()
 	s.createProject.Disable()
 	s.result.SetText("🔵 Creating runbooks. This can take a little while.")
 
@@ -84,6 +86,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 	}, func(message string, err error) {
 		s.result.SetText(message)
 		s.logs.SetText(err.Error())
+		s.logs.Show()
 		s.previous.Enable()
 		s.next.Disable()
 		s.infinite.Hide()
@@ -95,6 +98,7 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 		s.previous.Enable()
 		s.infinite.Hide()
 		s.createProject.Enable()
+		s.logs.Hide()
 	})
 }
 
