@@ -45,7 +45,7 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(FinishStep{
+		s.Wizard.ShowWizardStep(StartSpaceExportStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	})
