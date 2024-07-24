@@ -81,6 +81,11 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 	s.createProject.Disable()
 	s.result.SetText("🔵 Creating runbooks. This can take a little while.")
 
+	defer s.next.Enable()
+	defer s.previous.Enable()
+	defer s.infinite.Hide()
+	defer s.createProject.Enable()
+
 	s.Execute(func(title string, message string, callback func(bool)) {
 		dialog.NewConfirm(title, message, callback, parent).Show()
 	}, func(message string, err error) {
@@ -94,15 +99,17 @@ func (s ProjectExportStep) createNewProject(parent fyne.Window) {
 	}, func(message string) {
 		s.result.SetText(message)
 		s.logs.SetText("")
+		s.logs.Hide()
 		s.next.Enable()
 		s.previous.Enable()
 		s.infinite.Hide()
 		s.createProject.Enable()
-		s.logs.Hide()
+	}, func(message string) {
+		s.result.SetText(message)
 	})
 }
 
-func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), handleSuccess func(string)) {
+func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), handleError func(string, error), handleSuccess func(string), status func(string)) {
 	myclient, err := octoclient.CreateClient(s.State)
 
 	if err != nil {
@@ -153,7 +160,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else if s.State.PromptForDelete {
-						s.Execute(prompt, handleError, handleSuccess)
+						s.Execute(prompt, handleError, handleSuccess, status)
 					}
 				}
 			}
@@ -180,7 +187,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 						s.result.SetText("🔴 Failed to delete the resource")
 						s.logs.SetText(err.Error())
 					} else if s.State.PromptForDelete {
-						s.Execute(prompt, handleError, handleSuccess)
+						s.Execute(prompt, handleError, handleSuccess, status)
 					}
 				}
 			}
@@ -262,7 +269,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 			handleError("🔴 Terraform apply failed", errors.New(stdout.String()+stderr.String()))
 			return
 		} else {
-			handleSuccess("🔵 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
+			status("🔵 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
 		}
 
 		// link the library variable set
