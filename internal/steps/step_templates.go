@@ -22,7 +22,7 @@ type StepTemplateStep struct {
 
 func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 
-	bottom, _, next := s.BuildNavigation(func() {
+	bottom, previous, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(SpreadVariablesStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
@@ -55,6 +55,10 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Hide()
 	s.exportDone = false
+	previous.Disable()
+	next.Disable()
+	defer previous.Enable()
+	defer next.Enable()
 
 	installSteps := widget.NewButton("Install Step Templates", func() {
 		s.logs.Hide()
