@@ -242,6 +242,13 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 		}
 
 		filePath := filepath.Join(dir, "terraform.tf")
+		defer func(path string) {
+			err := os.RemoveAll(path)
+			if err != nil {
+				// ignore this and move on
+				fmt.Println(err.Error())
+			}
+		}(filePath)
 
 		if err := os.WriteFile(filePath, []byte(runbookModule), 0644); err != nil {
 			handleError("🔴 An error occurred while writing the Terraform file", err)
