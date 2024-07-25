@@ -411,10 +411,10 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
         "Octopus.Action.AutoRetry.MaximumCount" = "3"
       }
 
-      container {
-        feed_id = octopusdeploy_docker_container_registry.feed_docker.id
-        image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
-      }
+#       container {
+#         feed_id = octopusdeploy_docker_container_registry.feed_docker.id
+#         image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
+#       }
 
       environments          = []
       excluded_environments = []

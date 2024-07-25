@@ -254,10 +254,10 @@ resource "octopusdeploy_runbook_process" "deploy_project" {
         "Octopus.Action.AutoRetry.MaximumCount" = "3"
       }
 
-      container {
-        feed_id = data.octopusdeploy_feeds.docker_feed.feeds[0].id
-        image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
-      }
+#       container {
+#         feed_id = data.octopusdeploy_feeds.docker_feed.feeds[0].id
+#         image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
+#       }
 
       environments          = []
       excluded_environments = []
