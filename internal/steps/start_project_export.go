@@ -66,9 +66,11 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		}); err != nil {
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks. The failed tasks are shown below. You can review the task details in the Octopus console to find more information."))
 			s.logs.SetText(err.Error())
+			s.logs.Show()
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
+			s.logs.Hide()
 		}
 	})
 	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result)

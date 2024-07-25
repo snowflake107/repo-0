@@ -119,6 +119,14 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		return "", err
 	}
 
+	if runbookRunPreviewResponse.StatusCode < 200 || runbookRunPreviewResponse.StatusCode > 299 {
+		return "", octoerrors.RunbookRunFailedError{
+			Runbook:  runbook,
+			Project:  project,
+			Response: string(runbookRunPreviewRaw),
+		}
+	}
+
 	runbookRunPreview := map[string]any{}
 	err = json.Unmarshal(runbookRunPreviewRaw, &runbookRunPreview)
 
@@ -178,6 +186,14 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		return "", err
 	}
 
+	if runbookRunResponse.StatusCode < 200 || runbookRunResponse.StatusCode > 299 {
+		return "", octoerrors.RunbookRunFailedError{
+			Runbook:  runbook,
+			Project:  project,
+			Response: string(runbookRunRaw),
+		}
+	}
+
 	runbookRun := map[string]any{}
 	err = json.Unmarshal(runbookRunRaw, &runbookRun)
 
@@ -229,6 +245,14 @@ func PublishRunbook(state state.State, runbookName string, projectName string) e
 
 	if err != nil {
 		return err
+	}
+
+	if runbookSnapshotTemplateResponse.StatusCode < 200 || runbookSnapshotTemplateResponse.StatusCode > 299 {
+		return octoerrors.RunbookPublishFailedError{
+			Runbook:  runbook,
+			Project:  project,
+			Response: string(runbookSnapshotTemplateRaw),
+		}
 	}
 
 	runbookSnapshotTemplate := map[string]any{}
@@ -288,6 +312,14 @@ func PublishRunbook(state state.State, runbookName string, projectName string) e
 
 	if err != nil {
 		return err
+	}
+
+	if runbookSnapshotResponse.StatusCode < 200 || runbookSnapshotResponse.StatusCode > 299 {
+		return octoerrors.RunbookPublishFailedError{
+			Runbook:  runbook,
+			Project:  project,
+			Response: string(runbookSnapshotResponseRaw),
+		}
 	}
 
 	runbookSnapshot := map[string]any{}
