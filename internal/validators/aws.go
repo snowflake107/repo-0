@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
+	"strings"
 	"time"
 )
 
@@ -15,8 +16,8 @@ type CustomCredentials struct {
 
 func (c CustomCredentials) Retrieve(ctx context.Context) (aws.Credentials, error) {
 	return aws.Credentials{
-		AccessKeyID:     c.State.AwsAccessKey,
-		SecretAccessKey: c.State.AwsSecretKey,
+		AccessKeyID:     strings.TrimSpace(c.State.AwsAccessKey),
+		SecretAccessKey: strings.TrimSpace(c.State.AwsSecretKey),
 		SessionToken:    "",
 		Source:          "",
 		CanExpire:       false,
@@ -29,7 +30,7 @@ func ValidateAWS(state state.State) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithCredentialsProvider(CustomCredentials{state}),
-		config.WithRegion(state.AwsS3BucketRegion))
+		config.WithRegion(strings.TrimSpace(state.AwsS3BucketRegion)))
 	if err != nil {
 		return err
 	}

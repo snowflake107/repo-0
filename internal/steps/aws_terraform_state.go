@@ -10,6 +10,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"strings"
 )
 
 type AwsTerraformStateStep struct {
@@ -146,10 +147,10 @@ func (s AwsTerraformStateStep) getState() state.State {
 		DestinationServer:       s.State.DestinationServer,
 		DestinationApiKey:       s.State.DestinationApiKey,
 		DestinationSpace:        s.State.DestinationSpace,
-		AwsAccessKey:            s.accessKey.Text,
-		AwsSecretKey:            s.secretKey.Text,
-		AwsS3Bucket:             s.s3Bucket.Text,
-		AwsS3BucketRegion:       s.s3Region.Text,
+		AwsAccessKey:            strings.TrimSpace(s.accessKey.Text),
+		AwsSecretKey:            strings.TrimSpace(s.secretKey.Text),
+		AwsS3Bucket:             strings.TrimSpace(s.s3Bucket.Text),
+		AwsS3BucketRegion:       strings.TrimSpace(s.s3Region.Text),
 		PromptForDelete:         s.State.PromptForDelete,
 		AzureResourceGroupName:  s.State.AzureResourceGroupName,
 		AzureStorageAccountName: s.State.AzureStorageAccountName,

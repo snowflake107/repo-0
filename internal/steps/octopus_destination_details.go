@@ -9,6 +9,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
+	"strings"
 )
 
 type OctopusDestinationDetails struct {
@@ -97,9 +98,9 @@ func (s OctopusDestinationDetails) getState() state.State {
 		Server:                  s.State.Server,
 		ApiKey:                  s.State.ApiKey,
 		Space:                   s.State.Space,
-		DestinationServer:       s.server.Text,
-		DestinationApiKey:       s.apiKey.Text,
-		DestinationSpace:        s.spaceId.Text,
+		DestinationServer:       strings.TrimSpace(s.server.Text),
+		DestinationApiKey:       strings.TrimSpace(s.apiKey.Text),
+		DestinationSpace:        strings.TrimSpace(s.spaceId.Text),
 		AwsAccessKey:            s.State.AwsAccessKey,
 		AwsSecretKey:            s.State.AwsSecretKey,
 		AwsS3Bucket:             s.State.AwsS3Bucket,

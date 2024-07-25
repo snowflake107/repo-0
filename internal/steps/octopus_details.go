@@ -9,6 +9,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
+	"strings"
 )
 
 type OctopusDetails struct {
@@ -94,9 +95,9 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 func (s OctopusDetails) getState() state.State {
 	return state.State{
 		BackendType:             s.State.BackendType,
-		Server:                  s.server.Text,
-		ApiKey:                  s.apiKey.Text,
-		Space:                   s.spaceId.Text,
+		Server:                  strings.TrimSpace(s.server.Text),
+		ApiKey:                  strings.TrimSpace(s.apiKey.Text),
+		Space:                   strings.TrimSpace(s.spaceId.Text),
 		DestinationServer:       s.State.DestinationServer,
 		DestinationApiKey:       s.State.DestinationApiKey,
 		DestinationSpace:        s.State.DestinationSpace,

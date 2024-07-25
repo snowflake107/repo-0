@@ -5,14 +5,21 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"net/url"
+	"strings"
 )
 
 func CreateClient(state state.State) (*client.Client, error) {
-	return createClient(state.Server, state.ApiKey, state.Space)
+	return createClient(
+		strings.TrimSpace(state.Server),
+		strings.TrimSpace(state.ApiKey),
+		strings.TrimSpace(state.Space))
 }
 
 func CreateDestinationClient(state state.State) (*client.Client, error) {
-	return createClient(state.DestinationServer, state.DestinationApiKey, state.DestinationSpace)
+	return createClient(
+		strings.TrimSpace(state.DestinationServer),
+		strings.TrimSpace(state.DestinationApiKey),
+		strings.TrimSpace(state.DestinationSpace))
 }
 
 func createClient(server string, apikey string, space string) (*client.Client, error) {

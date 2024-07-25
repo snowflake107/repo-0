@@ -10,6 +10,7 @@ import (
 	"github.com/aws/smithy-go"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"log"
+	"strings"
 )
 
 func TestS3Bucket(state state.State) error {
@@ -23,7 +24,7 @@ func TestS3Bucket(state state.State) error {
 
 	s3Client := s3.NewFromConfig(cfg)
 
-	if _, err := bucketExists(s3Client, state.AwsS3Bucket); err != nil {
+	if _, err := bucketExists(s3Client, strings.TrimSpace(state.AwsS3Bucket)); err != nil {
 		return err
 	}
 
