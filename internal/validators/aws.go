@@ -25,21 +25,21 @@ func (c CustomCredentials) Retrieve(ctx context.Context) (aws.Credentials, error
 	}, nil
 }
 
-func ValidateAWS(state state.State) bool {
+func ValidateAWS(state state.State) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithCredentialsProvider(CustomCredentials{state}),
 		config.WithRegion(state.AwsS3BucketRegion))
 	if err != nil {
-		return false
+		return err
 	}
 
 	simpleTokenService := sts.NewFromConfig(cfg)
 
 	_, err = simpleTokenService.GetCallerIdentity(context.Background(), &sts.GetCallerIdentityInput{})
 	if err != nil {
-		return false
+		return err
 	}
 
-	return true
+	return nil
 }

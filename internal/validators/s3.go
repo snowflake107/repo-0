@@ -12,22 +12,22 @@ import (
 	"log"
 )
 
-func TestS3Bucket(state state.State) bool {
+func TestS3Bucket(state state.State) error {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithCredentialsProvider(CustomCredentials{state}),
 		config.WithRegion(state.AwsS3BucketRegion))
 	if err != nil {
-		return false
+		return err
 	}
 
 	s3Client := s3.NewFromConfig(cfg)
 
-	if bucketExists, err := bucketExists(s3Client, state.AwsS3Bucket); err != nil {
-		return false
-	} else {
-		return bucketExists
+	if _, err := bucketExists(s3Client, state.AwsS3Bucket); err != nil {
+		return err
 	}
+
+	return nil
 }
 
 func bucketExists(s3Client *s3.Client, bucketName string) (bool, error) {

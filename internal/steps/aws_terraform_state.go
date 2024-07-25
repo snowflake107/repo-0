@@ -20,6 +20,7 @@ type AwsTerraformStateStep struct {
 	s3Region  *widget.Entry
 	result    *widget.Label
 	infinite  *widget.ProgressBarInfinite
+	logs      *widget.Entry
 }
 
 func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -35,6 +36,8 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		s.secretKey.Disable()
 		s.s3Bucket.Disable()
 		s.s3Region.Disable()
+		s.logs.Hide()
+		s.logs.SetText("")
 
 		defer s.infinite.Hide()
 		defer s.accessKey.Enable()
@@ -42,13 +45,17 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		defer s.s3Bucket.Enable()
 		defer s.s3Region.Enable()
 
-		if !validators.ValidateAWS(s.getState()) {
+		if err := validators.ValidateAWS(s.getState()); err != nil {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
+			s.logs.SetText(err.Error())
+			s.logs.Show()
 			return
 		}
 
-		if !validators.TestS3Bucket(s.getState()) {
+		if err := validators.TestS3Bucket(s.getState()); err != nil {
 			s.result.SetText("🔴 Unable to connect to the S3 bucket. Please check that the bucket exists and that the supplied credentials can access it.")
+			s.logs.SetText(err.Error())
+			s.logs.Show()
 			return
 		}
 
@@ -67,6 +74,11 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 	s.infinite = widget.NewProgressBarInfinite()
 	s.infinite.Hide()
 	s.infinite.Start()
+
+	s.logs = widget.NewEntry()
+	s.logs.SetMinRowsVisible(20)
+	s.logs.Disable()
+	s.logs.Hide()
 
 	accessKeyLabel := widget.NewLabel("AWS Access Key")
 	s.accessKey = widget.NewEntry()
@@ -105,7 +117,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	formLayout := container.New(layout.NewFormLayout(), accessKeyLabel, s.accessKey, secretKeyLabel, s.secretKey, s3BucketLabel, s.s3Bucket, apiKeyLabel, s.s3Region)
 
-	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.infinite, s.result)
+	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
