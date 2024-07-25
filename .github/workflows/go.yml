@@ -79,6 +79,10 @@ jobs:
           }
           EOT
 
+      - name: Install Fyne Dependencies
+        run: sudo apt-get -y install golang gcc libgl1-mesa-dev xorg-dev
+        shell: bash
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
