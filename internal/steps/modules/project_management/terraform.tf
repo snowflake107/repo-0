@@ -143,7 +143,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
       can_be_used_for_project_versioning = false
       is_required                        = false
       # Use the ubuntu worker pool if it is present, or use the default otherwise
-      worker_pool_id = len(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
+      worker_pool_id = length(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties                         = {
         "SerializeProject.ThisInstance.Server.Url" = "#{Octopus.Source.Server}"
         "Octopus.Action.Template.Id" = var.octopus_serialize_actiontemplateid
@@ -214,7 +214,7 @@ resource "octopusdeploy_runbook_process" "deploy_project" {
       can_be_used_for_project_versioning = true
       is_required                        = false
       # Use the ubuntu worker pool if it is present, or use the default otherwise
-      worker_pool_id = len(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
+      worker_pool_id = length(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties                         = {
         "OctoterraApply.AWS.S3.BucketName" = var.terraform_state_bucket
         "OctoterraApply.AWS.S3.BucketRegion" =  var.terraform_state_bucket_region
