@@ -3,6 +3,7 @@ package steps
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
@@ -36,14 +37,25 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 		defer s.server.Enable()
 		defer s.spaceId.Enable()
 
+		validationFailed := false
 		if !validators.ValidateDestinationCreds(s.getState()) {
 			s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
-			return
+			validationFailed = true
 		}
 
-		s.Wizard.ShowWizardStep(BackendSelectionStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.getState()}})
+		nexCallback := func(proceed bool) {
+			if proceed {
+				s.Wizard.ShowWizardStep(BackendSelectionStep{
+					Wizard:   s.Wizard,
+					BaseStep: BaseStep{State: s.getState()}})
+			}
+		}
+
+		if validationFailed {
+			dialog.NewConfirm("Octopus Validation failed", "Validation of the Octopus details failed. Do you wish to continue anyway?", nexCallback, s.Wizard.Window).Show()
+		} else {
+			nexCallback(true)
+		}
 	})
 
 	s.result = widget.NewLabel("")
