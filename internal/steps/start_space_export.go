@@ -15,6 +15,7 @@ type StartSpaceExportStep struct {
 	BaseStep
 	Wizard      wizard.Wizard
 	exportSpace *widget.Button
+	logs        *widget.Entry
 }
 
 func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -40,24 +41,36 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	infinite := widget.NewProgressBarInfinite()
 	infinite.Hide()
 	infinite.Start()
+	s.logs = widget.NewEntry()
+	s.logs.Disable()
+	s.logs.MultiLine = true
+
 	s.exportSpace = widget.NewButton("Export Space", func() {
 		s.exportSpace.Disable()
 		previous.Disable()
+		next.Disable()
 		infinite.Show()
-		defer s.exportSpace.Enable()
-		defer previous.Enable()
-		defer next.Enable()
-		defer infinite.Hide()
+		s.logs.Hide()
 
 		result.SetText("🔵 Running the runbooks.")
 
 		if err := s.Execute(func(message string) {
 			result.SetText(message)
 		}); err != nil {
-			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks: %s", err))
+			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks"))
+			s.logs.Show()
+			s.logs.SetText(err.Error())
+			next.Enable()
+			previous.Enable()
+			infinite.Hide()
+			s.exportSpace.Enable()
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
+			previous.Enable()
+			s.logs.Hide()
+			infinite.Hide()
+			s.exportSpace.Enable()
 		}
 	})
 	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result)
