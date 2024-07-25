@@ -55,15 +55,15 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Hide()
 	s.exportDone = false
-	previous.Disable()
-	next.Disable()
-	defer previous.Enable()
-	defer next.Enable()
 
 	installSteps := widget.NewButton("Install Step Templates", func() {
 		s.logs.Hide()
 		s.result.SetText("🔵 Installing step templates.")
 		s.exportDone = true
+		previous.Disable()
+		next.Disable()
+		defer previous.Enable()
+		defer next.Enable()
 
 		message, err := s.Execute()
 		if err != nil {
