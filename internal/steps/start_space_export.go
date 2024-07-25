@@ -42,7 +42,9 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	infinite.Hide()
 	infinite.Start()
 	s.logs = widget.NewEntry()
+	s.logs.SetMinRowsVisible(20)
 	s.logs.Disable()
+	s.logs.Hide()
 	s.logs.MultiLine = true
 
 	s.exportSpace = widget.NewButton("Export Space", func() {
@@ -73,7 +75,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			s.exportSpace.Enable()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result)
+	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

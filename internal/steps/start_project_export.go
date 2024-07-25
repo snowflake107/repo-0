@@ -35,7 +35,9 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			BaseStep: BaseStep{State: s.State}})
 	})
 	s.logs = widget.NewEntry()
+	s.logs.SetMinRowsVisible(20)
 	s.logs.Disable()
+	s.logs.Hide()
 	s.logs.MultiLine = true
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
@@ -73,7 +75,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			s.logs.Hide()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result)
+	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
@@ -141,7 +143,7 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) err
 
 	applyTasks := map[string]string{}
 	for _, project := range filteredProjects {
-		if taskId, err := infrastructure.RunRunbook(s.State, "__ 2. Deploy Space", "Octoterra Space Management"); err != nil {
+		if taskId, err := infrastructure.RunRunbook(s.State, "__ 2. Deploy Project", project.Name); err != nil {
 			var failedRunbookRun octoerrors.RunbookRunFailedError
 			if errors.As(err, &failedRunbookRun) {
 				runAndTaskError = errors.Join(runAndTaskError, failedRunbookRun)
