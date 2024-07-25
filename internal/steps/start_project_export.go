@@ -151,7 +151,7 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) err
 				return err
 			}
 		} else {
-			tasks[project.Name] = taskId
+			applyTasks[project.Name] = taskId
 		}
 	}
 
