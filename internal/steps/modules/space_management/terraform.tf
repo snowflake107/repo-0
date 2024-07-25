@@ -120,6 +120,13 @@ data "octopusdeploy_feeds" "built_in_feed" {
   take         = 1
 }
 
+data "octopusdeploy_worker_pools" "ubuntu_worker_pool" {
+  name = "Hosted Ubuntu"
+  ids  = null
+  skip = 0
+  take = 1
+}
+
 resource "octopusdeploy_aws_account" "account_aws_account" {
   name                              = "Octoterra AWS Account"
   description                       = ""
@@ -296,6 +303,8 @@ resource "octopusdeploy_runbook_process" "runbook" {
       is_disabled                        = false
       can_be_used_for_project_versioning = false
       is_required                        = false
+      # Use the ubuntu worker pool if it is present, or use the default otherwise
+      worker_pool_id = len(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties                         = {
         "Octopus.Action.RunOnServer" = "true"
         "Octopus.Action.Script.ScriptSource" = "Inline"
@@ -361,6 +370,8 @@ resource "octopusdeploy_runbook_process" "deploy_space" {
       is_disabled                        = false
       can_be_used_for_project_versioning = true
       is_required                        = false
+      # Use the ubuntu worker pool if it is present, or use the default otherwise
+      worker_pool_id = len(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties                         = {
         "OctoterraApply.AWS.S3.BucketName" = var.terraform_state_bucket
         "OctoterraApply.AWS.S3.BucketRegion" =  var.terraform_state_bucket_region
