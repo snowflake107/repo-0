@@ -3,6 +3,7 @@ package steps
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
@@ -45,23 +46,35 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		defer s.s3Bucket.Enable()
 		defer s.s3Region.Enable()
 
+		validationFailed := false
 		if err := validators.ValidateAWS(s.getState()); err != nil {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()
-			return
+			validationFailed = true
 		}
 
 		if err := validators.TestS3Bucket(s.getState()); err != nil {
 			s.result.SetText("🔴 Unable to connect to the S3 bucket. Please check that the bucket exists and that the supplied credentials can access it.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()
-			return
+			validationFailed = true
 		}
 
-		s.Wizard.ShowWizardStep(SpreadVariablesStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.getState()}})
+		nexCallback := func(proceed bool) {
+			if proceed {
+				s.Wizard.ShowWizardStep(SpreadVariablesStep{
+					Wizard:   s.Wizard,
+					BaseStep: BaseStep{State: s.getState()}})
+			}
+		}
+
+		if validationFailed {
+			dialog.NewConfirm("AWS Validation failed", "Validation of the AWS details failed. Do you wish to continue anyway?", nexCallback, s.Wizard.Window).Show()
+		} else {
+			nexCallback(true)
+		}
+
 	})
 	next.Disable()
 
