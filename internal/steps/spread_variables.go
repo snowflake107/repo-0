@@ -3,6 +3,7 @@ package steps
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/spreadvariables"
@@ -15,6 +16,7 @@ type SpreadVariablesStep struct {
 	Wizard          wizard.Wizard
 	spreadVariables *widget.Button
 	confirmChanges  *widget.Check
+	exportDone      bool
 }
 
 func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -24,11 +26,24 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(StepTemplateStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.State}})
+		moveNext := func(proceed bool) {
+			if !proceed {
+				return
+			}
+
+			s.Wizard.ShowWizardStep(StepTemplateStep{
+				Wizard:   s.Wizard,
+				BaseStep: BaseStep{State: s.State}})
+		}
+		if !s.exportDone {
+			dialog.NewConfirm(
+				"Do you want to skip this step?",
+				"If you have run this step previously you can skip this step", moveNext, s.Wizard.Window).Show()
+		} else {
+			moveNext(true)
+		}
 	})
-	next.Disable()
+	s.exportDone = false
 
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`In order to allow sensitive variables to be exported to a new space, all sensitive variables must have a unique name and no scopes.`))
 	intro.Wrapping = fyne.TextWrapWord
@@ -57,6 +72,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 		s.confirmChanges.Disable()
 		s.spreadVariables.Disable()
 		result.SetText("🔵 Spreading sensitive variables. This can take a little while.")
+		s.exportDone = true
 
 		go func() {
 			defer previous.Enable()

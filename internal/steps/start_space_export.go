@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
@@ -16,6 +17,7 @@ type StartSpaceExportStep struct {
 	Wizard      wizard.Wizard
 	exportSpace *widget.Button
 	logs        *widget.Entry
+	exportDone  bool
 }
 
 func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -25,9 +27,23 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(StartProjectExportStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.State}})
+		moveNext := func(proceed bool) {
+			if !proceed {
+				return
+			}
+
+			s.Wizard.ShowWizardStep(StartProjectExportStep{
+				Wizard:   s.Wizard,
+				BaseStep: BaseStep{State: s.State}})
+		}
+		if !s.exportDone {
+			dialog.NewConfirm(
+				"Do you want to skip this step?",
+				"You can run the runbooks manually from the Octopus UI.", moveNext, s.Wizard.Window).Show()
+		} else {
+			moveNext(true)
+		}
+
 	})
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
@@ -46,8 +62,10 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Disable()
 	s.logs.Hide()
 	s.logs.MultiLine = true
+	s.exportDone = false
 
 	s.exportSpace = widget.NewButton("Export Space", func() {
+		s.exportDone = true
 		s.exportSpace.Disable()
 		previous.Disable()
 		next.Disable()

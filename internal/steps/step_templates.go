@@ -3,6 +3,7 @@ package steps
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
@@ -13,9 +14,10 @@ import (
 
 type StepTemplateStep struct {
 	BaseStep
-	Wizard wizard.Wizard
-	result *widget.Label
-	logs   *widget.Entry
+	Wizard     wizard.Wizard
+	result     *widget.Label
+	logs       *widget.Entry
+	exportDone bool
 }
 
 func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -25,9 +27,23 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(PromptRemovalStep{Wizard: s.Wizard, BaseStep: BaseStep{State: s.State}})
+		moveNext := func(proceed bool) {
+			if !proceed {
+				return
+			}
+
+			s.Wizard.ShowWizardStep(PromptRemovalStep{
+				Wizard:   s.Wizard,
+				BaseStep: BaseStep{State: s.State}})
+		}
+		if !s.exportDone {
+			dialog.NewConfirm(
+				"Do you want to skip this step?",
+				"If you have run this step previously you can skip this step", moveNext, s.Wizard.Window).Show()
+		} else {
+			moveNext(true)
+		}
 	})
-	next.Disable()
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The runbooks created by this wizard require a number of step templates to be installed from the community step template library.
@@ -38,10 +54,12 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Hide()
+	s.exportDone = false
 
 	installSteps := widget.NewButton("Install Step Templates", func() {
 		s.logs.Hide()
 		s.result.SetText("🔵 Installing step templates.")
+		s.exportDone = true
 
 		message, err := s.Execute()
 		if err != nil {

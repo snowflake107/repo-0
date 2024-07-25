@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	projects2 "github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
@@ -21,6 +22,7 @@ type StartProjectExportStep struct {
 	Wizard         wizard.Wizard
 	exportProjects *widget.Button
 	logs           *widget.Entry
+	exportDone     bool
 }
 
 func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -30,15 +32,29 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(FinishStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.State}})
+		moveNext := func(proceed bool) {
+			if !proceed {
+				return
+			}
+
+			s.Wizard.ShowWizardStep(FinishStep{
+				Wizard:   s.Wizard,
+				BaseStep: BaseStep{State: s.State}})
+		}
+		if !s.exportDone {
+			dialog.NewConfirm(
+				"Do you want to skip this step?",
+				"You can run the runbooks manually from the Octopus UI.", moveNext, s.Wizard.Window).Show()
+		} else {
+			moveNext(true)
+		}
 	})
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Disable()
 	s.logs.Hide()
 	s.logs.MultiLine = true
+	s.exportDone = false
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The projects in the source space are now ready to begin exporting to the destination space.
@@ -56,6 +72,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		next.Disable()
 		previous.Disable()
 		infinite.Show()
+		s.exportDone = true
 		defer s.exportProjects.Enable()
 		defer previous.Enable()
 		defer next.Enable()

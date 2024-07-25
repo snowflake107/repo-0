@@ -36,6 +36,7 @@ type ProjectExportStep struct {
 	logs          *widget.Entry
 	next          *widget.Button
 	previous      *widget.Button
+	exportDone    bool
 }
 
 func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -45,13 +46,26 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
-		s.Wizard.ShowWizardStep(StartSpaceExportStep{
-			Wizard:   s.Wizard,
-			BaseStep: BaseStep{State: s.State}})
+		moveNext := func(proceed bool) {
+			if !proceed {
+				return
+			}
+
+			s.Wizard.ShowWizardStep(StartSpaceExportStep{
+				Wizard:   s.Wizard,
+				BaseStep: BaseStep{State: s.State}})
+		}
+		if !s.exportDone {
+			dialog.NewConfirm(
+				"Do you want to skip this step?",
+				"If you have run this step previously you can skip this step", moveNext, s.Wizard.Window).Show()
+		} else {
+			moveNext(true)
+		}
 	})
 	s.next = thisNext
 	s.previous = thisPrevious
-	s.next.Disable()
+	s.exportDone = false
 
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`Each project gets two runbooks, one to serialize it to a Terraform module, and the second to deploy it.`))
 	s.infinite = widget.NewProgressBarInfinite()
@@ -63,7 +77,10 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.MultiLine = true
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Hide()
-	s.createProject = widget.NewButton("Add Runbooks", func() { s.createNewProject(parent) })
+	s.createProject = widget.NewButton("Add Runbooks", func() {
+		s.exportDone = true
+		s.createNewProject(parent)
+	})
 	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
