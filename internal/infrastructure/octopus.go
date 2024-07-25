@@ -185,6 +185,10 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		return "", err
 	}
 
+	if _, ok := runbookRun["TaskId"]; !ok {
+		return "", octoerrors.RunbookRunFailedError{Runbook: runbook, Project: project, Response: string(runbookRunRaw)}
+	}
+
 	return runbookRun["TaskId"].(string), nil
 
 }

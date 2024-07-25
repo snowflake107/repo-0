@@ -14,7 +14,6 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
-	"strings"
 )
 
 type StartProjectExportStep struct {
@@ -66,13 +65,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			result.SetText(message)
 		}); err != nil {
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks. The failed tasks are shown below. You can review the task details in the Octopus console to find more information."))
-
-			var failedTasksError octoerrors.FailedTasksError
-			if errors.As(err, &failedTasksError) {
-				s.logs.SetText(strings.Join(err.(octoerrors.FailedTasksError).TaskId, "\n"))
-			} else {
-				s.logs.SetText(err.Error())
-			}
+			s.logs.SetText(err.Error())
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
@@ -85,7 +78,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 	return content
 }
 
-func (s StartProjectExportStep) Execute(statusCallback func(message string)) (executeError error) {
+func (s StartProjectExportStep) Execute(statusCallback func(message string)) error {
 	myclient, err := octoclient.CreateClient(s.State)
 
 	if err != nil {
@@ -110,29 +103,31 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) (ex
 		statusCallback("🔵 Published __ 1. Serialize Project runbook in project " + project.Name)
 	}
 
-	tasks := map[string]string{}
+	var runAndTaskError error = nil
 
+	tasks := map[string]string{}
 	for _, project := range filteredProjects {
 		if taskId, err := infrastructure.RunRunbook(s.State, "__ 1. Serialize Project", project.Name); err != nil {
-			return err
+
+			var failedRunbookRun octoerrors.RunbookRunFailedError
+			if errors.As(err, &failedRunbookRun) {
+				runAndTaskError = errors.Join(runAndTaskError, failedRunbookRun)
+			} else {
+				return err
+			}
 		} else {
 			tasks[project.Name] = taskId
 		}
 	}
 
 	serializeIndex := 0
-	failedSerializeTasks := []string{}
 	for project, taskId := range tasks {
 		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
 			statusCallback("🔵 __ 1. Serialize Project for project " + project + " is " + message + " (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
 		}); err != nil {
-			failedSerializeTasks = append(failedSerializeTasks, taskId)
+			runAndTaskError = errors.Join(runAndTaskError, err)
 		}
 		serializeIndex++
-	}
-
-	if len(failedSerializeTasks) != 0 {
-		return octoerrors.FailedTasksError{TaskId: failedSerializeTasks}
 	}
 
 	for _, project := range filteredProjects {
@@ -145,26 +140,26 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) (ex
 	applyTasks := map[string]string{}
 	for _, project := range filteredProjects {
 		if taskId, err := infrastructure.RunRunbook(s.State, "__ 2. Deploy Space", "Octoterra Space Management"); err != nil {
-			return err
+			var failedRunbookRun octoerrors.RunbookRunFailedError
+			if errors.As(err, &failedRunbookRun) {
+				runAndTaskError = errors.Join(runAndTaskError, failedRunbookRun)
+			} else {
+				return err
+			}
 		} else {
 			tasks[project.Name] = taskId
 		}
 	}
 
 	applyIndex := 0
-	failedApplyTasks := []string{}
 	for project, taskId := range applyTasks {
 		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
 			statusCallback("🔵 __ 2. Deploy Space for project " + project + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
 		}); err != nil {
-			failedApplyTasks = append(failedApplyTasks, taskId)
+			runAndTaskError = errors.Join(runAndTaskError, err)
 		}
 		applyIndex++
 	}
 
-	if len(failedSerializeTasks) != 0 {
-		return octoerrors.FailedTasksError{TaskId: failedApplyTasks}
-	}
-
-	return nil
+	return runAndTaskError
 }

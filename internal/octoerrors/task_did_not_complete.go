@@ -7,5 +7,5 @@ type TaskDidNotCompleteError struct {
 }
 
 func (e TaskDidNotCompleteError) Error() string {
-	return fmt.Sprintf("Task %s did not complete", e.TaskId)
+	return fmt.Sprintf("Task %s did not complete within the timeout", e.TaskId)
 }
