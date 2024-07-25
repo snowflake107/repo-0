@@ -229,7 +229,7 @@ jobs:
           GOARCH: amd64
           CGO_ENABLED: 1
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         continue-on-error: true
         with:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
@@ -269,7 +269,7 @@ jobs:
           GOARCH: amd64
           CGO_ENABLED: 1
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         continue-on-error: true
         with:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
@@ -309,7 +309,7 @@ jobs:
           GOARCH: arm64
           CGO_ENABLED: 1
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         continue-on-error: true
         with:
           tag_name: ${{ steps.determine_version.outputs.semVer }}+run${{ github.run_number }}-attempt${{ github.run_attempt }}
