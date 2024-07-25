@@ -97,6 +97,13 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		return "", err
 	}
 
+	if runbook.PublishedRunbookSnapshotID == "" {
+		return "", octoerrors.RunbookNotPublishedError{
+			Runbook: runbook,
+			Project: project,
+		}
+	}
+
 	url := state.Server + runbook.GetLinks()["RunbookRunPreview"]
 	url = strings.ReplaceAll(url, "{environment}", environment[0].GetID())
 	url = strings.ReplaceAll(url, "{?includeDisabledSteps}", "")
