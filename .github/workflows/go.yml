@@ -33,6 +33,8 @@ jobs:
 
       - name: Set up Go
         uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
 
       - name: Download JUnit Summary from Previous Workflow
         id: download-artifact
@@ -197,7 +199,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.5'
+          go-version: '1.23'
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.15
         with:
@@ -261,7 +263,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.5'
+          go-version: '1.23'
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.15
         with:
@@ -301,7 +303,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.5'
+          go-version: '1.23'
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.15
         with:
