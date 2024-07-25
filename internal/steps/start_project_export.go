@@ -99,6 +99,15 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) err
 		return project.Name != "Octoterra Space Management"
 	})
 
+	runAndTaskError := s.serializeProjects(filteredProjects, statusCallback)
+	runAndTaskError = errors.Join(runAndTaskError, s.deployProjects(filteredProjects, statusCallback))
+
+	return runAndTaskError
+}
+
+func (s StartProjectExportStep) serializeProjects(filteredProjects []*projects2.Project, statusCallback func(message string)) error {
+	var runAndTaskError error = nil
+
 	for _, project := range filteredProjects {
 		if err := infrastructure.PublishRunbook(s.State, "__ 1. Serialize Project", project.Name); err != nil {
 			return err
@@ -106,8 +115,6 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) err
 
 		statusCallback("🔵 Published __ 1. Serialize Project runbook in project " + project.Name)
 	}
-
-	var runAndTaskError error = nil
 
 	tasks := map[string]string{}
 	for _, project := range filteredProjects {
@@ -133,6 +140,12 @@ func (s StartProjectExportStep) Execute(statusCallback func(message string)) err
 		}
 		serializeIndex++
 	}
+
+	return runAndTaskError
+}
+
+func (s StartProjectExportStep) deployProjects(filteredProjects []*projects2.Project, statusCallback func(message string)) error {
+	var runAndTaskError error = nil
 
 	for _, project := range filteredProjects {
 		if err := infrastructure.PublishRunbook(s.State, "__ 2. Deploy Project", project.Name); err != nil {
