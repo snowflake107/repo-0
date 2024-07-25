@@ -17,22 +17,22 @@ type FinishStep struct {
 func (s FinishStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		Your Octopus space now has a new project called "Octoterra Space Management" that contains two runbooks:
-		__ 1. Serialize Space, which serializes space level resources to a Terraform module
-		__ 2. Deploy Space, which deploys the Terraform module to a new space
+		The migration tool has now completed.
+		Note that there are resources and settings that can not be migrated.
+		Where possible, these resources can be manually recreated or updated in the destination space:
+		* Certificates
+		* Account, feed, Git, ServiceNow, Jira, Sumo, and Slunk credentials
+		* Sensitive variables defined directly in a step, for example in a step template that has a sensitive parameter, or
+          steps like the IIS or Tomcat steps that directly expose sensitive fields
+		* Tenant sensitive variables
+		* Users and teams
+		* Subscriptions
+		* Audit logs
+		* Deployment and runbook run history
+		* Built-in feed packages
+		* Build information
 	`))
-	intro2 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		Run the __ 1. Serialize Space runbook first, then run the __ 2. Deploy Space runbook.
-	`))
-	intro3 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		Each project now contains two runbooks:
-		__ 1. Serialize Project, which serializes the project to a Terraform module
-		__ 2. Deploy Project, which deploys the Terraform module to a new space
-	`))
-	intro4 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		For each project, run the __ 1. Serialize Project first, then run the __ 2. Deploy Project runbook.
-	`))
-	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4)
+	middle := container.New(layout.NewVBoxLayout(), intro)
 
 	content := container.NewBorder(nil, nil, nil, nil, middle)
 
