@@ -31,6 +31,7 @@ func (s FinishStep) GetContainer(parent fyne.Window) *fyne.Container {
 		* Deployment and runbook run history
 		* Built-in feed packages
 		* Build information
+		* Email settings
 	`))
 	middle := container.New(layout.NewVBoxLayout(), intro)
 
