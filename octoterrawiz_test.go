@@ -104,6 +104,18 @@ func TestSpreadVariables(t *testing.T) {
 			if len(originalVariables) != 3 {
 				t.Fatalf("Expected 3 variables, got %v", len(originalVariables))
 			}
+
+			// Each regular variable must reference a sensitive variable
+			for _, variable := range originalVariables {
+				matchingSensitiveVar := lo.Filter(sensitiveVariables, func(item *variables.Variable, index int) bool {
+					return *variable.Value == "#{"+item.Name+"}"
+				})
+
+				if len(matchingSensitiveVar) == 0 {
+					t.Fatalf("Should have found a matching sensitive variable for %v", variable.Name)
+				}
+			}
+
 		}
 
 		return nil
