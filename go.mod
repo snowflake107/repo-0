@@ -18,7 +18,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Microsoft/hcsshim v0.11.5 // indirect
 	github.com/OctopusDeploy/go-octodiff v1.0.0 // indirect
-	github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240725054341-2848f54d101e // indirect
+	github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240726021619-6d0117615788 // indirect
 	github.com/avast/retry-go/v4 v4.5.1 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.30.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.3 // indirect

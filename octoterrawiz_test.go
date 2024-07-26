@@ -1,14 +1,21 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/spaces"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework/octoclient"
 	"github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework/test"
+	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/steps"
 	"github.com/samber/lo"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -236,6 +243,140 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Expected 1 variable, got %v", len(regularVariable))
 			}
 
+		}
+
+		return nil
+	})
+}
+
+// TestProjectMigration tests a full space migration running the wizard steps in the same sequence
+// a user would from the UI
+func TestProjectMigration(t *testing.T) {
+	testFramework := test.OctopusContainerTest{}
+	testFramework.ArrangeTest(t, func(t *testing.T, container *test.OctopusContainer, client *client.Client) error {
+		// Act
+		newSpaceId, err := testFramework.Act(
+			t,
+			container,
+			filepath.Join("terraform"),
+			"3-simpleproject",
+			[]string{})
+
+		if err != nil {
+			return err
+		}
+
+		newSpaceClient, err := octoclient.CreateClient(container.URI, newSpaceId, test.ApiKey)
+
+		newSpace := spaces.NewSpace("Migration")
+		newSpace.SpaceManagersTeams = []string{"teams-administrators"}
+		space, err := newSpaceClient.Spaces.Add(newSpace)
+
+		if err != nil {
+			return err
+		}
+
+		state := state.State{
+			BackendType:             "AWS S3",
+			Server:                  container.URI,
+			ApiKey:                  test.ApiKey,
+			Space:                   newSpaceId,
+			DestinationServer:       container.URI,
+			DestinationApiKey:       test.ApiKey,
+			DestinationSpace:        space.ID,
+			AwsAccessKey:            os.Getenv("AWS_ACCESS_KEY_ID"),
+			AwsSecretKey:            os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			AwsS3Bucket:             os.Getenv("AWS_DEFAULT_BUCKET"),
+			AwsS3BucketRegion:       os.Getenv("AWS_DEFAULT_REGION"),
+			PromptForDelete:         false,
+			AzureResourceGroupName:  "",
+			AzureStorageAccountName: "",
+			AzureContainerName:      "",
+			AzureSubscriptionId:     "",
+			AzureTenantId:           "",
+			AzureApplicationId:      "",
+			AzurePassword:           "",
+		}
+
+		// need to install pip and terraform onto the Octopus container
+		installPip := "{\"Name\":\"AdHocScript\",\"Description\":\"Script run from management console\",\"Arguments\":{\"MachineIds\":[],\"TenantIds\":[],\"TargetRoles\":[],\"EnvironmentIds\":[],\"WorkerIds\":[],\"WorkerPoolIds\":[],\"TargetType\":\"OctopusServer\",\"Syntax\":\"Bash\",\"ScriptBody\":\"apt-get update\\napt-get upgrade\\napt install python3-pip -y\\napt-get update && apt-get install -y gnupg software-properties-common\\nwget -O- https://apt.releases.hashicorp.com/gpg | \\\\\\ngpg --dearmor | \\\\\\ntee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null\\necho \\\"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \\\\\\nhttps://apt.releases.hashicorp.com $(lsb_release -cs) main\\\" | \\\\\\ntee /etc/apt/sources.list.d/hashicorp.list\\napt update\\napt-get install -y terraform\"},\"SpaceId\":\"Spaces-2\"}"
+		req, err := http.NewRequest("POST", container.URI+"/api/tasks", bytes.NewReader([]byte(installPip)))
+
+		if err != nil {
+			return err
+		}
+
+		response, err := newSpaceClient.HttpSession().DoRawRequest(req)
+
+		if err != nil {
+			return err
+		}
+
+		responseBody, err := io.ReadAll(response.Body)
+
+		if err != nil {
+			return err
+		}
+
+		stepTemplates := map[string]any{}
+		if err := json.Unmarshal(responseBody, &stepTemplates); err != nil {
+			return err
+		}
+
+		err = infrastructure.WaitForTask(state, stepTemplates["Id"].(string), func(message string) {})
+
+		if err != nil {
+			return err
+		}
+
+		if err := (steps.SpreadVariablesStep{BaseStep: steps.BaseStep{State: state}}).Execute(); err != nil {
+			t.Fatalf("Error executing SpreadVariablesStep: %v", err)
+		}
+
+		if _, err := (steps.StepTemplateStep{BaseStep: steps.BaseStep{State: state}}).Execute(); err != nil {
+			t.Fatalf("Error executing StepTemplateStep: %v", err)
+		}
+
+		steps.SpaceExportStep{BaseStep: steps.BaseStep{State: state}}.Execute(func(message string, body string, callback func(bool)) {
+			callback(true)
+		}, func(s string, err error) {
+			t.Fatalf("Error executing SpaceExportStep: %v", err)
+		}, func(s string) {
+			// success
+		}, false, false)
+
+		steps.ProjectExportStep{BaseStep: steps.BaseStep{State: state}}.Execute(func(message string, body string, callback func(bool)) {
+			callback(true)
+		}, func(s string, err error) {
+			t.Fatalf("Error executing ProjectExportStep: %v", err)
+		}, func(s string) {
+			// success
+		}, func(s string) {
+			// status
+		})
+
+		if err := (steps.StartSpaceExportStep{BaseStep: steps.BaseStep{State: state}}).Execute(func(message string) {}); err != nil {
+			t.Fatalf("Error executing StartSpaceExportStep: %v", err)
+		}
+
+		if err := (steps.StartProjectExportStep{BaseStep: steps.BaseStep{State: state}}).Execute(func(message string) {}); err != nil {
+			t.Fatalf("Error executing StartProjectExportStep: %v", err)
+		}
+
+		migratedSpaceClient, err := octoclient.CreateClient(container.URI, space.ID, test.ApiKey)
+
+		if err != nil {
+			return err
+		}
+
+		project, err := projects.GetByName(migratedSpaceClient, migratedSpaceClient.GetSpaceID(), "Test")
+
+		if err != nil {
+			return err
+		}
+
+		if project.Description != "Test project" {
+			t.Fatalf("Expected description to be 'Test project', got %v", project.Description)
 		}
 
 		return nil

@@ -65,6 +65,8 @@ github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-2024
 github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240719212044-ffc29de4d329/go.mod h1:Oq9KbiRNDBB5jFmrwnrgLX0urIqR/1ptY18TzkqXm7M=
 github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240725054341-2848f54d101e h1:FIvWa8wNg8IBG5uVhqkKvcBhaxx4TgN7T8/5Ed4VQUE=
 github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240725054341-2848f54d101e/go.mod h1:Oq9KbiRNDBB5jFmrwnrgLX0urIqR/1ptY18TzkqXm7M=
+github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240726021619-6d0117615788 h1:4WF0/Ggwk5WZ8fWO9xyje6bKl7K4oT6GzDnWiJ2HfZQ=
+github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework v0.0.0-20240726021619-6d0117615788/go.mod h1:Oq9KbiRNDBB5jFmrwnrgLX0urIqR/1ptY18TzkqXm7M=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
