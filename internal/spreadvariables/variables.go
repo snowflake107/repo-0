@@ -10,6 +10,11 @@ import (
 	"slices"
 )
 
+type OwnerVariablePair struct {
+	OwnerID     string
+	VariableSet *variables.VariableSet
+}
+
 func findSecretVariablesWithSharedNameAndScoped(variableSet *variables.VariableSet) ([]string, error) {
 	groupedVariables := []string{}
 	for _, variable := range variableSet.Variables {
@@ -78,7 +83,7 @@ func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) s
 	return name
 }
 
-func spreadVariables(client *client.Client, libraryVariableSet *variables.LibraryVariableSet, variableSet *variables.VariableSet) error {
+func spreadVariables(client *client.Client, ownerId string, variableSet *variables.VariableSet) error {
 	groupedVariables, err := findSecretVariablesWithSharedNameAndScoped(variableSet)
 
 	if err != nil {
@@ -118,7 +123,7 @@ func spreadVariables(client *client.Client, libraryVariableSet *variables.Librar
 
 			fmt.Println("Recreating " + referenceVar.Name + " referencing " + reference)
 
-			_, err = variables.AddSingle(client, client.GetSpaceID(), libraryVariableSet.ID, &referenceVar)
+			_, err = variables.AddSingle(client, client.GetSpaceID(), ownerId, &referenceVar)
 
 			if err != nil {
 				return err
@@ -147,7 +152,7 @@ func spreadVariables(client *client.Client, libraryVariableSet *variables.Librar
 			variable.Name = uniqueName
 			variable.Scope = variables.VariableScope{}
 
-			_, err = variables.UpdateSingle(client, client.GetSpaceID(), libraryVariableSet.ID, variable)
+			_, err = variables.UpdateSingle(client, client.GetSpaceID(), ownerId, variable)
 
 			if err != nil {
 				return err
@@ -171,6 +176,14 @@ func SpreadAllVariables(state state.State) error {
 		return err
 	}
 
+	projects, err := myclient.Projects.GetAll()
+
+	if err != nil {
+		return err
+	}
+
+	variableSets := []OwnerVariablePair{}
+
 	for _, libraryVariableSet := range libraryVariableSets {
 		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), libraryVariableSet.VariableSetID)
 
@@ -178,7 +191,28 @@ func SpreadAllVariables(state state.State) error {
 			return err
 		}
 
-		err = spreadVariables(myclient, libraryVariableSet, variableSet)
+		variableSets = append(variableSets, OwnerVariablePair{
+			OwnerID:     libraryVariableSet.ID,
+			VariableSet: variableSet,
+		})
+	}
+
+	for _, project := range projects {
+		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), project.VariableSetID)
+
+		if err != nil {
+			return err
+		}
+
+		variableSets = append(variableSets, OwnerVariablePair{
+			OwnerID:     project.ID,
+			VariableSet: variableSet,
+		})
+	}
+
+	for _, variableSet := range variableSets {
+
+		err = spreadVariables(myclient, variableSet.OwnerID, variableSet.VariableSet)
 
 		if err != nil {
 			return err

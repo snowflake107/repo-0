@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework/octoclient"
 	"github.com/OctopusSolutionsEngineering/OctopusTerraformTestFramework/test"
@@ -114,6 +115,125 @@ func TestSpreadVariables(t *testing.T) {
 				if len(matchingSensitiveVar) == 0 {
 					t.Fatalf("Should have found a matching sensitive variable for %v", variable.Name)
 				}
+			}
+
+		}
+
+		return nil
+	})
+}
+
+func TestProjectSpreadVariables(t *testing.T) {
+	testFramework := test.OctopusContainerTest{}
+	testFramework.ArrangeTest(t, func(t *testing.T, container *test.OctopusContainer, client *client.Client) error {
+		// Act
+		newSpaceId, err := testFramework.Act(
+			t,
+			container,
+			filepath.Join("terraform"),
+			"3-simpleproject",
+			[]string{})
+
+		if err != nil {
+			return err
+		}
+
+		newSpaceClient, err := octoclient.CreateClient(container.URI, newSpaceId, test.ApiKey)
+
+		if err != nil {
+			return err
+		}
+
+		step := steps.SpreadVariablesStep{
+			BaseStep: steps.BaseStep{State: state.State{
+				BackendType:             "",
+				Server:                  container.URI,
+				ApiKey:                  test.ApiKey,
+				Space:                   newSpaceId,
+				DestinationServer:       "",
+				DestinationApiKey:       "",
+				DestinationSpace:        "",
+				AwsAccessKey:            "",
+				AwsSecretKey:            "",
+				AwsS3Bucket:             "",
+				AwsS3BucketRegion:       "",
+				PromptForDelete:         false,
+				AzureResourceGroupName:  "",
+				AzureStorageAccountName: "",
+				AzureContainerName:      "",
+				AzureSubscriptionId:     "",
+				AzureTenantId:           "",
+				AzureApplicationId:      "",
+				AzurePassword:           "",
+			}},
+		}
+
+		// we must be able to repeat this step with no changes
+		for i := 0; i < 3; i++ {
+			if err := step.Execute(); err != nil {
+				t.Fatalf("Error executing step: %v", err)
+			}
+
+			project, err := projects.GetByName(newSpaceClient, newSpaceClient.GetSpaceID(), "Test")
+
+			if err != nil {
+				t.Fatalf("Error getting library project: %v", err)
+			}
+
+			variableSet, err := variables.GetVariableSet(newSpaceClient, newSpaceClient.GetSpaceID(), project.VariableSetID)
+
+			if err != nil {
+				t.Fatalf("Error getting project variable set: %v", err)
+			}
+
+			if len(variableSet.Variables) != 7 {
+				t.Fatalf("Expected 7 variables, got %v", len(variableSet.Variables))
+			}
+
+			// There must be 3 sensitive variables, and they must all be unscoped
+			sensitiveVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.IsSensitive &&
+					len(item.Scope.Environments) == 0 &&
+					len(item.Scope.Roles) == 0 &&
+					len(item.Scope.Machines) == 0 &&
+					len(item.Scope.Actions) == 0 &&
+					len(item.Scope.TenantTags) == 0 &&
+					len(item.Scope.ProcessOwners) == 0 &&
+					len(item.Scope.Channels) == 0
+			})
+
+			if len(sensitiveVariables) != 3 {
+				t.Fatalf("Expected 3 variables, got %v", len(sensitiveVariables))
+			}
+
+			// The three sensitive variables that shared a name must now have 3 regular variables each scoped
+			// to an environment
+			originalVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "SensitiveVariable" && !item.IsSensitive && len(item.Scope.Environments) == 1
+			})
+
+			if len(originalVariables) != 3 {
+				t.Fatalf("Expected 3 variables, got %v", len(originalVariables))
+			}
+
+			// Each regular variable must reference a sensitive variable
+			for _, variable := range originalVariables {
+				matchingSensitiveVar := lo.Filter(sensitiveVariables, func(item *variables.Variable, index int) bool {
+					return *variable.Value == "#{"+item.Name+"}"
+				})
+
+				if len(matchingSensitiveVar) == 0 {
+					t.Fatalf("Should have found a matching sensitive variable for %v", variable.Name)
+				}
+			}
+
+			// There must be a regular variable that was not altered
+			regularVariable := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "RegularVariable" && !item.IsSensitive
+			})
+
+			if len(regularVariable) != 1 {
+				t.Fatalf("Expected 1 variable, got %v", len(regularVariable))
 			}
 
 		}
