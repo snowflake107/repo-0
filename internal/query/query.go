@@ -42,13 +42,8 @@ func GetSpaceName(myclient *client.Client, state state.State) (string, error) {
 }
 
 func GetStepTemplateId(myclient *client.Client, state state.State, name string) (string, error, string) {
-	server := state.ServerExternal
-	if server == "" {
-		server = state.Server
-	}
-
 	var body io.Reader
-	req, err := http.NewRequest("GET", server+"/api/"+state.Space+"/actiontemplates?take=10000", body)
+	req, err := http.NewRequest("GET", state.GetExternalServer()+"/api/"+state.Space+"/actiontemplates?take=10000", body)
 
 	if err != nil {
 		return "", err, "🔴 Failed to create the step templates request"
@@ -103,13 +98,8 @@ func LibraryVariableSetExists(myclient *client.Client) (bool, *variables.Library
 }
 
 func InstallStepTemplate(myclient *client.Client, state state.State, website string) (error, string) {
-	server := state.ServerExternal
-	if server == "" {
-		server = state.Server
-	}
-
 	var body io.Reader
-	req, err := http.NewRequest("GET", server+"/api/communityactiontemplates?take=10000", body)
+	req, err := http.NewRequest("GET", state.GetExternalServer()+"/api/communityactiontemplates?take=10000", body)
 
 	if err != nil {
 		return err, "🔴 Failed to get the community step templates"

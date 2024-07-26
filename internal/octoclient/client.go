@@ -12,13 +12,8 @@ func CreateClient(state state.State) (*client.Client, error) {
 	// This value serves as an override for when we access the server "externally" (e.g. from the wizard).
 	// This can be different to the internal server, which is accessed from steps run by Octopus itself.
 	// ServerExternal is typically only set when running automated tests.
-	server := state.ServerExternal
-	if server == "" {
-		server = state.Server
-	}
-
 	return createClient(
-		strings.TrimSpace(server),
+		strings.TrimSpace(state.GetExternalServer()),
 		strings.TrimSpace(state.ApiKey),
 		strings.TrimSpace(state.Space))
 }

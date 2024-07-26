@@ -273,6 +273,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 			"-no-color",
 			"-var=octopus_serialize_actiontemplateid="+serializeProjectTemplate,
 			"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
+			"-var=octopus_server_external="+s.State.GetExternalServer(),
 			"-var=octopus_server="+s.State.Server,
 			"-var=octopus_apikey="+s.State.ApiKey,
 			"-var=octopus_space_id="+s.State.Space,

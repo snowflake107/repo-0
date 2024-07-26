@@ -104,7 +104,7 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		}
 	}
 
-	url := state.Server + runbook.GetLinks()["RunbookRunPreview"]
+	url := state.GetExternalServer() + runbook.GetLinks()["RunbookRunPreview"]
 	url = strings.ReplaceAll(url, "{environment}", environment[0].GetID())
 	url = strings.ReplaceAll(url, "{?includeDisabledSteps}", "")
 
@@ -174,7 +174,7 @@ func RunRunbook(state state.State, runbookName string, projectName string) (stri
 		return "", err
 	}
 
-	url = state.Server + "/api/" + state.Space + "/runbookRuns"
+	url = state.GetExternalServer() + "/api/" + state.Space + "/runbookRuns"
 	runbookRunRequest, err := http.NewRequest("POST", url, bytes.NewReader(runbookBodyJson))
 
 	if err != nil {
@@ -235,7 +235,7 @@ func PublishRunbook(state state.State, runbookName string, projectName string) e
 		return err
 	}
 
-	url := state.Server + runbook.GetLinks()["RunbookSnapshotTemplate"]
+	url := state.GetExternalServer() + runbook.GetLinks()["RunbookSnapshotTemplate"]
 	runbookSnapshotTemplateRequest, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -302,7 +302,7 @@ func PublishRunbook(state state.State, runbookName string, projectName string) e
 		return err
 	}
 
-	url = state.Server + "/api/" + state.Space + "/runbookSnapshots?publish=true"
+	url = state.GetExternalServer() + "/api/" + state.Space + "/runbookSnapshots?publish=true"
 	runbookSnapshotRequest, err := http.NewRequest("POST", url+"?publish=true", bytes.NewBuffer(snapshotJson))
 
 	if err != nil {

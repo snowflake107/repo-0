@@ -23,3 +23,11 @@ type State struct {
 	AzureApplicationId        string
 	AzurePassword             string
 }
+
+func (s State) GetExternalServer() string {
+	if s.ServerExternal != "" {
+		return s.ServerExternal
+	}
+
+	return s.Server
+}

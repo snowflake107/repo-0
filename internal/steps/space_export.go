@@ -193,9 +193,14 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 	if lvsExists && !attemptedLvsDelete {
 		deleteLvsFunc := func(b bool) {
 			if b {
+				server := s.State.ServerExternal
+				if server == "" {
+					server = s.State.Server
+				}
+
 				// got to start by unlinking the project from all the projects
 				var body io.Reader
-				req, err := http.NewRequest("GET", s.State.Server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
+				req, err := http.NewRequest("GET", server+"/api/"+s.State.Space+"/LibraryVariableSets/"+lvs.ID+"/usages", body)
 
 				if err != nil {
 					handleError("🔴 Failed to create the library variable set usage request", err)
@@ -375,6 +380,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		"-no-color",
 		"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
 		"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
+		"-var=octopus_server_external="+s.State.GetExternalServer(),
 		"-var=octopus_server="+s.State.Server,
 		"-var=octopus_apikey="+s.State.ApiKey,
 		"-var=octopus_space_id="+s.State.Space,

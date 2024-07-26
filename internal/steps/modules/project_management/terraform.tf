@@ -5,9 +5,16 @@ terraform {
 }
 
 provider "octopusdeploy" {
-  address  = var.octopus_server
+  address  = var.octopus_server_external
   api_key  = var.octopus_apikey
   space_id = var.octopus_space_id
+}
+
+variable "octopus_server_external" {
+  type        = string
+  nullable    = false
+  sensitive   = false
+  description = "The URL of the Octopus server when accessed from the wizard. Will usually only different that octopus_server from tests"
 }
 
 variable "octopus_server" {
