@@ -1,23 +1,25 @@
 package state
 
 type State struct {
-	BackendType             string
-	Server                  string
-	ApiKey                  string
-	Space                   string
-	DestinationServer       string
-	DestinationApiKey       string
-	DestinationSpace        string
-	AwsAccessKey            string
-	AwsSecretKey            string
-	AwsS3Bucket             string
-	AwsS3BucketRegion       string
-	PromptForDelete         bool
-	AzureResourceGroupName  string
-	AzureStorageAccountName string
-	AzureContainerName      string
-	AzureSubscriptionId     string
-	AzureTenantId           string
-	AzureApplicationId      string
-	AzurePassword           string
+	BackendType               string
+	Server                    string
+	ServerExternal            string
+	ApiKey                    string
+	Space                     string
+	DestinationServer         string
+	DestinationServerExternal string
+	DestinationApiKey         string
+	DestinationSpace          string
+	AwsAccessKey              string
+	AwsSecretKey              string
+	AwsS3Bucket               string
+	AwsS3BucketRegion         string
+	PromptForDelete           bool
+	AzureResourceGroupName    string
+	AzureStorageAccountName   string
+	AzureContainerName        string
+	AzureSubscriptionId       string
+	AzureTenantId             string
+	AzureApplicationId        string
+	AzurePassword             string
 }

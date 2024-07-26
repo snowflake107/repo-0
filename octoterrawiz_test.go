@@ -277,25 +277,27 @@ func TestProjectMigration(t *testing.T) {
 		}
 
 		state := state.State{
-			BackendType:             "AWS S3",
-			Server:                  container.URI,
-			ApiKey:                  test.ApiKey,
-			Space:                   newSpaceId,
-			DestinationServer:       container.URI,
-			DestinationApiKey:       test.ApiKey,
-			DestinationSpace:        space.ID,
-			AwsAccessKey:            os.Getenv("AWS_ACCESS_KEY_ID"),
-			AwsSecretKey:            os.Getenv("AWS_SECRET_ACCESS_KEY"),
-			AwsS3Bucket:             os.Getenv("AWS_DEFAULT_BUCKET"),
-			AwsS3BucketRegion:       os.Getenv("AWS_DEFAULT_REGION"),
-			PromptForDelete:         false,
-			AzureResourceGroupName:  "",
-			AzureStorageAccountName: "",
-			AzureContainerName:      "",
-			AzureSubscriptionId:     "",
-			AzureTenantId:           "",
-			AzureApplicationId:      "",
-			AzurePassword:           "",
+			BackendType:               "AWS S3",
+			Server:                    "http://172.17.0.1:8080", // The address used by Octopus when running tasks, which could be in nested containers
+			ServerExternal:            container.URI,            // The address used by the wizard
+			ApiKey:                    test.ApiKey,
+			Space:                     newSpaceId,
+			DestinationServer:         "http://172.17.0.1:8080",
+			DestinationServerExternal: container.URI,
+			DestinationApiKey:         test.ApiKey,
+			DestinationSpace:          space.ID,
+			AwsAccessKey:              os.Getenv("AWS_ACCESS_KEY_ID"),
+			AwsSecretKey:              os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			AwsS3Bucket:               os.Getenv("AWS_DEFAULT_BUCKET"),
+			AwsS3BucketRegion:         os.Getenv("AWS_DEFAULT_REGION"),
+			PromptForDelete:           false,
+			AzureResourceGroupName:    "",
+			AzureStorageAccountName:   "",
+			AzureContainerName:        "",
+			AzureSubscriptionId:       "",
+			AzureTenantId:             "",
+			AzureApplicationId:        "",
+			AzurePassword:             "",
 		}
 
 		// need to install pip and terraform onto the Octopus container

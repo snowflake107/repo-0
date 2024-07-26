@@ -42,8 +42,13 @@ func GetSpaceName(myclient *client.Client, state state.State) (string, error) {
 }
 
 func GetStepTemplateId(myclient *client.Client, state state.State, name string) (string, error, string) {
+	server := state.ServerExternal
+	if server == "" {
+		server = state.Server
+	}
+
 	var body io.Reader
-	req, err := http.NewRequest("GET", state.Server+"/api/"+state.Space+"/actiontemplates?take=10000", body)
+	req, err := http.NewRequest("GET", server+"/api/"+state.Space+"/actiontemplates?take=10000", body)
 
 	if err != nil {
 		return "", err, "🔴 Failed to create the step templates request"
@@ -98,8 +103,13 @@ func LibraryVariableSetExists(myclient *client.Client) (bool, *variables.Library
 }
 
 func InstallStepTemplate(myclient *client.Client, state state.State, website string) (error, string) {
+	server := state.ServerExternal
+	if server == "" {
+		server = state.Server
+	}
+
 	var body io.Reader
-	req, err := http.NewRequest("GET", state.Server+"/api/communityactiontemplates?take=10000", body)
+	req, err := http.NewRequest("GET", server+"/api/communityactiontemplates?take=10000", body)
 
 	if err != nil {
 		return err, "🔴 Failed to get the community step templates"
@@ -137,7 +147,7 @@ func InstallStepTemplate(myclient *client.Client, state state.State, website str
 	}
 
 	var installBody io.Reader
-	installReq, err := http.NewRequest("POST", state.Server+"/api/communityactiontemplates/"+serializeSpaceTemplate[0].Id+"/installation/"+state.Space, installBody)
+	installReq, err := http.NewRequest("POST", server+"/api/communityactiontemplates/"+serializeSpaceTemplate[0].Id+"/installation/"+state.Space, installBody)
 
 	if err != nil {
 		return err, "🔴 Failed to create the request to install the community step templates"
