@@ -137,7 +137,7 @@ func InstallStepTemplate(myclient *client.Client, state state.State, website str
 	}
 
 	var installBody io.Reader
-	installReq, err := http.NewRequest("POST", server+"/api/communityactiontemplates/"+serializeSpaceTemplate[0].Id+"/installation/"+state.Space, installBody)
+	installReq, err := http.NewRequest("POST", state.GetExternalServer()+"/api/communityactiontemplates/"+serializeSpaceTemplate[0].Id+"/installation/"+state.Space, installBody)
 
 	if err != nil {
 		return err, "🔴 Failed to create the request to install the community step templates"
