@@ -549,6 +549,8 @@ resource "octopusdeploy_runbook_process" "deploy_space_azure" {
       can_be_used_for_project_versioning = true
       is_required                        = false
       worker_pool_variable               = ""
+      # Use the ubuntu worker pool if it is present, or use the default otherwise
+      worker_pool_id                     = length(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties = {
         "Octopus.Action.Template.Id"                    = var.octopus_deployazure_actiontemplateid
         "Octopus.Action.Template.Version"               = "1"

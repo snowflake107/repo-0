@@ -233,6 +233,12 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 		return
 	}
 
+	deploySpaceTemplateAzureStorage, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (Azure Backend)")
+
+	if err != nil {
+		handleError(message, err)
+	}
+
 	for index, project := range allProjects {
 		// Save and apply the module
 		dir, err := ioutil.TempDir("", "octoterra")
@@ -273,13 +279,18 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 			"-no-color",
 			"-var=octopus_serialize_actiontemplateid="+serializeProjectTemplate,
 			"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
+			"-var=octopus_deployazure_actiontemplateid="+deploySpaceTemplateAzureStorage,
 			"-var=octopus_server_external="+s.State.GetExternalServer(),
+			"-var=terraform_backend="+s.State.BackendType,
 			"-var=octopus_server="+s.State.Server,
 			"-var=octopus_apikey="+s.State.ApiKey,
 			"-var=octopus_space_id="+s.State.Space,
 			"-var=octopus_project_id="+project.ID,
 			"-var=terraform_state_bucket="+s.State.AwsS3Bucket,
 			"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
+			"-var=terraform_state_azure_resource_group="+s.State.AzureResourceGroupName,
+			"-var=terraform_state_azure_storage_account="+s.State.AzureStorageAccountName,
+			"-var=terraform_state_azure_storage_container="+s.State.AzureContainerName,
 			"-var=octopus_destination_server="+s.State.DestinationServer,
 			"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
 			"-var=octopus_destination_space_id="+s.State.DestinationSpace,
