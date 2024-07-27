@@ -15,6 +15,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"github.com/samber/lo"
+	"net/url"
 )
 
 type StartProjectExportStep struct {
@@ -49,6 +50,8 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			moveNext(true)
 		}
 	})
+	linkUrl, _ := url.Parse(s.State.Server + "/app#/" + s.State.Space + "/tasks")
+	link := widget.NewHyperlink("Watch the tasks.", linkUrl)
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Disable()
@@ -72,6 +75,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		next.Disable()
 		previous.Disable()
 		infinite.Show()
+		link.Hide()
 		s.exportDone = true
 		defer s.exportProjects.Enable()
 		defer previous.Enable()
@@ -86,13 +90,14 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks. The failed tasks are shown below. You can review the task details in the Octopus console to find more information."))
 			s.logs.SetText(err.Error())
 			s.logs.Show()
+			link.Show()
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
 			s.logs.Hide()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result, link, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

@@ -10,6 +10,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 )
 
 type StartSpaceExportStep struct {
@@ -54,6 +55,9 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 		Click the "Export Space" button to execute these runbooks.
 	`))
 	result := widget.NewLabel("")
+	linkUrl, _ := url.Parse(s.State.Server + "/app#/" + s.State.Space + "/tasks")
+	link := widget.NewHyperlink("Watch the tasks.", linkUrl)
+	link.Hide()
 	infinite := widget.NewProgressBarInfinite()
 	infinite.Hide()
 	infinite.Start()
@@ -70,6 +74,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 		previous.Disable()
 		next.Disable()
 		infinite.Show()
+		link.Hide()
 		s.logs.Hide()
 
 		result.SetText("🔵 Running the runbooks.")
@@ -84,6 +89,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			previous.Enable()
 			infinite.Hide()
 			s.exportSpace.Enable()
+			link.Show()
 		} else {
 			result.SetText("🟢 Runbooks ran successfully.")
 			next.Enable()
@@ -93,7 +99,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			s.exportSpace.Enable()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result, link, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
