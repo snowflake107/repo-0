@@ -45,7 +45,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 		nexCallback := func(proceed bool) {
 			if proceed {
-				s.Wizard.ShowWizardStep(BackendSelectionStep{
+				s.Wizard.ShowWizardStep(ToolsSelectionStep{
 					Wizard:   s.Wizard,
 					BaseStep: BaseStep{State: s.getState()}})
 			}

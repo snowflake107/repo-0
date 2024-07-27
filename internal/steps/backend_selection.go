@@ -20,7 +20,7 @@ var AzureStorage = "Azure Storage"
 func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	bottom, _, _ := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
+		s.Wizard.ShowWizardStep(ToolsSelectionStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {

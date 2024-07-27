@@ -15,6 +15,7 @@ type State struct {
 	AwsS3Bucket               string
 	AwsS3BucketRegion         string
 	PromptForDelete           bool
+	UseContainerImages        bool
 	AzureResourceGroupName    string
 	AzureStorageAccountName   string
 	AzureContainerName        string

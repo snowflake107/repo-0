@@ -124,6 +124,14 @@ variable "terraform_backend" {
   default     = "AWS S3"
 }
 
+variable "use_container_images" {
+  type        = string
+  nullable    = false
+  sensitive   = false
+  description = "Whether to use container images or not"
+  default     = "True"
+}
+
 data "octopusdeploy_feeds" "docker_feed" {
   feed_type    = "Docker"
   ids          = null
@@ -296,10 +304,10 @@ resource "octopusdeploy_runbook_process" "deploy_project_aws" {
         "Octopus.Action.AutoRetry.MaximumCount" = "3"
       }
 
-#       container {
-#         feed_id = data.octopusdeploy_feeds.docker_feed.feeds[0].id
-#         image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
-#       }
+      container {
+        feed_id = lower(var.use_container_images) == "True" ? data.octopusdeploy_feeds.docker_feed.feeds[0].id : ""
+        image   = lower(var.use_container_images) == "True" ? "ghcr.io/octopusdeploylabs/terraform-workertools" : ""
+      }
 
       environments          = []
       excluded_environments = []
@@ -380,10 +388,10 @@ resource "octopusdeploy_runbook_process" "deploy_project_azure" {
         "Octopus.Action.Terraform.AdditionalInitParams"         = "-backend-config=\"resource_group_name=#{OctoterraApply.Azure.Storage.ResourceGroup}\" -backend-config=\"storage_account_name=#{OctoterraApply.Azure.Storage.AccountName}\" -backend-config=\"container_name=#{OctoterraApply.Azure.Storage.Container}\" -backend-config=\"key=#{OctoterraApply.Azure.Storage.Key}\" #{if OctoterraApply.Terraform.AdditionalInitParams}#{OctoterraApply.Terraform.AdditionalInitParams}#{/if}"
       }
 
-      #       container {
-      #         feed_id = octopusdeploy_docker_container_registry.feed_docker.id
-      #         image   = "ghcr.io/octopusdeploylabs/terraform-workertools"
-      #       }
+      container {
+        feed_id = lower(var.use_container_images) == "True" ? data.octopusdeploy_feeds.docker_feed.feeds[0].id : ""
+        image   = lower(var.use_container_images) == "True" ? "ghcr.io/octopusdeploylabs/terraform-workertools" : ""
+      }
 
       environments = []
       excluded_environments = []
