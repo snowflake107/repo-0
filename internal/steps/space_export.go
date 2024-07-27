@@ -14,6 +14,7 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/accounts"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/feeds"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/libraryvariablesets"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projectgroups"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
@@ -255,8 +256,11 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 
 				// then we can delete the variable set
 				if err := s.deleteLibraryVariableSet(myclient, lvs); err != nil {
-					// basically a silent fail here
-					fmt.Print(err.Error())
+					// we can't delete variable sets used in releases, but we can rename them
+					if err := s.renameLibraryVariableSet(myclient, lvs); err != nil {
+						handleError("🔴 Failed to rename library variable set "+lvs.Name, err)
+						return
+					}
 				}
 
 				if s.State.PromptForDelete {
@@ -300,13 +304,17 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		}
 	}
 
-	accountExists, account, err := s.accountExists(myclient)
+	awsAccountExists, awsAccount, err := s.accountExists(myclient, "Octoterra AWS Account")
 
-	if accountExists && !attemptedAccountDelete {
+	if awsAccountExists && !attemptedAccountDelete {
 		deleteAccountFunc := func(b bool) {
 			if b {
-				if err := s.deleteAccount(myclient, account); err != nil {
-					fmt.Println(err.Error())
+				// accounts can not be deleted if they are used by library variable sets
+				if err := s.deleteAccount(myclient, awsAccount); err != nil {
+					// we can rename accounts though
+					if err := s.renameAccount(myclient, awsAccount); err != nil {
+						fmt.Println(err.Error())
+					}
 				}
 
 				if s.State.PromptForDelete {
@@ -317,6 +325,32 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 
 		if s.State.PromptForDelete {
 			prompt("Account Exists", "The account Octoterra AWS Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc)
+			// We can't go further until the account is deleted
+			return
+		} else {
+			deleteAccountFunc(true)
+		}
+	}
+
+	azureAccountExists, azureAccount, err := s.accountExists(myclient, "Octoterra Azure Account")
+
+	if azureAccountExists && !attemptedAccountDelete {
+		deleteAccountFunc := func(b bool) {
+			if b {
+				if err := s.deleteAccount(myclient, azureAccount); err != nil {
+					if err := s.renameAccount(myclient, awsAccount); err != nil {
+						fmt.Println(err.Error())
+					}
+				}
+
+				if s.State.PromptForDelete {
+					s.Execute(prompt, handleError, handleSuccess, attemptedLvsDelete, true)
+				}
+			}
+		}
+
+		if s.State.PromptForDelete {
+			prompt("Account Exists", "The account Octoterra Azure Account already exists. Do you want to delete it? It is usually safe to delete this resource.", deleteAccountFunc)
 			// We can't go further until the account is deleted
 			return
 		} else {
@@ -387,7 +421,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
 		"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
 		"-var=octopus_deployazure_actiontemplateid="+deploySpaceTemplateAzureStorage,
-		"-var=terraform_backend="+"aws",
+		"-var=terraform_backend="+s.State.BackendType,
 		"-var=octopus_server_external="+s.State.GetExternalServer(),
 		"-var=octopus_server="+s.State.Server,
 		"-var=octopus_apikey="+s.State.ApiKey,
@@ -417,6 +451,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		handleError("🔴 Terraform apply failed", errors.New(stdout.String()+stderr.String()))
 	} else {
 		handleSuccess("🟢 Terraform apply succeeded")
+		fmt.Println(stdout.String() + stderr.String())
 	}
 }
 
@@ -446,6 +481,34 @@ func (s SpaceExportStep) deleteFeed(myclient *client.Client, feed feeds.IFeed) e
 
 func (s SpaceExportStep) deleteAccount(myclient *client.Client, account accounts.IAccount) error {
 	if err := myclient.Accounts.DeleteByID(account.GetID()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s SpaceExportStep) renameAccount(myclient *client.Client, account accounts.IAccount) error {
+	index := 1
+
+	for {
+		name := account.GetName() + " (old " + fmt.Sprint(index) + ")"
+		allAccounts, err := accounts.GetAll(myclient, myclient.GetSpaceID())
+
+		if err != nil {
+			return err
+		}
+
+		exactMatches := lo.Filter(allAccounts, func(account accounts.IAccount, index int) bool {
+			return account.GetName() == name
+		})
+
+		if len(exactMatches) == 0 {
+			break
+		}
+	}
+
+	account.SetName(account.GetName() + " (old " + fmt.Sprint(index) + ")")
+	if _, err := accounts.Update(myclient, account); err != nil {
 		return err
 	}
 
@@ -484,6 +547,35 @@ func (s SpaceExportStep) deleteLibraryVariableSet(myclient *client.Client, lvs *
 	return nil
 }
 
+func (s SpaceExportStep) renameLibraryVariableSet(myclient *client.Client, lvs *variables.LibraryVariableSet) error {
+
+	index := 1
+
+	for {
+		name := lvs.Name + " (old " + fmt.Sprint(index) + ")"
+		existingLvs, err := myclient.LibraryVariableSets.GetByPartialName(name)
+
+		if err != nil {
+			return err
+		}
+
+		exactMatches := lo.Filter(existingLvs, func(lvs *variables.LibraryVariableSet, index int) bool {
+			return lvs.Name == name
+		})
+
+		if len(exactMatches) == 0 {
+			break
+		}
+	}
+
+	lvs.Name = lvs.Name + " (old " + fmt.Sprint(index) + ")"
+	if _, err := libraryvariablesets.Update(myclient, lvs); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s SpaceExportStep) feedExists(myclient *client.Client) (bool, feeds.IFeed, error) {
 	if allFeeds, err := feeds.GetAll(myclient, myclient.GetSpaceID()); err == nil {
 		filteredFeeds := lo.Filter(allFeeds, func(feed feeds.IFeed, index int) bool {
@@ -500,10 +592,10 @@ func (s SpaceExportStep) feedExists(myclient *client.Client) (bool, feeds.IFeed,
 	}
 }
 
-func (s SpaceExportStep) accountExists(myclient *client.Client) (bool, accounts.IAccount, error) {
+func (s SpaceExportStep) accountExists(myclient *client.Client, accountName string) (bool, accounts.IAccount, error) {
 	if allAccounts, err := accounts.GetAll(myclient, myclient.GetSpaceID()); err == nil {
 		filteredAccounts := lo.Filter(allAccounts, func(account accounts.IAccount, index int) bool {
-			return account.GetName() == "Octoterra AWS Account"
+			return account.GetName() == accountName
 		})
 
 		if len(filteredAccounts) != 0 {

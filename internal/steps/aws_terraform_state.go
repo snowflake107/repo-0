@@ -155,5 +155,9 @@ func (s AwsTerraformStateStep) getState() state.State {
 		AzureResourceGroupName:  s.State.AzureResourceGroupName,
 		AzureStorageAccountName: s.State.AzureStorageAccountName,
 		AzureContainerName:      s.State.AzureContainerName,
+		AzureSubscriptionId:     s.State.AzureSubscriptionId,
+		AzureTenantId:           s.State.AzureTenantId,
+		AzureApplicationId:      s.State.AzureApplicationId,
+		AzurePassword:           s.State.AzurePassword,
 	}
 }

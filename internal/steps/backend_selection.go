@@ -46,7 +46,7 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 	// only aws is supported
 	//radio.Disable()
 
-	radio.SetSelected(AwsS3)
+	radio.SetSelected(AzureStorage)
 
 	middle := container.New(layout.NewVBoxLayout(), label1, radio)
 

@@ -159,13 +159,7 @@ variable "terraform_backend" {
   nullable    = false
   sensitive   = false
   description = "The terraform backend to use"
-  default     = "aws"
-}
-
-data "octopusdeploy_library_variable_sets" "octoterra" {
-  partial_name = "Octoterra"
-  skip         = 0
-  take         = 1
+  default     = "AWS S3"
 }
 
 data "octopusdeploy_accounts" "aws" {
@@ -207,7 +201,7 @@ data "octopusdeploy_worker_pools" "ubuntu_worker_pool" {
 }
 
 resource "octopusdeploy_aws_account" "account_aws_account" {
-  count                             = var.terraform_backend == "aws" && length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
+  count                             = var.terraform_backend == "AWS S3" ? 1 : 0
   name                              = "Octoterra AWS Account"
   description                       = ""
   environments                      = null
@@ -219,7 +213,7 @@ resource "octopusdeploy_aws_account" "account_aws_account" {
 }
 
 resource "octopusdeploy_azure_service_principal" "account_azure" {
-  count                             = var.terraform_backend == "azure" && length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
+  count                             = var.terraform_backend == "Azure Storage" ? 1 : 0
   description                       = "Octoterra Azure Account"
   name                              = "Azure"
   environments = []
@@ -239,7 +233,6 @@ resource "octopusdeploy_project_group" "octoterra" {
 resource "octopusdeploy_library_variable_set" "octopus_library_variable_set" {
   name        = "Octoterra"
   description = "Common variables used by Octoterra to deploy Octopus resources"
-  count       = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "destination_server" {
@@ -248,9 +241,8 @@ resource "octopusdeploy_variable" "destination_server" {
   description  = "Octoterra destination server"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = var.octopus_destination_server
-  count        = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "destination_spaceid" {
@@ -259,9 +251,8 @@ resource "octopusdeploy_variable" "destination_spaceid" {
   description  = "Octoterra destination server space ID"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = var.octopus_destination_space_id
-  count        = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "destination_api_key" {
@@ -270,9 +261,8 @@ resource "octopusdeploy_variable" "destination_api_key" {
   description     = "Octoterra destination server API key"
   is_sensitive    = true
   is_editable     = true
-  owner_id        = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id        = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   sensitive_value = var.octopus_destination_apikey
-  count           = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "source_server" {
@@ -281,9 +271,8 @@ resource "octopusdeploy_variable" "source_server" {
   description  = "Octoterra source server"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = var.octopus_server
-  count        = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "source_space" {
@@ -292,9 +281,8 @@ resource "octopusdeploy_variable" "source_space" {
   description  = "Octoterra source server"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = var.octopus_space_id
-  count        = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "source_api_key" {
@@ -303,9 +291,8 @@ resource "octopusdeploy_variable" "source_api_key" {
   description     = "Octoterra source server API key"
   is_sensitive    = true
   is_editable     = true
-  owner_id        = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id        = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   sensitive_value = var.octopus_apikey
-  count           = length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "aws_account" {
@@ -314,9 +301,9 @@ resource "octopusdeploy_variable" "aws_account" {
   description  = "Octoterra AWS acocunt"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = octopusdeploy_aws_account.account_aws_account[0].id
-  count        = var.terraform_backend == "aws" && length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
+  count        = var.terraform_backend == "AWS S3"  ? 1 : 0
 }
 
 resource "octopusdeploy_variable" "azure_account" {
@@ -325,9 +312,9 @@ resource "octopusdeploy_variable" "azure_account" {
   description  = "Octoterra Azure acocunt"
   is_sensitive = false
   is_editable  = true
-  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set[0].id
+  owner_id     = octopusdeploy_library_variable_set.octopus_library_variable_set.id
   value        = octopusdeploy_azure_service_principal.account_azure[0].id
-  count        = var.terraform_backend == "azure" && length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ? 1 : 0
+  count        = var.terraform_backend == "Azure Storage"  ? 1 : 0
 }
 
 resource "octopusdeploy_docker_container_registry" "feed_docker" {
@@ -358,9 +345,7 @@ resource "octopusdeploy_project" "space_management_project" {
   project_group_id                     = octopusdeploy_project_group.octoterra.id
   tenanted_deployment_participation    = "Untenanted"
   included_library_variable_sets = concat(data.octopusdeploy_library_variable_sets.all_variable_sets.library_variable_sets[*].id, [
-      length(data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets) == 0 ?
-      octopusdeploy_library_variable_set.octopus_library_variable_set[0].id :
-      data.octopusdeploy_library_variable_sets.octoterra.library_variable_sets[0].id
+      octopusdeploy_library_variable_set.octopus_library_variable_set.id
   ])
 
   versioning_strategy {
@@ -462,7 +447,7 @@ resource "octopusdeploy_runbook" "deploy_space" {
 
 resource "octopusdeploy_runbook_process" "deploy_space_aws" {
   runbook_id = octopusdeploy_runbook.deploy_space.id
-  count      = var.terraform_backend == "aws" ? 1 : 0
+  count      = var.terraform_backend == "AWS S3" ? 1 : 0
 
   step {
     condition           = "Success"
@@ -547,7 +532,7 @@ resource "octopusdeploy_runbook_process" "deploy_space_aws" {
 
 resource "octopusdeploy_runbook_process" "deploy_space_azure" {
   runbook_id = octopusdeploy_runbook.deploy_space.id
-  count      = var.terraform_backend == "azure" ? 1 : 0
+  count      = var.terraform_backend == "Azure Storage" ? 1 : 0
 
   step {
     condition           = "Success"
