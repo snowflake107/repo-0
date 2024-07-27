@@ -52,6 +52,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 	})
 	linkUrl, _ := url.Parse(s.State.Server + "/app#/" + s.State.Space + "/tasks")
 	link := widget.NewHyperlink("Watch the tasks.", linkUrl)
+	link.Hide()
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(20)
 	s.logs.Disable()
