@@ -338,7 +338,7 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		deleteAccountFunc := func(b bool) {
 			if b {
 				if err := s.deleteAccount(myclient, azureAccount); err != nil {
-					if err := s.renameAccount(myclient, awsAccount); err != nil {
+					if err := s.renameAccount(myclient, azureAccount); err != nil {
 						fmt.Println(err.Error())
 					}
 				}

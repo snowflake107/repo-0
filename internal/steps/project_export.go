@@ -306,6 +306,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 			return
 		} else {
 			status("🔵 Terraform apply succeeded (" + fmt.Sprint(index) + " / " + fmt.Sprint(len(allProjects)) + ")")
+			fmt.Println(stdout.String() + stderr.String())
 		}
 
 		// link the library variable set
@@ -328,6 +329,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 	}
 
 	handleSuccess("🟢 Added runbooks to all projects")
+
 }
 
 func (s ProjectExportStep) getProjects(myclient *client.Client) ([]*projects.Project, error) {

@@ -215,7 +215,7 @@ resource "octopusdeploy_aws_account" "account_aws_account" {
 resource "octopusdeploy_azure_service_principal" "account_azure" {
   count                             = var.terraform_backend == "Azure Storage" ? 1 : 0
   description                       = "Octoterra Azure Account"
-  name                              = "Azure"
+  name                              = "Octoterra Azure Account"
   environments = []
   tenants = []
   tenanted_deployment_participation = "TenantedOrUntenanted"
