@@ -401,7 +401,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "Octopus.Action.RunOnServer"                              = "true"
         "Octopus.Action.Script.ScriptSource"                      = "Inline"
         "Octopus.Action.Script.Syntax"                            = "Python"
-        "SerializeSpace.ThisInstance.Terraform.Backend"           = "s3"
+        "SerializeSpace.ThisInstance.Terraform.Backend"           = var.terraform_backend == "AWS S3" ? "s3" : "azurerm"
         "SerializeSpace.Exported.Space.IgnoreTargets"             = "False"
         "SerializeSpace.Exported.Space.Id"                        = "#{Octopus.Space.Id}"
         "Octopus.Action.Template.Version"                         = "4"

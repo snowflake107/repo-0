@@ -188,7 +188,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
       properties                         = {
         "SerializeProject.ThisInstance.Server.Url" = "#{Octopus.Source.Server}"
         "Octopus.Action.Template.Id" = var.octopus_serialize_actiontemplateid
-        "SerializeProject.ThisInstance.Terraform.Backend" = "s3"
+        "SerializeProject.ThisInstance.Terraform.Backend" = var.terraform_backend == "AWS S3" ? "s3" : "azurerm"
         "Octopus.Action.Template.Version" = "9"
         "SerializeProject.Exported.Project.Name" = "#{Octopus.Project.Name}"
         "Octopus.Action.Script.Syntax" = "Python"
