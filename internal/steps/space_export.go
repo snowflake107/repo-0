@@ -397,6 +397,13 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		"-var=terraform_state_bucket_region="+s.State.AwsS3BucketRegion,
 		"-var=terraform_state_aws_accesskey="+s.State.AwsAccessKey,
 		"-var=terraform_state_aws_secretkey="+s.State.AwsSecretKey,
+		"-var=terraform_state_azure_resource_group="+s.State.AzureResourceGroupName,
+		"-var=terraform_state_azure_storage_account="+s.State.AzureStorageAccountName,
+		"-var=terraform_state_azure_storage_container="+s.State.AzureContainerName,
+		"-var=terraform_state_azure_application_id="+s.State.AzureApplicationId,
+		"-var=terraform_state_azure_subscription_id="+s.State.AzureSubscriptionId,
+		"-var=terraform_state_azure_tenant_id="+s.State.AzureTenantId,
+		"-var=terraform_state_azure_password="+s.State.AzurePassword,
 		"-var=octopus_destination_server="+s.State.DestinationServer,
 		"-var=octopus_destination_apikey="+s.State.DestinationApiKey,
 		"-var=octopus_destination_space_id="+s.State.DestinationSpace)
