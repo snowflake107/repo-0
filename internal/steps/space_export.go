@@ -337,6 +337,12 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		handleError(message, err)
 	}
 
+	deploySpaceTemplateAzureStorage, err, message := query.GetStepTemplateId(myclient, s.State, "Octopus - Populate Octoterra Space (Azure Backend)")
+
+	if err != nil {
+		handleError(message, err)
+	}
+
 	// Find space name
 	spaceName, err := query.GetSpaceName(myclient, s.State)
 
@@ -380,6 +386,8 @@ func (s SpaceExportStep) Execute(prompt func(string, string, func(bool)), handle
 		"-no-color",
 		"-var=octopus_serialize_actiontemplateid="+serializeSpaceTemplate,
 		"-var=octopus_deploys3_actiontemplateid="+deploySpaceTemplateS3,
+		"-var=octopus_deployazure_actiontemplateid="+deploySpaceTemplateAzureStorage,
+		"-var=terraform_backend="+"aws",
 		"-var=octopus_server_external="+s.State.GetExternalServer(),
 		"-var=octopus_server="+s.State.Server,
 		"-var=octopus_apikey="+s.State.ApiKey,
