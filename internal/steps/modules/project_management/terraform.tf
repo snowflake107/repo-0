@@ -210,7 +210,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "SerializeProject.Exported.Project.IgnoreAllChanges" = "True"
         "SerializeProject.ThisInstance.Api.Key" = "#{Octopus.Source.ApiKey}"
         "SerializeProject.Exported.Project.IncludeStepTemplates" = "True"
-        "SerializeProject.Exported.Project.IgnoredAccounts" = "Octoterra AWS Account"
+        "SerializeProject.Exported.Project.IgnoredAccounts" = "Octoterra AWS Account,Octoterra Azure Account"
         "SerializeProject.Exported.Project.ExcludeCacProjectValues" = "True"
         "SerializeProject.Exported.Project.LookupProjectLinkTenants" = "True"
       }

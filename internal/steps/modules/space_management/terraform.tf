@@ -421,7 +421,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "SerializeSpace.ThisInstance.Server.Url"                  = "#{Octopus.Source.Server}"
         "Octopus.Action.Template.Id"                              = var.octopus_serialize_actiontemplateid
         "SerializeSpace.Exported.Space.IncludeStepTemplates"      = "True"
-        "SerializeSpace.Exported.Space.IgnoredAccounts"           = "Octoterra AWS Account"
+        "SerializeSpace.Exported.Space.IgnoredAccounts"           = "Octoterra AWS Account,Octoterra Azure Account"
       }
       environments = []
       excluded_environments = []
