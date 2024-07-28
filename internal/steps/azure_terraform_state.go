@@ -29,7 +29,7 @@ type AzureTerraformStateStep struct {
 
 func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	bottom, previous, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
+		s.Wizard.ShowWizardStep(BackendSelectionStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
