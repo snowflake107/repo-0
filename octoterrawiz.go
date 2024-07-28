@@ -82,7 +82,7 @@ func main() {
 			AwsS3Bucket:               os.Getenv("AWS_DEFAULT_BUCKET"),
 			AwsS3BucketRegion:         os.Getenv("AWS_DEFAULT_REGION"),
 			PromptForDelete:           false,
-			UseContainerImages:        true,
+			UseContainerImages:        false,
 			AzureResourceGroupName:    os.Getenv("OCTOTERRAWIZ_AZURE_RESOURCE_GROUP"),
 			AzureStorageAccountName:   os.Getenv("OCTOTERRAWIZ_AZURE_STORAGE_ACCOUNT"),
 			AzureContainerName:        os.Getenv("OCTOTERRAWIZ_AZURE_CONTAINER"),

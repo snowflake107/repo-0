@@ -291,6 +291,7 @@ func TestProjectMigration(t *testing.T) {
 			AwsS3Bucket:               os.Getenv("AWS_DEFAULT_BUCKET"),
 			AwsS3BucketRegion:         os.Getenv("AWS_DEFAULT_REGION"),
 			PromptForDelete:           false,
+			UseContainerImages:        false,
 			AzureResourceGroupName:    "",
 			AzureStorageAccountName:   "",
 			AzureContainerName:        "",

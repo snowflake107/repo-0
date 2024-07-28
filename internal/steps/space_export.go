@@ -465,6 +465,7 @@ func (s SpaceExportStep) deleteProjectGroup(myclient *client.Client, projectGrou
 }
 
 func (s SpaceExportStep) deleteProject(myclient *client.Client, project *projects.Project) error {
+	fmt.Println("Attempting to delete project " + fmt.Sprint(project.ID))
 	if err := myclient.Projects.DeleteByID(project.ID); err != nil {
 		return err
 	}
@@ -473,6 +474,7 @@ func (s SpaceExportStep) deleteProject(myclient *client.Client, project *project
 }
 
 func (s SpaceExportStep) deleteFeed(myclient *client.Client, feed feeds.IFeed) error {
+	fmt.Println("Attempting to delete feed " + fmt.Sprint(feed.GetID()))
 	if err := myclient.Feeds.DeleteByID(feed.GetID()); err != nil {
 		return err
 	}
@@ -481,6 +483,7 @@ func (s SpaceExportStep) deleteFeed(myclient *client.Client, feed feeds.IFeed) e
 }
 
 func (s SpaceExportStep) deleteAccount(myclient *client.Client, account accounts.IAccount) error {
+	fmt.Println("Attempting to delete account " + fmt.Sprint(account.GetID()))
 	if err := myclient.Accounts.DeleteByID(account.GetID()); err != nil {
 		return err
 	}
@@ -506,7 +509,11 @@ func (s SpaceExportStep) renameAccount(myclient *client.Client, account accounts
 		if len(exactMatches) == 0 {
 			break
 		}
+
+		index++
 	}
+
+	fmt.Println("Attempting to rename account " + fmt.Sprint(account.GetID()))
 
 	account.SetName(account.GetName() + " (old " + fmt.Sprint(index) + ")")
 	if _, err := accounts.Update(myclient, account); err != nil {
@@ -541,6 +548,7 @@ func (s SpaceExportStep) projectGroupExists(myclient *client.Client) (bool, *pro
 }
 
 func (s SpaceExportStep) deleteLibraryVariableSet(myclient *client.Client, lvs *variables.LibraryVariableSet) error {
+	fmt.Println("Attempting to delete lvs " + fmt.Sprint(lvs.GetID()))
 	if err := myclient.LibraryVariableSets.DeleteByID(lvs.ID); err != nil {
 		return err
 	}
@@ -567,8 +575,11 @@ func (s SpaceExportStep) renameLibraryVariableSet(myclient *client.Client, lvs *
 		if len(exactMatches) == 0 {
 			break
 		}
+
+		index++
 	}
 
+	fmt.Println("Attempting to rename lvs " + fmt.Sprint(lvs.GetID()))
 	lvs.Name = lvs.Name + " (old " + fmt.Sprint(index) + ")"
 	if _, err := libraryvariablesets.Update(myclient, lvs); err != nil {
 		return err
