@@ -43,7 +43,7 @@ func TestSpreadVariables(t *testing.T) {
 
 		step := steps.SpreadVariablesStep{
 			BaseStep: steps.BaseStep{State: state.State{
-				BackendType:             "",
+				BackendType:             "AWS S3",
 				Server:                  container.URI,
 				ApiKey:                  test.ApiKey,
 				Space:                   newSpaceId,
@@ -153,7 +153,7 @@ func TestProjectSpreadVariables(t *testing.T) {
 
 		step := steps.SpreadVariablesStep{
 			BaseStep: steps.BaseStep{State: state.State{
-				BackendType:             "",
+				BackendType:             "AWS S3",
 				Server:                  container.URI,
 				ApiKey:                  test.ApiKey,
 				Space:                   newSpaceId,
