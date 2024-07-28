@@ -272,7 +272,7 @@ resource "octopusdeploy_runbook_process" "deploy_project_aws" {
         "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
         "Octopus.Action.Terraform.Workspace" = "#{OctoterraApply.Terraform.Workspace.Name}"
         "Octopus.Action.AwsAccount.UseInstanceRole" = "False"
-        "Octopus.Action.AwsAccount.Variable" = "OctoterraApply.AWS.Account"
+        "Octopus.Action.AwsAccount.Variable" = "#{OctoterraApply.AWS.Account}"
         "Octopus.Action.Aws.Region" = "#{OctoterraApply.AWS.S3.BucketRegion}"
         "Octopus.Action.Template.Id" = var.octopus_deploys3_actiontemplateid
         "Octopus.Action.Terraform.RunAutomaticFileSubstitution" = "False"
