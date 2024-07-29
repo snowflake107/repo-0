@@ -56,7 +56,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	`))
 	result := widget.NewLabel("")
 	linkUrl, _ := url.Parse(s.State.Server + "/app#/" + s.State.Space + "/tasks")
-	link := widget.NewHyperlink("Watch the tasks.", linkUrl)
+	link := widget.NewHyperlink("View the task list", linkUrl)
 	link.Hide()
 	infinite := widget.NewProgressBarInfinite()
 	infinite.Hide()
