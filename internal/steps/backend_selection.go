@@ -43,10 +43,11 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		s.State.BackendType = value
 	})
 
-	// only aws is supported
-	//radio.Disable()
-
-	radio.SetSelected(AzureStorage)
+	if s.State.BackendType == "" {
+		radio.SetSelected(AzureStorage)
+	} else {
+		radio.SetSelected(s.State.BackendType)
+	}
 
 	middle := container.New(layout.NewVBoxLayout(), label1, radio)
 

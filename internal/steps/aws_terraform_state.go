@@ -23,12 +23,14 @@ type AwsTerraformStateStep struct {
 	result    *widget.Label
 	infinite  *widget.ProgressBarInfinite
 	logs      *widget.Entry
+	previous  *widget.Button
+	next      *widget.Button
 }
 
 func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
 
-	bottom, _, next := s.BuildNavigation(func() {
-		s.Wizard.ShowWizardStep(OctopusDestinationDetails{
+	bottom, previous, next := s.BuildNavigation(func() {
+		s.Wizard.ShowWizardStep(BackendSelectionStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
 	}, func() {
@@ -40,12 +42,16 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		s.s3Region.Disable()
 		s.logs.Hide()
 		s.logs.SetText("")
+		s.next.Disable()
+		s.previous.Disable()
 
 		defer s.infinite.Hide()
 		defer s.accessKey.Enable()
 		defer s.secretKey.Enable()
 		defer s.s3Bucket.Enable()
 		defer s.s3Region.Enable()
+		defer s.next.Enable()
+		defer s.next.Enable()
 
 		validationFailed := false
 		if err := validators.ValidateAWS(s.getState()); err != nil {
@@ -77,6 +83,8 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		}
 
 	})
+	s.next = next
+	s.previous = previous
 	next.Disable()
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`

@@ -43,7 +43,7 @@ func TestSpreadVariables(t *testing.T) {
 
 		step := steps.SpreadVariablesStep{
 			BaseStep: steps.BaseStep{State: state.State{
-				BackendType:             "",
+				BackendType:             "AWS S3",
 				Server:                  container.URI,
 				ApiKey:                  test.ApiKey,
 				Space:                   newSpaceId,
@@ -153,7 +153,7 @@ func TestProjectSpreadVariables(t *testing.T) {
 
 		step := steps.SpreadVariablesStep{
 			BaseStep: steps.BaseStep{State: state.State{
-				BackendType:             "",
+				BackendType:             "AWS S3",
 				Server:                  container.URI,
 				ApiKey:                  test.ApiKey,
 				Space:                   newSpaceId,
@@ -291,6 +291,7 @@ func TestProjectMigration(t *testing.T) {
 			AwsS3Bucket:               os.Getenv("AWS_DEFAULT_BUCKET"),
 			AwsS3BucketRegion:         os.Getenv("AWS_DEFAULT_REGION"),
 			PromptForDelete:           false,
+			UseContainerImages:        false,
 			AzureResourceGroupName:    "",
 			AzureStorageAccountName:   "",
 			AzureContainerName:        "",

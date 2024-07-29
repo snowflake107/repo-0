@@ -137,7 +137,7 @@ func spreadVariables(client *client.Client, ownerId string, variableSet *variabl
 				panic("The value of the variable must be nil here, otherwise we may be overriding sensitive values")
 			}
 
-			fmt.Println("Renaming " + originalName + " to " + uniqueName + " and removing scopes")
+			fmt.Println("Renaming " + originalName + " to " + uniqueName + " and removing scopes for " + ownerId)
 
 			jsonData, err = json.Marshal(variable.Scope)
 			if err != nil {

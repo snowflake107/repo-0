@@ -213,6 +213,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "SerializeProject.Exported.Project.IgnoredAccounts" = "Octoterra AWS Account,Octoterra Azure Account"
         "SerializeProject.Exported.Project.ExcludeCacProjectValues" = "True"
         "SerializeProject.Exported.Project.LookupProjectLinkTenants" = "True"
+        "Octopus.Action.AutoRetry.MaximumCount"                 = "3"
       }
       environments                       = []
       excluded_environments              = []
@@ -272,7 +273,7 @@ resource "octopusdeploy_runbook_process" "deploy_project_aws" {
         "OctoterraApply.AWS.S3.BucketKey" = "Project_#{Octopus.Project.Name | Replace \"[^A-Za-z0-9]\" \"_\"}"
         "Octopus.Action.Terraform.Workspace" = "#{OctoterraApply.Terraform.Workspace.Name}"
         "Octopus.Action.AwsAccount.UseInstanceRole" = "False"
-        "Octopus.Action.AwsAccount.Variable" = "OctoterraApply.AWS.Account"
+        "Octopus.Action.AwsAccount.Variable" = "#{OctoterraApply.AWS.Account}"
         "Octopus.Action.Aws.Region" = "#{OctoterraApply.AWS.S3.BucketRegion}"
         "Octopus.Action.Template.Id" = var.octopus_deploys3_actiontemplateid
         "Octopus.Action.Terraform.RunAutomaticFileSubstitution" = "False"
@@ -386,6 +387,7 @@ resource "octopusdeploy_runbook_process" "deploy_project_azure" {
         "Octopus.Action.Terraform.PlanJsonOutput"               = "False"
         "Octopus.Action.Terraform.ManagedAccount"               = "None"
         "Octopus.Action.Terraform.AdditionalInitParams"         = "-backend-config=\"resource_group_name=#{OctoterraApply.Azure.Storage.ResourceGroup}\" -backend-config=\"storage_account_name=#{OctoterraApply.Azure.Storage.AccountName}\" -backend-config=\"container_name=#{OctoterraApply.Azure.Storage.Container}\" -backend-config=\"key=#{OctoterraApply.Azure.Storage.Key}\" #{if OctoterraApply.Terraform.AdditionalInitParams}#{OctoterraApply.Terraform.AdditionalInitParams}#{/if}"
+        "Octopus.Action.AutoRetry.MaximumCount"                 = "3"
       }
 
       container {
