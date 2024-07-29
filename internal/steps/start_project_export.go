@@ -194,7 +194,7 @@ func (s StartProjectExportStep) deployProjects(filteredProjects []*projects2.Pro
 	applyIndex := 0
 	for project, taskId := range applyTasks {
 		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
-			statusCallback("🔵 __ 2. Deploy Space for project " + project + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
+			statusCallback("🔵 __ 2. Deploy Project for project " + project + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
 		}); err != nil {
 			runAndTaskError = errors.Join(runAndTaskError, err)
 		}
