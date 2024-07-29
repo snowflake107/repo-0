@@ -422,6 +422,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "Octopus.Action.Template.Id"                              = var.octopus_serialize_actiontemplateid
         "SerializeSpace.Exported.Space.IncludeStepTemplates"      = "True"
         "SerializeSpace.Exported.Space.IgnoredAccounts"           = "Octoterra AWS Account.*,Octoterra Azure Account.*"
+        "Octopus.Action.AutoRetry.MaximumCount"                 = "3"
       }
       environments = []
       excluded_environments = []

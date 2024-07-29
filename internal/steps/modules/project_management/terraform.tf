@@ -213,6 +213,7 @@ resource "octopusdeploy_runbook_process" "runbook" {
         "SerializeProject.Exported.Project.IgnoredAccounts" = "Octoterra AWS Account,Octoterra Azure Account"
         "SerializeProject.Exported.Project.ExcludeCacProjectValues" = "True"
         "SerializeProject.Exported.Project.LookupProjectLinkTenants" = "True"
+        "Octopus.Action.AutoRetry.MaximumCount"                 = "3"
       }
       environments                       = []
       excluded_environments              = []
