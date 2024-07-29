@@ -7,7 +7,9 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
+	"github.com/samber/lo"
 	"slices"
+	"strings"
 )
 
 type OwnerVariablePair struct {
@@ -15,9 +17,11 @@ type OwnerVariablePair struct {
 	VariableSet *variables.VariableSet
 }
 
-func findSecretVariablesWithSharedNameAndScoped(variableSet *variables.VariableSet) ([]string, error) {
+func findSecretVariablesWithSharedName(variableSet *variables.VariableSet) ([]string, error) {
 	groupedVariables := []string{}
 	for _, variable := range variableSet.Variables {
+
+		// The variable has to be sensitive
 		if !variable.IsSensitive {
 			continue
 		}
@@ -26,17 +30,16 @@ func findSecretVariablesWithSharedNameAndScoped(variableSet *variables.VariableS
 			continue
 		}
 
-		if len(variable.Scope.Environments) == 0 &&
-			len(variable.Scope.Machines) == 0 &&
-			len(variable.Scope.Roles) == 0 &&
-			len(variable.Scope.Actions) == 0 &&
-			len(variable.Scope.TenantTags) == 0 &&
-			len(variable.Scope.ProcessOwners) == 0 &&
-			len(variable.Scope.Channels) == 0 {
+		// If it has an empty scope but no other variables share the name we can leave this variable unprocessed
+		if variable.Scope.IsEmpty() && !lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
+			return item.Name == variable.Name && item.ID != variable.ID
+		}) {
 			continue
 		}
 
-		groupedVariables = append(groupedVariables, variable.Name)
+		if slices.Index(groupedVariables, variable.Name) == -1 {
+			groupedVariables = append(groupedVariables, variable.Name)
+		}
 	}
 
 	return groupedVariables, nil
@@ -45,32 +48,36 @@ func findSecretVariablesWithSharedNameAndScoped(variableSet *variables.VariableS
 func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) string {
 	name := variable.Name
 
+	if variable.Scope.IsEmpty() {
+		name += "_Unscoped"
+	}
+
 	if len(variable.Scope.Environments) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.Environments[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Environments, "_"))
 	}
 
 	if len(variable.Scope.Machines) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.Machines[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Machines, "_"))
 	}
 
 	if len(variable.Scope.Roles) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.Roles[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Roles, "_"))
 	}
 
 	if len(variable.Scope.Actions) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.Actions[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Actions, "_"))
 	}
 
 	if len(variable.Scope.TenantTags) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.TenantTags[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.TenantTags, "_"))
 	}
 
 	if len(variable.Scope.Channels) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.Channels[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Channels, "_"))
 	}
 
 	if len(variable.Scope.ProcessOwners) > 0 {
-		name += fmt.Sprintf("_%s", variable.Scope.ProcessOwners[0])
+		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.ProcessOwners, "_"))
 	}
 
 	startingName := name
@@ -84,7 +91,7 @@ func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) s
 }
 
 func spreadVariables(client *client.Client, ownerId string, variableSet *variables.VariableSet) error {
-	groupedVariables, err := findSecretVariablesWithSharedNameAndScoped(variableSet)
+	groupedVariables, err := findSecretVariablesWithSharedName(variableSet)
 
 	if err != nil {
 		return err

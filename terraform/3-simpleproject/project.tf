@@ -12,6 +12,14 @@ resource "octopusdeploy_variable" "string_variable" {
   value     = "PlainText"
 }
 
+resource "octopusdeploy_variable" "sensitive_var_unscoped" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  is_sensitive = true
+  name      = "SensitiveVariable"
+  sensitive_value     = "Unscoped"
+}
+
 resource "octopusdeploy_variable" "sensitive_var_1" {
   owner_id  = octopusdeploy_project.deploy_frontend_project.id
   type      = "Sensitive"

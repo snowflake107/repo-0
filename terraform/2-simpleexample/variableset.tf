@@ -3,6 +3,23 @@ resource "octopusdeploy_library_variable_set" "octopus_library_variable_set" {
   description = "Test variable set"
 }
 
+resource "octopusdeploy_variable" "string_variable" {
+  owner_id  = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  type      = "String"
+  name      = "RegularVariable"
+  value     = "PlainText"
+}
+
+resource "octopusdeploy_variable" "unscoped_secret" {
+  name = "Test.SecretVariable"
+  type = "Sensitive"
+  description = "Test variable"
+  is_sensitive = true
+  is_editable = true
+  owner_id = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  value = "Default"
+}
+
 resource "octopusdeploy_variable" "secret" {
   name = "Test.SecretVariable"
   type = "Sensitive"

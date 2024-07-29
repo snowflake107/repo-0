@@ -83,34 +83,34 @@ func TestSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting library variable sets: %v", err)
 			}
 
-			if len(lvsVariable.Variables) != 7 {
-				t.Fatalf("Expected 7 variables, got %v", len(lvsVariable.Variables))
+			if len(lvsVariable.Variables) != 10 {
+				t.Fatalf("Expected 10 variables, got %v", len(lvsVariable.Variables))
 			}
 
-			// There must be 4 sensitive variables, and they must all be unscoped
+			// There must be one regular variable that was unaltered
+			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return !item.IsSensitive && item.Name == "RegularVariable"
+			})) != 1 {
+				t.Fatalf("Expected 1 regular variable")
+			}
+
+			// There must be 5 sensitive variables, and they must all be unscoped
 			sensitiveVariables := lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
-				return item.IsSensitive &&
-					len(item.Scope.Environments) == 0 &&
-					len(item.Scope.Roles) == 0 &&
-					len(item.Scope.Machines) == 0 &&
-					len(item.Scope.Actions) == 0 &&
-					len(item.Scope.TenantTags) == 0 &&
-					len(item.Scope.ProcessOwners) == 0 &&
-					len(item.Scope.Channels) == 0
+				return item.IsSensitive && item.Scope.IsEmpty()
 			})
 
-			if len(sensitiveVariables) != 4 {
-				t.Fatalf("Expected 4 variables, got %v", len(sensitiveVariables))
+			if len(sensitiveVariables) != 5 {
+				t.Fatalf("Expected 5 variables, got %v", len(sensitiveVariables))
 			}
 
-			// The three sensitive variables that shared a name must now have 3 regular variables each scoped
-			// to an environment
+			// The four sensitive variables that shared a name must now have 4 regular variables each scoped
+			// to an environment or are unscoped
 			originalVariables := lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
-				return item.Name == "Test.SecretVariable" && !item.IsSensitive && len(item.Scope.Environments) == 1
+				return item.Name == "Test.SecretVariable" && !item.IsSensitive && (len(item.Scope.Environments) == 1 || len(item.Scope.Environments) == 0)
 			})
 
-			if len(originalVariables) != 3 {
-				t.Fatalf("Expected 3 variables, got %v", len(originalVariables))
+			if len(originalVariables) != 4 {
+				t.Fatalf("Expected 4 variables, got %v", len(originalVariables))
 			}
 
 			// Each regular variable must reference a sensitive variable
@@ -193,34 +193,27 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting project variable set: %v", err)
 			}
 
-			if len(variableSet.Variables) != 7 {
-				t.Fatalf("Expected 7 variables, got %v", len(variableSet.Variables))
+			if len(variableSet.Variables) != 9 {
+				t.Fatalf("Expected 9 variables, got %v", len(variableSet.Variables))
 			}
 
-			// There must be 3 sensitive variables, and they must all be unscoped
+			// There must be 4 sensitive variables, and they must all be unscoped
 			sensitiveVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
-				return item.IsSensitive &&
-					len(item.Scope.Environments) == 0 &&
-					len(item.Scope.Roles) == 0 &&
-					len(item.Scope.Machines) == 0 &&
-					len(item.Scope.Actions) == 0 &&
-					len(item.Scope.TenantTags) == 0 &&
-					len(item.Scope.ProcessOwners) == 0 &&
-					len(item.Scope.Channels) == 0
+				return item.IsSensitive && item.Scope.IsEmpty()
 			})
 
-			if len(sensitiveVariables) != 3 {
-				t.Fatalf("Expected 3 variables, got %v", len(sensitiveVariables))
+			if len(sensitiveVariables) != 4 {
+				t.Fatalf("Expected 4 variables, got %v", len(sensitiveVariables))
 			}
 
-			// The three sensitive variables that shared a name must now have 3 regular variables each scoped
-			// to an environment
+			// The three sensitive variables that shared a name must now have 4 regular variables each scoped
+			// to an environment or are unscoped
 			originalVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
-				return item.Name == "SensitiveVariable" && !item.IsSensitive && len(item.Scope.Environments) == 1
+				return item.Name == "SensitiveVariable" && !item.IsSensitive && (len(item.Scope.Environments) == 1 || len(item.Scope.Environments) == 0)
 			})
 
-			if len(originalVariables) != 3 {
-				t.Fatalf("Expected 3 variables, got %v", len(originalVariables))
+			if len(originalVariables) != 4 {
+				t.Fatalf("Expected 4 variables, got %v", len(originalVariables))
 			}
 
 			// Each regular variable must reference a sensitive variable
