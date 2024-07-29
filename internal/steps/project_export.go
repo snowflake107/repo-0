@@ -342,6 +342,7 @@ func (s ProjectExportStep) getProjects(myclient *client.Client) ([]*projects.Pro
 }
 
 func (s ProjectExportStep) deleteRunbook(myclient *client.Client, runbook *runbooks.Runbook) error {
+	fmt.Println("Attempting to delete runbook " + runbook.ID)
 	if err := myclient.Runbooks.DeleteByID(runbook.ID); err != nil {
 		return err
 	}
