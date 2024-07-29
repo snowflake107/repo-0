@@ -83,8 +83,8 @@ func TestSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting library variable sets: %v", err)
 			}
 
-			if len(lvsVariable.Variables) != 10 {
-				t.Fatalf("Expected 10 variables, got %v", len(lvsVariable.Variables))
+			if len(lvsVariable.Variables) != 11 {
+				t.Fatalf("Expected 11 variables, got %v", len(lvsVariable.Variables))
 			}
 
 			// There must be one regular variable that was unaltered
@@ -92,6 +92,36 @@ func TestSpreadVariables(t *testing.T) {
 				return !item.IsSensitive && item.Name == "RegularVariable"
 			})) != 1 {
 				t.Fatalf("Expected 1 regular variable")
+			}
+
+			// There must be one variable called "Test.SecretVariable_Unscoped"
+			// This variable was created specifically to collide with the name of a newly created sensitive variable
+			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "Test.SecretVariable_Unscoped" && !item.IsSensitive
+			})) != 1 {
+				t.Fatalf("Expected 1 regular variable")
+			}
+
+			// There must be one variable called "Test.SecretVariable_Unscoped_1"
+			// This variable must have an index appended to avoid the collision with the variable above
+			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "Test.SecretVariable_Unscoped_1" && item.IsSensitive
+			})) != 1 {
+				t.Fatalf("Expected 1 sensitive variable")
+			}
+
+			// There must be one variable with a value of  "#{Test.SecretVariable_Unscoped_1}"
+			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return item.Value != nil && *item.Value == "#{Test.SecretVariable_Unscoped_1}" && !item.IsSensitive
+			})) != 1 {
+				t.Fatalf("Expected 1 regular variable referencing the sensitive variable with the index suffix")
+			}
+
+			// All sensitive variables must be unscoped
+			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return item.IsSensitive && !item.Scope.IsEmpty()
+			})) != 0 {
+				t.Fatalf("Expected 0 sensitive variables to be unscoped")
 			}
 
 			// There must be 5 sensitive variables, and they must all be unscoped
@@ -195,6 +225,13 @@ func TestProjectSpreadVariables(t *testing.T) {
 
 			if len(variableSet.Variables) != 9 {
 				t.Fatalf("Expected 9 variables, got %v", len(variableSet.Variables))
+			}
+
+			// All sensitive variables must be unscoped
+			if len(lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.IsSensitive && !item.Scope.IsEmpty()
+			})) != 0 {
+				t.Fatalf("Expected 0 sensitive variables to be unscoped")
 			}
 
 			// There must be 4 sensitive variables, and they must all be unscoped

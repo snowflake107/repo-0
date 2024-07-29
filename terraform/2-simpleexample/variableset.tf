@@ -10,6 +10,13 @@ resource "octopusdeploy_variable" "string_variable" {
   value     = "PlainText"
 }
 
+resource "octopusdeploy_variable" "deliberate_collision" {
+  owner_id  = octopusdeploy_library_variable_set.octopus_library_variable_set.id
+  type      = "String"
+  name      = "Test.SecretVariable_Unscoped"
+  value     = "PlainText"
+}
+
 resource "octopusdeploy_variable" "unscoped_secret" {
   name = "Test.SecretVariable"
   type = "Sensitive"
