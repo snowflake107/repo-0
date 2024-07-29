@@ -68,7 +68,7 @@ func main() {
 	wiz.ShowWizardStep(steps.WelcomeStep{
 		Wizard: *wiz,
 		BaseStep: steps.BaseStep{State: state.State{
-			BackendType:               "",
+			BackendType:               os.Getenv("OCTOTERRAWIZ_BACKEND_TYPE"),
 			Server:                    defaultSourceServer,
 			ServerExternal:            "",
 			ApiKey:                    defaultSourceServerApi,
@@ -81,8 +81,8 @@ func main() {
 			AwsSecretKey:              os.Getenv("AWS_SECRET_ACCESS_KEY"),
 			AwsS3Bucket:               os.Getenv("AWS_DEFAULT_BUCKET"),
 			AwsS3BucketRegion:         os.Getenv("AWS_DEFAULT_REGION"),
-			PromptForDelete:           false,
-			UseContainerImages:        false,
+			PromptForDelete:           os.Getenv("OCTOTERRAWIZ_PROMPT_FOR_DELETE") == "true",
+			UseContainerImages:        os.Getenv("OCTOTERRAWIZ_USE_CONTAINER_IMAGES") == "true",
 			AzureResourceGroupName:    os.Getenv("OCTOTERRAWIZ_AZURE_RESOURCE_GROUP"),
 			AzureStorageAccountName:   os.Getenv("OCTOTERRAWIZ_AZURE_STORAGE_ACCOUNT"),
 			AzureContainerName:        os.Getenv("OCTOTERRAWIZ_AZURE_CONTAINER"),
