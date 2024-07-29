@@ -505,8 +505,8 @@ resource "octopusdeploy_runbook_process" "deploy_space_aws" {
         "Octopus.Action.Terraform.ManagedAccount"               = "AWS"
         "Octopus.Action.Aws.AssumeRole"                         = "False"
         "OctoterraApply.Terraform.Package.Id" = jsonencode({
-          "PackageId" = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
-          "FeedId"    = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+          "PackageId" = replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")
+          "FeedId"    = data.octopusdeploy_feeds.built_in_feed.feeds[0].id
         })
         "OctoterraApply.Terraform.Workspace.Name" = "#{OctoterraApply.Octopus.SpaceID}"
         "OctoterraApply.Octopus.SpaceID"          = "#{Octopus.Destination.SpaceID}"
@@ -525,9 +525,9 @@ resource "octopusdeploy_runbook_process" "deploy_space_aws" {
       tenant_tags = []
 
       primary_package {
-        package_id           = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
+        package_id           = replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")
         acquisition_location = "Server"
-        feed_id              = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+        feed_id              = data.octopusdeploy_feeds.built_in_feed.feeds[0].id
         properties = { PackageParameterName = "OctoterraApply.Terraform.Package.Id", SelectionMode = "deferred" }
       }
 
@@ -568,8 +568,8 @@ resource "octopusdeploy_runbook_process" "deploy_space_azure" {
         "Octopus.Action.Terraform.AllowPluginDownloads" = "True"
         "Octopus.Action.Package.DownloadOnTentacle"     = "False"
         "OctoterraApply.Terraform.Package.Id" = jsonencode({
-          "PackageId" = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
-          "FeedId"    = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+          "PackageId" = replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")
+          "FeedId"    = data.octopusdeploy_feeds.built_in_feed.feeds[0].id
         })
         "Octopus.Action.Terraform.Workspace"                    = "#{OctoterraApply.Terraform.Workspace.Name}"
         "Octopus.Action.Terraform.FileSubstitution"             = "**/project_variable_sensitive*.tf"
@@ -610,9 +610,9 @@ resource "octopusdeploy_runbook_process" "deploy_space_azure" {
       tenant_tags = []
 
       primary_package {
-        package_id           = "${replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")}"
+        package_id           = replace(var.octopus_space_name, "/[^A-Za-z0-9]/", "_")
         acquisition_location = "Server"
-        feed_id              = "${data.octopusdeploy_feeds.built_in_feed.feeds[0].id}"
+        feed_id              = data.octopusdeploy_feeds.built_in_feed.feeds[0].id
         properties = { PackageParameterName = "OctoterraApply.Terraform.Package.Id", SelectionMode = "deferred" }
       }
 
