@@ -97,7 +97,11 @@ func spreadVariables(client *client.Client, ownerId string, variableSet *variabl
 		return err
 	}
 
-	usedNames := []string{}
+	// Get a list of all the existing variable names. We can't reuse any of these names.
+	usedNames := lo.Uniq(lo.Map(variableSet.Variables, func(item *variables.Variable, index int) string {
+		return item.Name
+	}))
+
 	for _, groupedVariable := range groupedVariables {
 		for _, variable := range variableSet.Variables {
 			if groupedVariable != variable.Name {
