@@ -53,6 +53,14 @@ resource "octopusdeploy_variable" "sensitive_var_3" {
   }
 }
 
+resource "octopusdeploy_variable" "amazon_web_services_account_variable" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "AmazonWebServicesAccount"
+  name      = "AWS"
+  value     =  octopusdeploy_aws_account.account_aws_account.id
+}
+
+
 resource "octopusdeploy_project" "deploy_frontend_project" {
   auto_create_release                  = false
   default_guided_failure_mode          = "EnvironmentDefault"

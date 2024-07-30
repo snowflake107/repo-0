@@ -223,8 +223,15 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting project variable set: %v", err)
 			}
 
-			if len(variableSet.Variables) != 9 {
-				t.Fatalf("Expected 9 variables, got %v", len(variableSet.Variables))
+			if len(variableSet.Variables) != 10 {
+				t.Fatalf("Expected 10 variables, got %v", len(variableSet.Variables))
+			}
+
+			// The AWS account variable must be unaltered
+			if len(lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "AWS" && item.Type == "AmazonWebServicesAccount"
+			})) != 1 {
+				t.Fatalf("Expected 1 AWS account variable")
 			}
 
 			// All sensitive variables must be unscoped
