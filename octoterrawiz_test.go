@@ -315,11 +315,11 @@ func TestProjectMigration(t *testing.T) {
 
 		state := state.State{
 			BackendType:               "AWS S3",
-			Server:                    "http://172.17.0.1:8080", // The address used by Octopus when running tasks, which could be in nested containers
-			ServerExternal:            container.URI,            // The address used by the wizard
+			Server:                    "http://localhost:8080", // The address used by Octopus when running tasks, which could be in nested containers
+			ServerExternal:            container.URI,           // The address used by the wizard
 			ApiKey:                    test.ApiKey,
 			Space:                     newSpaceId,
-			DestinationServer:         "http://172.17.0.1:8080",
+			DestinationServer:         "http://localhost:8080",
 			DestinationServerExternal: container.URI,
 			DestinationApiKey:         test.ApiKey,
 			DestinationSpace:          space.ID,
