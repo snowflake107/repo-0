@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        parallel: [1]
-        index: [0]
+        parallel: [3]
+        index: [0, 1, 2]
 
     steps:
       - name: Install Latest Docker
@@ -141,8 +141,10 @@ jobs:
 
       - name: Merge reports
         run: >
-          jrm ./junit-test-summary.xml
-          "junit-test-summary-0/*.xml"          
+          jrm ./junit-test-summary.xml 
+          "junit-test-summary-0/*.xml" 
+          "junit-test-summary-1/*.xml" 
+          "junit-test-summary-2/*.xml"    
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v3
