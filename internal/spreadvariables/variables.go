@@ -58,6 +58,7 @@ func (c *VariableSpreader) findSecretVariablesWithSharedName(variableSet *variab
 	return groupedVariables, nil
 }
 
+// populateCache returns names for all the IDs used as variable scopes.
 func (c *VariableSpreader) populateCache(variable *variables.Variable, parent *variables.VariableSet) error {
 	c.cache = map[string]map[string]string{}
 	c.cache["Environments"] = map[string]string{}

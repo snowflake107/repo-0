@@ -190,9 +190,9 @@ func TestSpreadVariables(t *testing.T) {
 
 			// No sensitive variable should have a scope (this is the whole point of spreading)
 			if lo.ContainsBy(lvsVariable.Variables, func(item *variables.Variable) bool {
-				return !item.Scope.IsEmpty()
+				return item.IsSensitive && !item.Scope.IsEmpty()
 			}) {
-				t.Fatalf("No sensitive variables should have a scaope")
+				t.Fatalf("No sensitive variables should have a scope")
 			}
 
 		}
@@ -356,9 +356,9 @@ func TestProjectSpreadVariables(t *testing.T) {
 
 			// No sensitive variable should have a scope (this is the whole point of spreading)
 			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
-				return !item.Scope.IsEmpty()
+				return item.IsSensitive && !item.Scope.IsEmpty()
 			}) {
-				t.Fatalf("No sensitive variables should have a scaope")
+				t.Fatalf("No sensitive variables should have a scope")
 			}
 		}
 
