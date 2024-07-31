@@ -61,6 +61,63 @@ resource "octopusdeploy_variable" "sensitive_var_4" {
   is_sensitive = false
 }
 
+resource "octopusdeploy_variable" "sensitive_var_5" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  name      = "SensitiveVariable"
+  sensitive_value     = "Secret3"
+  is_sensitive = true
+# This doesn't seem to work
+#   scope {
+#     actions = [octopusdeploy_deployment_process.test.step[0].action[0].id]
+#   }
+#   depends_on = [octopusdeploy_deployment_process.test]
+}
+
+resource "octopusdeploy_variable" "sensitive_var_6" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  name      = "SensitiveVariable"
+  sensitive_value     = "Secret3"
+  is_sensitive = true
+  scope {
+    processes = [octopusdeploy_project.deploy_frontend_project.id]
+  }
+}
+
+resource "octopusdeploy_variable" "sensitive_var_7" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  name      = "SensitiveVariable"
+  sensitive_value     = "Secret3"
+  is_sensitive = true
+  scope {
+    machines = [octopusdeploy_cloud_region_deployment_target.target_region1.id]
+  }
+}
+
+resource "octopusdeploy_variable" "sensitive_var_8" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  name      = "SensitiveVariable"
+  sensitive_value     = "Secret3"
+  is_sensitive = true
+  scope {
+    channels = [octopusdeploy_channel.backend_mainline.id]
+  }
+}
+
+resource "octopusdeploy_variable" "sensitive_var_9" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "Sensitive"
+  name      = "SensitiveVariable"
+  sensitive_value     = "Secret3"
+  is_sensitive = true
+  scope {
+    roles = ["MyRole"]
+  }
+}
+
 resource "octopusdeploy_variable" "amazon_web_services_account_variable" {
   owner_id  = octopusdeploy_project.deploy_frontend_project.id
   type      = "AmazonWebServicesAccount"

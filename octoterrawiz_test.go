@@ -248,8 +248,8 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting project variable set: %v", err)
 			}
 
-			if len(variableSet.Variables) != 11 {
-				t.Fatalf("Expected 11 variables, got %v", len(variableSet.Variables))
+			if len(variableSet.Variables) != 21 {
+				t.Fatalf("Expected 21 variables, got %v", len(variableSet.Variables))
 			}
 
 			// The AWS account variable must be unaltered
@@ -273,24 +273,26 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Expected 0 sensitive variables to be unscoped")
 			}
 
-			// There must be 4 sensitive variables, and they must all be unscoped
+			// There must be 9 sensitive variables, and they must all be unscoped
+			// One sensitive variable was already unscoped, the others were originally scoped and then spread
+			// There are 10 variables called "SensitiveVariable", but only 9 are actually sensitive. One is regular variable thrown into the mix.
 			sensitiveVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
 				return item.IsSensitive && item.Scope.IsEmpty()
 			})
 
-			if len(sensitiveVariables) != 4 {
-				t.Fatalf("Expected 4 variables, got %v", len(sensitiveVariables))
+			if len(sensitiveVariables) != 9 {
+				t.Fatalf("Expected 9 variables, got %v", len(sensitiveVariables))
 			}
 
-			// The three sensitive variables that shared a name must now have 4 regular variables each scoped
+			// The 10 sensitive variables that shared a name must now have 9 regular variables each scoped
 			// to an environment or are unscoped
 			originalVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
 				// we're not testing the regular variable with the value "RegularVariable", as this was never modified
 				return item.Name == "SensitiveVariable" && !item.IsSensitive && (len(item.Scope.Environments) == 1 || len(item.Scope.Environments) == 0) && *item.Value != "RegularVariable"
 			})
 
-			if len(originalVariables) != 4 {
-				t.Fatalf("Expected 4 variables, got %v", len(originalVariables))
+			if len(originalVariables) != 9 {
+				t.Fatalf("Expected 9 variables, got %v", len(originalVariables))
 			}
 
 			// Each regular variable must reference a sensitive variable
@@ -313,7 +315,7 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Expected 1 variable, got %v", len(regularVariable))
 			}
 
-			// No variables should end with a underscore
+			// No variables should end with an underscore
 			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
 				return strings.HasSuffix(item.Name, "_")
 			}) {
