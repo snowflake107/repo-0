@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
+	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
@@ -72,7 +73,11 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 	validation("")
 
-	introText := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export to (i.e. the destination server).")
+	introText := widget.NewLabel(strutil.TrimMultilineWhitespace(`
+		Enter the URL, API key, and Space ID of the Octopus instance you want to export to (i.e. the destination server).
+		Note that all the resources in the destination space must be managed by Terraform.
+		Typically this means the destination space must be blank and all resources are created by running this wizard.
+		Terraform will not replace or update existing resources by default.`))
 	linkUrl, _ := url.Parse("https://octopus.com/docs/octopus-rest-api/how-to-create-an-api-key")
 	link := widget.NewHyperlink("Learn how to create an API key.", linkUrl)
 
