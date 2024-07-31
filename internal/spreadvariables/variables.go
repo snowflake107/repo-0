@@ -2,6 +2,7 @@ package spreadvariables
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
@@ -199,7 +200,7 @@ func SpreadAllVariables(state state.State) error {
 		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), libraryVariableSet.VariableSetID)
 
 		if err != nil {
-			return err
+			return errors.New("Failed to get variable set for library variable set " + libraryVariableSet.Name + ". Error was " + err.Error())
 		}
 
 		variableSets = append(variableSets, OwnerVariablePair{
@@ -212,7 +213,7 @@ func SpreadAllVariables(state state.State) error {
 		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), project.VariableSetID)
 
 		if err != nil {
-			return err
+			return errors.New("Failed to get variable set for project " + project.Name + ". Error was " + err.Error())
 		}
 
 		variableSets = append(variableSets, OwnerVariablePair{
