@@ -109,6 +109,12 @@ func spreadVariables(client *client.Client, ownerId string, variableSet *variabl
 				continue
 			}
 
+			// You can have a mix of sensitive and non-sensitive variables with the same name
+			// Skip any non-sensitive variables
+			if !(variable.IsSensitive && variable.Type == "Sensitive") {
+				continue
+			}
+
 			// Copy the original variable
 			originalVar := *variable
 
@@ -200,7 +206,7 @@ func SpreadAllVariables(state state.State) error {
 		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), libraryVariableSet.VariableSetID)
 
 		if err != nil {
-			return errors.New("Failed to get variable set for library variable set " + libraryVariableSet.Name + ". Error was " + err.Error())
+			return errors.New("Failed to get variable set for library variable set " + libraryVariableSet.Name + ". Error was \"" + err.Error() + "\"")
 		}
 
 		variableSets = append(variableSets, OwnerVariablePair{
@@ -213,7 +219,7 @@ func SpreadAllVariables(state state.State) error {
 		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), project.VariableSetID)
 
 		if err != nil {
-			return errors.New("Failed to get variable set for project " + project.Name + ". Error was " + err.Error())
+			return errors.New("Failed to get variable set for project " + project.Name + ". Error was \"" + err.Error() + "\"")
 		}
 
 		variableSets = append(variableSets, OwnerVariablePair{
