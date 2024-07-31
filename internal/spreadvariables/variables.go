@@ -4,7 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/channels"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/client"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/deployments"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/environments"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/machines"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
+	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/runbooks"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
@@ -18,7 +24,13 @@ type OwnerVariablePair struct {
 	VariableSet *variables.VariableSet
 }
 
-func findSecretVariablesWithSharedName(variableSet *variables.VariableSet) ([]string, error) {
+type VariableSpreader struct {
+	State  state.State
+	cache  map[string]map[string]string
+	client *client.Client
+}
+
+func (c *VariableSpreader) findSecretVariablesWithSharedName(variableSet *variables.VariableSet) ([]string, error) {
 	groupedVariables := []string{}
 	for _, variable := range variableSet.Variables {
 
@@ -46,19 +58,136 @@ func findSecretVariablesWithSharedName(variableSet *variables.VariableSet) ([]st
 	return groupedVariables, nil
 }
 
-func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) string {
+func (c *VariableSpreader) populateCache(variable *variables.Variable, parent *variables.VariableSet) error {
+	c.cache = map[string]map[string]string{}
+	c.cache["Environments"] = map[string]string{}
+	c.cache["Machines"] = map[string]string{}
+	c.cache["Channels"] = map[string]string{}
+	c.cache["ProcessOwners"] = map[string]string{}
+	c.cache["Actions"] = map[string]string{}
+
+	for _, resourceId := range variable.Scope.Environments {
+		if _, ok := c.cache["Environments"][resourceId]; ok {
+			continue
+		}
+
+		if resource, err := environments.GetByID(c.client, c.client.GetSpaceID(), resourceId); err != nil {
+			return err
+		} else {
+			c.cache["Environments"][resourceId] = resource.Name
+		}
+	}
+
+	for _, resourceId := range variable.Scope.Machines {
+		if _, ok := c.cache["Machines"][resourceId]; ok {
+			continue
+		}
+
+		if resource, err := machines.GetByID(c.client, c.client.GetSpaceID(), resourceId); err != nil {
+			return err
+		} else {
+			c.cache["Machines"][resourceId] = resource.Name
+		}
+	}
+
+	for _, resourceId := range variable.Scope.Channels {
+		if _, ok := c.cache["Channels"][resourceId]; ok {
+			continue
+		}
+
+		if resource, err := channels.GetByID(c.client, c.client.GetSpaceID(), resourceId); err != nil {
+			return err
+		} else {
+			c.cache["Channels"][resourceId] = resource.Name
+		}
+	}
+
+	for _, resourceId := range variable.Scope.Actions {
+		if _, ok := c.cache["Actions"][resourceId]; ok {
+			continue
+		}
+
+		project, err := projects.GetByID(c.client, c.client.GetSpaceID(), parent.OwnerID)
+
+		if err != nil {
+			return err
+		}
+
+		deploymentProcess, err := deployments.GetDeploymentProcessByID(c.client, c.client.GetSpaceID(), project.DeploymentProcessID)
+
+		if err != nil {
+			return err
+		}
+
+		actions := lo.FlatMap(deploymentProcess.Steps, func(item *deployments.DeploymentStep, index int) []*deployments.DeploymentAction {
+			return item.Actions
+		})
+
+		action := lo.Filter(actions, func(item *deployments.DeploymentAction, index int) bool {
+			return item.ID == resourceId
+		})
+
+		if len(action) == 0 {
+			return errors.New("Could not find action " + resourceId)
+		}
+
+		c.cache["Actions"][resourceId] = action[0].Name
+	}
+
+	for _, resourceId := range variable.Scope.ProcessOwners {
+		if _, ok := c.cache["ProcessOwners"][resourceId]; ok {
+			continue
+		}
+
+		if strings.HasPrefix(resourceId, "Runbooks-") {
+			if resource, err := runbooks.GetByID(c.client, c.client.GetSpaceID(), resourceId); err != nil {
+				return err
+			} else {
+				c.cache["ProcessOwners"][resourceId] = resource.Name
+			}
+		} else {
+			if resource, err := projects.GetByID(c.client, c.client.GetSpaceID(), resourceId); err != nil {
+				return err
+			} else {
+				c.cache["ProcessOwners"][resourceId] = resource.Name
+			}
+		}
+	}
+
+	return nil
+}
+
+func (c *VariableSpreader) buildUniqueVariableName(variable *variables.Variable, usedNamed []string) (string, error) {
 	name := variable.Name
 
 	if variable.Scope.IsEmpty() {
 		name += "_Unscoped"
 	}
 
+	var namingErrors error = nil
+
 	if len(variable.Scope.Environments) > 0 {
-		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Environments, "_"))
+		resourceNames := lo.Map(variable.Scope.Environments, func(item string, index int) string {
+			if resource, ok := c.cache["Environments"][item]; ok && len(strings.TrimSpace(resource)) != 0 {
+				return resource
+			}
+
+			namingErrors = errors.Join(namingErrors, errors.New(fmt.Sprintf("Environment with ID %s not found", item)))
+			return ""
+		})
+		name += fmt.Sprintf("_%s", strings.Join(resourceNames, "_"))
 	}
 
 	if len(variable.Scope.Machines) > 0 {
-		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Machines, "_"))
+		resourceNames := lo.Map(variable.Scope.Machines, func(item string, index int) string {
+			if resource, ok := c.cache["Machines"][item]; ok && len(strings.TrimSpace(resource)) != 0 {
+				return resource
+			}
+
+			namingErrors = errors.Join(namingErrors, errors.New(fmt.Sprintf("Machine with ID %s not found", item)))
+			return ""
+		})
+		name += fmt.Sprintf("_%s", strings.Join(resourceNames, "_"))
 	}
 
 	if len(variable.Scope.Roles) > 0 {
@@ -66,7 +195,15 @@ func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) s
 	}
 
 	if len(variable.Scope.Actions) > 0 {
-		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Actions, "_"))
+		resourceNames := lo.Map(variable.Scope.Actions, func(item string, index int) string {
+			if resource, ok := c.cache["Actions"][item]; ok && len(strings.TrimSpace(resource)) != 0 {
+				return resource
+			}
+
+			namingErrors = errors.Join(namingErrors, errors.New(fmt.Sprintf("Actions with ID %s not found", item)))
+			return ""
+		})
+		name += fmt.Sprintf("_%s", strings.Join(resourceNames, "_"))
 	}
 
 	if len(variable.Scope.TenantTags) > 0 {
@@ -74,11 +211,31 @@ func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) s
 	}
 
 	if len(variable.Scope.Channels) > 0 {
-		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.Channels, "_"))
+		resourceNames := lo.Map(variable.Scope.Channels, func(item string, index int) string {
+			if resource, ok := c.cache["Channels"][item]; ok && len(strings.TrimSpace(resource)) != 0 {
+				return resource
+			}
+
+			namingErrors = errors.Join(namingErrors, errors.New(fmt.Sprintf("Channel with ID %s not found", item)))
+			return ""
+		})
+		name += fmt.Sprintf("_%s", strings.Join(resourceNames, "_"))
 	}
 
 	if len(variable.Scope.ProcessOwners) > 0 {
-		name += fmt.Sprintf("_%s", strings.Join(variable.Scope.ProcessOwners, "_"))
+		resourceNames := lo.Map(variable.Scope.ProcessOwners, func(item string, index int) string {
+			if resource, ok := c.cache["ProcessOwners"][item]; ok && len(strings.TrimSpace(resource)) != 0 {
+				return resource
+			}
+
+			namingErrors = errors.Join(namingErrors, errors.New(fmt.Sprintf("Process Owner with ID %s not found", item)))
+			return ""
+		})
+		name += fmt.Sprintf("_%s", strings.Join(resourceNames, "_"))
+	}
+
+	if namingErrors != nil {
+		return "", namingErrors
 	}
 
 	startingName := name
@@ -88,11 +245,11 @@ func buildUniqueVariableName(variable *variables.Variable, usedNamed []string) s
 		index++
 	}
 
-	return name
+	return name, nil
 }
 
-func spreadVariables(client *client.Client, ownerId string, variableSet *variables.VariableSet) error {
-	groupedVariables, err := findSecretVariablesWithSharedName(variableSet)
+func (c *VariableSpreader) spreadVariables(client *client.Client, ownerId string, variableSet *variables.VariableSet) error {
+	groupedVariables, err := c.findSecretVariablesWithSharedName(variableSet)
 
 	if err != nil {
 		return err
@@ -118,8 +275,16 @@ func spreadVariables(client *client.Client, ownerId string, variableSet *variabl
 			// Copy the original variable
 			originalVar := *variable
 
+			// Lookup things like environments
+			if err := c.populateCache(variable, variableSet); err != nil {
+				return err
+			}
+
 			// Get a unique name
-			uniqueName := buildUniqueVariableName(variable, usedNames)
+			uniqueName, err := c.buildUniqueVariableName(variable, usedNames)
+			if err != nil {
+				return err
+			}
 
 			// Create a new variable with the original name and scopes referencing the new unscoped variable
 			referenceVar := originalVar
@@ -181,20 +346,22 @@ func spreadVariables(client *client.Client, ownerId string, variableSet *variabl
 	return nil
 }
 
-func SpreadAllVariables(state state.State) error {
-	myclient, err := octoclient.CreateClient(state)
+func (c *VariableSpreader) SpreadAllVariables() error {
+	myclient, err := octoclient.CreateClient(c.State)
 
 	if err != nil {
 		return err
 	}
 
-	libraryVariableSets, err := myclient.LibraryVariableSets.GetAll()
+	c.client = myclient
+
+	libraryVariableSets, err := c.client.LibraryVariableSets.GetAll()
 
 	if err != nil {
 		return err
 	}
 
-	projects, err := myclient.Projects.GetAll()
+	projects, err := c.client.Projects.GetAll()
 
 	if err != nil {
 		return err
@@ -203,7 +370,7 @@ func SpreadAllVariables(state state.State) error {
 	variableSets := []OwnerVariablePair{}
 
 	for _, libraryVariableSet := range libraryVariableSets {
-		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), libraryVariableSet.VariableSetID)
+		variableSet, err := variables.GetVariableSet(c.client, c.client.GetSpaceID(), libraryVariableSet.VariableSetID)
 
 		if err != nil {
 			return errors.New("Failed to get variable set for library variable set " + libraryVariableSet.Name + ". Error was \"" + err.Error() + "\"")
@@ -216,7 +383,7 @@ func SpreadAllVariables(state state.State) error {
 	}
 
 	for _, project := range projects {
-		variableSet, err := variables.GetVariableSet(myclient, myclient.GetSpaceID(), project.VariableSetID)
+		variableSet, err := variables.GetVariableSet(c.client, c.client.GetSpaceID(), project.VariableSetID)
 
 		if err != nil {
 			return errors.New("Failed to get variable set for project " + project.Name + ". Error was \"" + err.Error() + "\"")
@@ -230,7 +397,7 @@ func SpreadAllVariables(state state.State) error {
 
 	for _, variableSet := range variableSets {
 
-		err = spreadVariables(myclient, variableSet.OwnerID, variableSet.VariableSet)
+		err = c.spreadVariables(c.client, variableSet.OwnerID, variableSet.VariableSet)
 
 		if err != nil {
 			return err

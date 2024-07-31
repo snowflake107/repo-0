@@ -94,5 +94,8 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 }
 
 func (s SpreadVariablesStep) Execute() error {
-	return spreadvariables.SpreadAllVariables(s.State)
+	spreader := spreadvariables.VariableSpreader{
+		State: s.State,
+	}
+	return spreader.SpreadAllVariables()
 }
