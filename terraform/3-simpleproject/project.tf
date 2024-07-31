@@ -53,6 +53,14 @@ resource "octopusdeploy_variable" "sensitive_var_3" {
   }
 }
 
+resource "octopusdeploy_variable" "sensitive_var_4" {
+  owner_id  = octopusdeploy_project.deploy_frontend_project.id
+  type      = "String"
+  name      = "SensitiveVariable"
+  value     = "RegularVariable"
+  is_sensitive = false
+}
+
 resource "octopusdeploy_variable" "amazon_web_services_account_variable" {
   owner_id  = octopusdeploy_project.deploy_frontend_project.id
   type      = "AmazonWebServicesAccount"

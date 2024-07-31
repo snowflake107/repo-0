@@ -223,8 +223,8 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("Error getting project variable set: %v", err)
 			}
 
-			if len(variableSet.Variables) != 10 {
-				t.Fatalf("Expected 10 variables, got %v", len(variableSet.Variables))
+			if len(variableSet.Variables) != 11 {
+				t.Fatalf("Expected 11 variables, got %v", len(variableSet.Variables))
 			}
 
 			// The AWS account variable must be unaltered
@@ -232,6 +232,13 @@ func TestProjectSpreadVariables(t *testing.T) {
 				return item.Name == "AWS" && item.Type == "AmazonWebServicesAccount"
 			})) != 1 {
 				t.Fatalf("Expected 1 AWS account variable")
+			}
+
+			// The regular variable that shares the name with the sensitive variables must be unchanged
+			if len(lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
+				return item.Name == "SensitiveVariable" && item.Type == "String" && *item.Value == "RegularVariable"
+			})) != 1 {
+				t.Fatalf("Expected 1 unchanged regular variable")
 			}
 
 			// All sensitive variables must be unscoped
@@ -253,7 +260,8 @@ func TestProjectSpreadVariables(t *testing.T) {
 			// The three sensitive variables that shared a name must now have 4 regular variables each scoped
 			// to an environment or are unscoped
 			originalVariables := lo.Filter(variableSet.Variables, func(item *variables.Variable, index int) bool {
-				return item.Name == "SensitiveVariable" && !item.IsSensitive && (len(item.Scope.Environments) == 1 || len(item.Scope.Environments) == 0)
+				// we're not testing the regular variable with the value "RegularVariable", as this was never modified
+				return item.Name == "SensitiveVariable" && !item.IsSensitive && (len(item.Scope.Environments) == 1 || len(item.Scope.Environments) == 0) && *item.Value != "RegularVariable"
 			})
 
 			if len(originalVariables) != 4 {
