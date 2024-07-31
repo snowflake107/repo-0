@@ -17,6 +17,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -117,6 +119,15 @@ func TestSpreadVariables(t *testing.T) {
 				t.Fatalf("Expected 1 regular variable referencing the sensitive variable with the index suffix")
 			}
 
+			// Only one spread variable (the variable above) should end with a digit
+			clashedVariables := lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
+				return regexp.MustCompile(`.*?_\d+$`).MatchString(item.Name)
+			})
+
+			if len(clashedVariables) != 1 {
+				t.Fatalf("Expected 1 variable, got %v", len(clashedVariables))
+			}
+
 			// All sensitive variables must be unscoped
 			if len(lo.Filter(lvsVariable.Variables, func(item *variables.Variable, index int) bool {
 				return item.IsSensitive && !item.Scope.IsEmpty()
@@ -152,6 +163,20 @@ func TestSpreadVariables(t *testing.T) {
 				if len(matchingSensitiveVar) == 0 {
 					t.Fatalf("Should have found a matching sensitive variable for %v", variable.Name)
 				}
+			}
+
+			// No variables should end with a underscore
+			if lo.ContainsBy(lvsVariable.Variables, func(item *variables.Variable) bool {
+				return strings.HasSuffix(item.Name, "_")
+			}) {
+				t.Fatalf("No variables should end with an underscore")
+			}
+
+			// No variables should have whitespace around them
+			if lo.ContainsBy(lvsVariable.Variables, func(item *variables.Variable) bool {
+				return strings.TrimSpace(item.Name) != item.Name
+			}) {
+				t.Fatalf("No variables should have any whitespace around them")
 			}
 
 		}
@@ -286,6 +311,20 @@ func TestProjectSpreadVariables(t *testing.T) {
 
 			if len(regularVariable) != 1 {
 				t.Fatalf("Expected 1 variable, got %v", len(regularVariable))
+			}
+
+			// No variables should end with a underscore
+			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
+				return strings.HasSuffix(item.Name, "_")
+			}) {
+				t.Fatalf("No variables should end with an underscore")
+			}
+
+			// No variables should have whitespace around them
+			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
+				return strings.TrimSpace(item.Name) != item.Name
+			}) {
+				t.Fatalf("No variables should have any whitespace around them")
 			}
 
 		}
