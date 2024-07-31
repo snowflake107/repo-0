@@ -179,6 +179,22 @@ func TestSpreadVariables(t *testing.T) {
 				t.Fatalf("No variables should have any whitespace around them")
 			}
 
+			// No sensitive variable should have the same name (this is the whole point of spreading)
+			if lo.ContainsBy(lvsVariable.Variables, func(item *variables.Variable) bool {
+				return lo.ContainsBy(lvsVariable.Variables, func(item2 *variables.Variable) bool {
+					return item.IsSensitive && item2.IsSensitive && item != item2 && item.Name == item2.Name
+				})
+			}) {
+				t.Fatalf("No sensitive variables should have the same name")
+			}
+
+			// No sensitive variable should have a scope (this is the whole point of spreading)
+			if lo.ContainsBy(lvsVariable.Variables, func(item *variables.Variable) bool {
+				return !item.Scope.IsEmpty()
+			}) {
+				t.Fatalf("No sensitive variables should have a scaope")
+			}
+
 		}
 
 		return nil
@@ -329,6 +345,21 @@ func TestProjectSpreadVariables(t *testing.T) {
 				t.Fatalf("No variables should have any whitespace around them")
 			}
 
+			// No sensitive variable should have the same name (this is the whole point of spreading)
+			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
+				return lo.ContainsBy(variableSet.Variables, func(item2 *variables.Variable) bool {
+					return item.IsSensitive && item2.IsSensitive && item != item2 && item.Name == item2.Name
+				})
+			}) {
+				t.Fatalf("No sensitive variables should have the same name")
+			}
+
+			// No sensitive variable should have a scope (this is the whole point of spreading)
+			if lo.ContainsBy(variableSet.Variables, func(item *variables.Variable) bool {
+				return !item.Scope.IsEmpty()
+			}) {
+				t.Fatalf("No sensitive variables should have a scaope")
+			}
 		}
 
 		return nil
