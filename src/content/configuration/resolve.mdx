@@ -718,7 +718,7 @@ module.exports = {
 
 ### resolve.unsafeCache
 
-`RegExp` `[RegExp]` `boolean: true`
+`object` `boolean = true`
 
 공격적이지만 **안전하지 않은** 모듈 캐싱을 활성화합니다. `true`로 설정하면 모든 것이 캐싱 됩니다.
 
@@ -733,15 +733,34 @@ module.exports = {
 };
 ```
 
-단일 혹은 배열을 이용한 정규식을 사용하여 파일 경로를 테스트하고 특정 모듈만 캐시 할 수 있습니다. 예를 들어 utilities만 캐시 하려면 다음을 참고하세요.
+객체가 제공되면 webpack은 이를 캐시로 사용합니다.
+
+예를 들면 일반 객체 대신 [프록시 객체](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)를 제공할 수 있습니다.
 
 **webpack.config.js**
 
 ```js
+// 여기 토론에서 복사했습니다 https://github.com/webpack/webpack/discussions/18089
+const realUnsafeCache = {};
+const unsafeCacheHandler = {
+  get(cache, key) {
+    const cachedValue = cache[key];
+
+    // 파일이 디스크에 있는지 확인하세요
+    if (cachedValue && !fs.existsSync(cachedValue.path)) {
+      // 그렇지 않은 경우 해당 캐시 항목을 제거합니다.
+      delete cache[key];
+      return undefined;
+    }
+
+    return cachedValue;
+  },
+};
+const theProxiedCache = new Proxy(realUnsafeCache, unsafeCacheHandler);
 module.exports = {
   //...
   resolve: {
-    unsafeCache: /src\/utilities/,
+    unsafeCache: theProxiedCache,
   },
 };
 ```

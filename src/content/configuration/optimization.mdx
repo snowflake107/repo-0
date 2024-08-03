@@ -14,6 +14,7 @@ contributors:
   - pixel-ray
   - chenxsan
   - Roberto14
+  - hai-x
 translators:
   - keipark
 related:
@@ -424,9 +425,9 @@ module.exports = {
 
 ## optimization.realContentHash
 
-`boolean = true`
+`boolean`
 
-애셋이 처리된 후 올바른 애셋 콘텐츠 해시를 얻기 위해 추가 해시 컴파일 패스를 추가합니다. `realContentHash`를 `false`로 설정하면 내부 데이터를 사용하여 해시를 산출하며 이는 애셋이 동일한 경우 변경될 수 있습니다.
+애셋이 처리된 후 올바른 애셋 콘텐츠 해시를 얻기 위해 추가 해시 컴파일 패스를 추가합니다. `realContentHash`를 `false`로 설정하면 내부 데이터를 사용하여 해시를 산출하며 이는 애셋이 동일한 경우 변경될 수 있습니다. 기본적으로 `optimization.realContentHash`는 프로덕션 모드에서만 활성화되고 그렇지 않으면 비활성화됩니다.
 
 **webpack.config.js**
 

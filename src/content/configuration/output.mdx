@@ -171,6 +171,8 @@ module.exports = {
 };
 ```
 
+T> `output.filename`이 `[name]`, `[id]`, [`contenthash`], 또는 [`chunkhash`]와 같은 플레이스홀더를 포함하는 문자열로 정의된 경우 `output.chunkFilename`의 기본값은 `output.filename`에서 파생됩니다. 그렇지 않으면 `[id].js`가 기본값으로 사용됩니다.
+
 ## output.chunkFormat
 
 `false` `string: 'array-push' | 'commonjs' | 'module' | <any string>`
@@ -498,6 +500,9 @@ module.exports = {
       globalThis: true,
       // ECMAScript 모듈을 가져오는 ECMAScript Module syntax를 지원합니다(import ... from '...' 처럼 사용합니다).
       module: false,
+      // 이를 지원하는 환경에서 코어 모듈 가져오기에 대해 node: prefix가 생성될지 여부를 결정합니다.
+      // 이는 Webpack 런타임 코드에만 적용됩니다.
+      nodePrefixForCoreModules: false,
       // 옵셔널 체이닝('obj?.a' 또는 'obj?.()')을 지원합니다.
       optionalChaining: true,
       // 템플릿 리터럴을 지원합니다.
@@ -599,7 +604,7 @@ module.exports = {
 
 이 옵션의 이름은 filename 이지만 `'js/[name]/bundle.js'`와 같이 폴더 구조의 이름을 사용할 수 있습니다.
 
-이 옵션은 온 디맨드 로드되는 청크의 출력 파일에는 영향을 주지 않습니다. 처음에 로드된 출력 파일에만 영향을 줍니다. 온 디맨드 로드 된 청크 파일의 경우 [`output.chunkFilename`](#outputchunkfilename) 옵션이 사용됩니다. 로더에서 생성된 파일도 영향을 받지 않습니다. 이 경우 특정 로더에서 사용 가능한 옵션의 사용을 시도해봐야 합니다.
+T> 이 옵션은 온 디맨드 로드되는 청크의 출력 파일에는 영향을 주지 않습니다. 처음에 로드된 출력 파일에만 영향을 줍니다. 온 디맨드 로드 된 청크 파일의 경우 [`output.chunkFilename`](#outputchunkfilename) 옵션이 사용됩니다. 로더에서 생성된 파일도 영향을 받지 않습니다. 이 경우 특정 로더에서 사용 가능한 옵션의 사용을 시도해봐야 합니다.
 
 ### Template strings
 
@@ -1255,6 +1260,10 @@ require('MyLibrary').doSomething();
 `type: commmonjs2`와 함께 `output.library.name`을 지정하면 엔트리 포인트의 반환 값이 `module.exports.[output.library.name]`에 할당됩니다.
 
 T> CommonJS와 CommonJS2의 차이점이 궁금하신가요? 비슷하지만 webpack과 관련이 없는 부분에서 약간의 차이가 있습니다. 자세한 내용은 [이 이슈](https://github.com/webpack/webpack/issues/1114)를 참고하세요.
+
+##### type: 'commonjs-module'
+
+`commonjs-module`은 [`commonjs2`](#type-commonjs2)와 동일합니다. 향후 버전에서는 `commonjs-module`을 제거할 수 있습니다.
 
 ##### type: 'commonjs-static'
 
@@ -2091,6 +2100,8 @@ module.exports = {
 ```
 
 이 파라미터의 `[fullhash]`는 컴파일의 해시로 대체됩니다. 자세한 내용은 [캐싱 가이드](/guides/caching/)를 참고하세요.
+
+W> 경로에는 느낌표(`!`)가 포함되어서는 안 되며, 이는 webpack에서 [로더 구문](/concepts/loaders/#inline)을 위해 예약되어 있기 때문입니다.
 
 ## output.pathinfo
 

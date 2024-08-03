@@ -238,7 +238,7 @@ webpack은 하나의 페이지에 여러 엔트리 포인트를 허용하지만,
   };
 ```
 
-[`optimization.splitChunks`](/plugins/split-chunks-plugin/#optimizationsplitchunks) 설정 옵션을 적용하면 `index.bundle.js`와 `another.bundle.js`에서 중복 의존성이 제거된 것을 확인 할 수 있습니다. 플러그인은 `lodash`가 별도의 청크로 분리되었고 메인 번들에서도 제거된 것을 알 수 있습니다. 잘 동작하는지 확인하기 위해 `npm run build`를 실행해 보겠습니다.
+[`optimization.splitChunks`](/plugins/split-chunks-plugin/#optimizationsplitchunks) 설정 옵션을 적용하면 `index.bundle.js`와 `another.bundle.js`에서 중복 의존성이 제거된 것을 확인 할 수 있습니다. 플러그인은 `lodash`를 별도의 청크로 분리하고 메인 번들에서도 제거된 것을 알 수 있습니다. 그러나 공통 의존성은 webpack에서 지정한 [크기 임계값](/plugins/split-chunks-plugin/#splitchunksminsize)을 충족하는 경우에만 별도의 청크로 추출된다는 점에 유의해야 합니다.
 
 ```bash
 ...

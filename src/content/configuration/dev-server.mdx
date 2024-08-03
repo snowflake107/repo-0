@@ -96,6 +96,25 @@ CLI를 통해 `webpack-dev-server`를 실행하는 것이 권장되지만, API�
 
 [`webpack-dev-server` 관련 API 문서](/api/webpack-dev-server/)를 참고하세요.
 
+## devServer.app
+
+`function`
+
+'connect', 'fastify' 등과 같은 사용자 정의 서버 애플리케이션을 사용할 수 있습니다. 사용되는 기본 애플리케이션은 'express'입니다.
+
+**webpack.config.js**
+
+```javascript
+const connect = require('connect');
+
+module.exports = {
+  //...
+  devServer: {
+    app: () => connect(),
+  },
+};
+```
+
 ## devServer.allowedHosts
 
 `'auto' | 'all'` `[string]`

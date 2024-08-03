@@ -71,8 +71,10 @@ export default ({ ssg = false }) => ({
           'babel-loader',
           {
             loader: '@mdx-js/loader',
+            /** @type {import('@mdx-js/loader').Options} */
             options: {
               remarkPlugins: [...mdPlugins, [frontmatter]],
+              providerImportSource: path.resolve('./src/mdx-components.js'),
             },
           },
         ],
@@ -95,6 +97,7 @@ export default ({ ssg = false }) => ({
           {
             loader: 'sass-loader',
             options: {
+              api: 'legacy',
               sassOptions: {
                 includePaths: [path.join('./src/styles/partials')],
               },

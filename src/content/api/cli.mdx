@@ -623,7 +623,7 @@ module.exports = (env, argv) => {
 npx webpack --node-env production   # process.env.NODE_ENV = 'production'
 ```
 
-T> `mode` 옵션은 명시적으로 설정하지 않으면 `--node-env` 옵션을 받듭니다. 즉, `--node-env production`은 `process.env.NODE_ENV`와 `mode`를 모두 `'production'`으로 설정합니다.
+W> 이 옵션은 `--define-process-env-node-env` 옵션을 위해 webpack-cli v5에서 더 이상 사용되지 않으며 제거되었습니다.
 
 ### define-process-env-node-env
 
@@ -635,7 +635,18 @@ T> `mode` 옵션은 명시적으로 설정하지 않으면 `--node-env` 옵션�
 npx webpack --define-process-env-node-env production   # process.env.NODE_ENV = 'production'
 ```
 
-T> `mode` 옵션을 명시적으로 설정하지 않는 경우 `--define-process-env-node-env` 옵션을 따릅니다. 예를들어, `--define-process-env-node-env production`과 같이 설정하면 ` process.env.NODE_ENV` 와 `mode`는 둘 다 `'production'`으로 설정됩니다.
+설정에 `mode` 옵션이 지정되지 않은 경우 `--define-process-env-node-env` 옵션을 사용하여 `mode`를 설정할 수 있습니다. 예를 들어 `--define-process-env-node-env production`을 사용하면 `process.env.NODE_ENV`와 `mode`가 모두 `production'으로 설정됩니다.
+
+설정이 함수를 내보내는 경우 함수가 반환된 후 `--define-process-env-node-env` 값이 mode에 할당됩니다. 즉, `mode`는 함수 인수(`env` 및 `argv`)에서 사용할 수 없습니다. 그러나 `--define-process-env-node-env`의 값은 `argv.nodeEnv`로 접근할 수 있으며 그에 따라 사용할 수 있습니다.
+
+```javascript
+module.exports = (env, argv) => {
+  console.log(argv.defineProcessEnvNodeEnv); // 'production' --define-process-env-node-env production이 사용되는 경우
+  return {
+    // 당신의 설정
+  };
+};
+```
 
 ## Configuration Options
 
