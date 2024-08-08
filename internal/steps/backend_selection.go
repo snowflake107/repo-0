@@ -35,6 +35,9 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		}
 	})
 
+	heading := widget.NewLabel("Terraform Backend Selection")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Terraform requires a backend to manage its state. Select a backend from the list below.
 	`))
@@ -49,7 +52,7 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		radio.SetSelected(s.State.BackendType)
 	}
 
-	middle := container.New(layout.NewVBoxLayout(), label1, radio)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, radio)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

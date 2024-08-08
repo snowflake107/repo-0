@@ -84,6 +84,9 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.previous = thisPrevious
 	s.exportDone = false
 
+	heading := widget.NewLabel("Space Serialization Runbooks")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		We now must create a project with runbooks to serialize the space to a Terraform module and reapply it to a new space.
 		This project is called "Octoterra Space Management" in the project group "Octoterra".
@@ -102,7 +105,7 @@ func (s SpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 		s.exportDone = true
 		s.createNewProject(parent)
 	})
-	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, intro, s.createProject, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

@@ -16,6 +16,9 @@ type FinishStep struct {
 
 func (s FinishStep) GetContainer(parent fyne.Window) *fyne.Container {
 
+	heading := widget.NewLabel("Completed")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The migration tool has now completed.
 		Note that there are resources and settings that can not be migrated.
@@ -34,7 +37,7 @@ func (s FinishStep) GetContainer(parent fyne.Window) *fyne.Container {
 		* Build information
 		* Email settings
 	`))
-	middle := container.New(layout.NewVBoxLayout(), intro)
+	middle := container.New(layout.NewVBoxLayout(), heading, intro)
 
 	content := container.NewBorder(nil, nil, nil, nil, middle)
 

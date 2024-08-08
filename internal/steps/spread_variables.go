@@ -45,6 +45,9 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 	})
 	s.exportDone = false
 
+	heading := widget.NewLabel("Spread Variables")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`In order to allow sensitive variables to be exported to a new space, all sensitive variables must have a unique name and no scopes.`))
 	intro.Wrapping = fyne.TextWrapWord
 	intro2 := widget.NewLabel(strutil.TrimMultilineWhitespace(`However, it is common to have sensitive variables that share a name and have different scopes. A common example is a database connection string where multiple variables are called "ConnectionString" but are uniquely scoped to an individual environment.`))
@@ -86,7 +89,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 		}()
 	})
 	s.spreadVariables.Disable()
-	middle := container.New(layout.NewVBoxLayout(), intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, infinite, result)
+	middle := container.New(layout.NewVBoxLayout(), heading, intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, infinite, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

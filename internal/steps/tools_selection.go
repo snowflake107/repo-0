@@ -26,6 +26,9 @@ func (s ToolsSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 			BaseStep: BaseStep{State: s.State}})
 	})
 
+	heading := widget.NewLabel("Tools Selection")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The source server must either use Docker and container images to expose tools like Python and Terraform,
 		or have Terraform and Python installed locally.
@@ -43,7 +46,7 @@ func (s ToolsSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		radio.SetSelected("Local Tools")
 	}
 
-	middle := container.New(layout.NewVBoxLayout(), label1, radio)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, radio)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

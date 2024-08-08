@@ -28,6 +28,9 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 	})
 	next.Disable()
 
+	heading := widget.NewLabel("Test Terraform")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		You must have Terraform installed to use this tool.
 		Click the "Test" button to check if Terraform is installed.
@@ -42,7 +45,7 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 			next.Enable()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, testTerraform, result)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, testTerraform, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

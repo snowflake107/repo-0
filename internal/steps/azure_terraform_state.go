@@ -95,6 +95,9 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 
 	s.next.Disable()
 
+	heading := widget.NewLabel("Azure Storage Account Terraform State")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Terraform manages its state in an storage account inAzure. Please provide the details of the storage account that will be used to store the Terraform state.
 	`))
@@ -167,7 +170,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		azureContainerNameLabel,
 		s.containerName)
 
-	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.result)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

@@ -67,6 +67,9 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.previous = thisPrevious
 	s.exportDone = false
 
+	heading := widget.NewLabel("Project Serialization Runbooks")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	intro := widget.NewLabel(strutil.TrimMultilineWhitespace(`Each project gets two runbooks, one to serialize it to a Terraform module, and the second to deploy it.`))
 	s.infinite = widget.NewProgressBarInfinite()
 	s.infinite.Start()
@@ -81,7 +84,7 @@ func (s ProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 		s.exportDone = true
 		s.createNewProject(parent)
 	})
-	middle := container.New(layout.NewVBoxLayout(), intro, s.createProject, s.infinite, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, intro, s.createProject, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
@@ -210,7 +213,7 @@ func (s ProjectExportStep) Execute(prompt func(string, string, func(bool)), hand
 			}
 
 			if s.State.PromptForDelete {
-				prompt("Project Group Exists", "The runbook \""+runbook2.Name+"\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", deleteRunbook2Func)
+				prompt("Runbook Exists", "The runbook \""+runbook2.Name+"\" already exists in project "+project.Name+". Do you want to delete it? It is usually safe to delete this resource.", deleteRunbook2Func)
 				return
 			} else {
 				deleteRunbook2Func(true)
