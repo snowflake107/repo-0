@@ -25,6 +25,7 @@ type AzureTerraformStateStep struct {
 	password           *widget.Entry
 	previous           *widget.Button
 	next               *widget.Button
+	logs               *widget.Entry
 }
 
 func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -43,6 +44,8 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		s.password.Disable()
 		s.previous.Disable()
 		s.next.Disable()
+		s.logs.Hide()
+		s.logs.SetText("")
 
 		defer s.subscriptionId.Enable()
 		defer s.containerName.Enable()
@@ -60,6 +63,8 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 
 		if err != nil {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the credentials and storage account details.")
+			s.logs.SetText(err.Error())
+			s.logs.Show()
 			validationFailed = true
 		} else if !exists {
 			s.result.SetText("🔴 Unable to find the Azure storage container.")
@@ -70,6 +75,8 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 
 		if err != nil {
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the credentials and storage account details.")
+			s.logs.SetText(err.Error())
+			s.logs.Show()
 			validationFailed = true
 		} else if !rgExists {
 			s.result.SetText("🔴 Unable to find the Azure resource group.")
@@ -101,6 +108,11 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Terraform manages its state in an storage account inAzure. Please provide the details of the storage account that will be used to store the Terraform state.
 	`))
+
+	s.logs = widget.NewEntry()
+	s.logs.SetMinRowsVisible(20)
+	s.logs.Disable()
+	s.logs.Hide()
 
 	s.result = widget.NewLabel("")
 
@@ -170,7 +182,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		azureContainerNameLabel,
 		s.containerName)
 
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.result)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
