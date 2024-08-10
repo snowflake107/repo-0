@@ -102,6 +102,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(20)
+	s.logs.MultiLine = true
 	s.logs.Disable()
 	s.logs.Hide()
 

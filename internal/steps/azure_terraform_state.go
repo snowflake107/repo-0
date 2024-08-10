@@ -106,11 +106,13 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	heading.TextStyle = fyne.TextStyle{Bold: true}
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		Terraform manages its state in an storage account inAzure. Please provide the details of the storage account that will be used to store the Terraform state.
+		Terraform manages its state in an storage account in Azure. 
+		Please provide the details of the storage account that will be used to store the Terraform state.
 	`))
 
 	s.logs = widget.NewEntry()
-	s.logs.SetMinRowsVisible(20)
+	s.logs.SetMinRowsVisible(10)
+	s.logs.MultiLine = true
 	s.logs.Disable()
 	s.logs.Hide()
 
