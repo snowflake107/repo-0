@@ -212,7 +212,7 @@ func (s AzureTerraformStateStep) getState() state.State {
 		AzureResourceGroupName:    strings.TrimSpace(s.resourceGroupName.Text),
 		AzureStorageAccountName:   strings.TrimSpace(s.storageAccountName.Text),
 		AzureContainerName:        strings.TrimSpace(s.containerName.Text),
-		AzureSubscriptionId:       strings.TrimSpace(s.State.AzureSubscriptionId),
+		AzureSubscriptionId:       strings.TrimSpace(s.subscriptionId.Text),
 		AzureTenantId:             strings.TrimSpace(s.tenantId.Text),
 		AzureApplicationId:        strings.TrimSpace(s.applicationId.Text),
 		AzurePassword:             strings.TrimSpace(s.password.Text),
