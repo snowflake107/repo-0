@@ -26,6 +26,9 @@ func (s PromptRemovalStep) GetContainer(parent fyne.Window) *fyne.Container {
 			BaseStep: BaseStep{State: s.State}})
 	})
 
+	heading := widget.NewLabel("Prompt for Deletion")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The actions taken in the subsequent steps may involve deleting and recreating resources in your Octopus Deploy instance.
 		You can manually approve each deletion, or you can allow the wizard to delete resources without being prompted,
@@ -42,7 +45,7 @@ func (s PromptRemovalStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	}
 
-	middle := container.New(layout.NewVBoxLayout(), label1, radio)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, radio)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

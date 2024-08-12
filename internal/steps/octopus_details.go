@@ -72,6 +72,9 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 	validation("")
 
+	heading := widget.NewLabel("Octopus Source Server")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	introText := widget.NewLabel("Enter the URL, API key, and Space ID of the Octopus instance you want to export from (i.e. the source server).")
 	linkUrl, _ := url.Parse("https://octopus.com/docs/octopus-rest-api/how-to-create-an-api-key")
 	link := widget.NewHyperlink("Learn how to create an API key.", linkUrl)
@@ -97,7 +100,7 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
 	formLayout := container.New(layout.NewFormLayout(), serverLabel, s.server, apiKeyLabel, s.apiKey, spaceIdLabel, s.spaceId)
 
-	middle := container.New(layout.NewVBoxLayout(), introText, link, formLayout, s.result)
+	middle := container.New(layout.NewVBoxLayout(), heading, introText, link, formLayout, s.result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

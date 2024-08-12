@@ -47,6 +47,9 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	})
 
+	heading := widget.NewLabel("Migrate Space Level Resources")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The the source space are now ready to begin exporting to the destination space.
 		This involves serializing the space level resources (feeds, accounts, targets, tenants etc) to a Terraform module and then applying the module to the destination space.
@@ -99,7 +102,7 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 			s.exportSpace.Enable()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportSpace, infinite, result, link, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, s.exportSpace, infinite, result, link, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

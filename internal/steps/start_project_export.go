@@ -60,6 +60,9 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 	s.logs.MultiLine = true
 	s.exportDone = false
 
+	heading := widget.NewLabel("Migrate Projects")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The projects in the source space are now ready to begin exporting to the destination space.
 		This involves serializing the project level resources (project, runbooks, variables, triggers etc) to a Terraform module and then applying the module to the destination space.
@@ -98,7 +101,7 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 			s.logs.Hide()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, s.exportProjects, infinite, result, link, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, s.exportProjects, infinite, result, link, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

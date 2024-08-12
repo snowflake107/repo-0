@@ -73,6 +73,9 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 	validation("")
 
+	heading := widget.NewLabel("Octopus Destination Server")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	introText := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Enter the URL, API key, and Space ID of the Octopus instance you want to export to (i.e. the destination server).
 		Note that all the resources in the destination space must be managed by Terraform.
@@ -102,7 +105,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 
 	formLayout := container.New(layout.NewFormLayout(), serverLabel, s.server, apiKeyLabel, s.apiKey, spaceIdLabel, s.spaceId)
 
-	middle := container.New(layout.NewVBoxLayout(), introText, link, formLayout, s.result)
+	middle := container.New(layout.NewVBoxLayout(), heading, introText, link, formLayout, s.result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

@@ -87,6 +87,9 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 	s.previous = previous
 	next.Disable()
 
+	heading := widget.NewLabel("AWS S3 Terraform State")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Terraform manages its state in an S3 bucket in AWS. Please provide the details of the S3 bucket that will be used to store the Terraform state.
 	`))
@@ -99,6 +102,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(20)
+	s.logs.MultiLine = true
 	s.logs.Disable()
 	s.logs.Hide()
 
@@ -139,7 +143,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	formLayout := container.New(layout.NewFormLayout(), accessKeyLabel, s.accessKey, secretKeyLabel, s.secretKey, s3BucketLabel, s.s3Bucket, apiKeyLabel, s.s3Region)
 
-	middle := container.New(layout.NewVBoxLayout(), label1, formLayout, s.infinite, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

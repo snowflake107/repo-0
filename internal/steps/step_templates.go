@@ -45,6 +45,9 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 		}
 	})
 
+	heading := widget.NewLabel("Install Step Templates")
+	heading.TextStyle = fyne.TextStyle{Bold: true}
+
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		The runbooks created by this wizard require a number of step templates to be installed from the community step template library.
 	`))
@@ -75,7 +78,7 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 		next.Enable()
 		s.result.SetText("🟢 Step templates installed.")
 	})
-	middle := container.New(layout.NewVBoxLayout(), label1, installSteps, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, installSteps, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
