@@ -155,7 +155,13 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.containerName.SetText(s.State.AzureContainerName)
 
 	validation := func(input string) {
-		if s.resourceGroupName != nil && s.resourceGroupName.Text != "" && s.storageAccountName != nil && s.storageAccountName.Text != "" && s.containerName != nil && s.containerName.Text != "" {
+		if s.subscriptionId != nil && s.subscriptionId.Text != "" &&
+			s.tenantId != nil && s.tenantId.Text != "" &&
+			s.applicationId != nil && s.applicationId.Text != "" &&
+			s.password != nil && s.password.Text != "" &&
+			s.resourceGroupName != nil && s.resourceGroupName.Text != "" &&
+			s.storageAccountName != nil && s.storageAccountName.Text != "" &&
+			s.containerName != nil && s.containerName.Text != "" {
 			s.next.Enable()
 		} else {
 			s.next.Disabled()
@@ -167,6 +173,10 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 	s.resourceGroupName.OnChanged = validation
 	s.storageAccountName.OnChanged = validation
 	s.containerName.OnChanged = validation
+	s.subscriptionId.OnChanged = validation
+	s.tenantId.OnChanged = validation
+	s.applicationId.OnChanged = validation
+	s.password.OnChanged = validation
 
 	formLayout := container.New(
 		layout.NewFormLayout(),
