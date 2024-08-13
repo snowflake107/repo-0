@@ -486,7 +486,7 @@ resource "octopusdeploy_runbook_process" "deploy_space_aws" {
         "Octopus.Action.AwsAccount.Variable"                    = "#{OctoterraApply.AWS.Account}"
         "Octopus.Action.Aws.Region"                             = "#{OctoterraApply.AWS.S3.BucketRegion}"
         "Octopus.Action.Template.Id"                            = var.octopus_deploys3_actiontemplateid
-        "Octopus.Action.Template.Version"                       = "4"
+        "Octopus.Action.Template.Version"                       = "3"
         "Octopus.Action.Terraform.RunAutomaticFileSubstitution" = "False"
         "Octopus.Action.Terraform.AdditionalInitParams"         = "-backend-config=\"bucket=#{OctoterraApply.AWS.S3.BucketName}\" -backend-config=\"region=#{OctoterraApply.AWS.S3.BucketRegion}\" -backend-config=\"key=#{OctoterraApply.AWS.S3.BucketKey}\" #{if OctoterraApply.Terraform.AdditionalInitParams}#{OctoterraApply.Terraform.AdditionalInitParams}#{/if}"
         "Octopus.Action.Terraform.TemplateDirectory"            = "space_population"
