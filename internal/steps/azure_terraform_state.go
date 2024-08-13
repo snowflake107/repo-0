@@ -164,7 +164,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 			s.containerName != nil && s.containerName.Text != "" {
 			s.next.Enable()
 		} else {
-			s.next.Disabled()
+			s.next.Disable()
 		}
 	}
 
