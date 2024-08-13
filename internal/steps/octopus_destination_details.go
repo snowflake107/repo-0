@@ -33,7 +33,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 		s.result.SetText("🔵 Validating Octopus credentials.")
 		s.apiKey.Disable()
 		s.server.Disable()
-		s.spaceId.Disabled()
+		s.spaceId.Disable()
 		defer s.apiKey.Enable()
 		defer s.server.Enable()
 		defer s.spaceId.Enable()
@@ -62,7 +62,7 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 	s.result = widget.NewLabel("")
 
 	validation := func(input string) {
-		next.Disabled()
+		next.Disable()
 
 		if s.server != nil && s.server.Text != "" && s.apiKey != nil && s.apiKey.Text != "" && s.spaceId != nil && s.spaceId.Text != "" {
 			return
