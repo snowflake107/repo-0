@@ -130,7 +130,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		if s.accessKey != nil && s.accessKey.Text != "" && s.secretKey != nil && s.secretKey.Text != "" && s.s3Bucket != nil && s.s3Bucket.Text != "" && s.s3Region != nil && s.s3Region.Text != "" {
 			next.Enable()
 		} else {
-			next.Disabled()
+			next.Disable()
 		}
 	}
 
