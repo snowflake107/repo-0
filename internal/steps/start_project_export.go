@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	projects2 "github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
+	"github.com/mcasperson/OctoterraWizard/internal/data"
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
 	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
@@ -147,7 +148,8 @@ func (s StartProjectExportStep) serializeProjects(filteredProjects []*projects2.
 		statusCallback("🔵 Published __ 1. Serialize Project runbook in project " + project.Name)
 	}
 
-	tasks := map[string]string{}
+	tasks := []data.NameValuePair{}
+
 	for _, project := range filteredProjects {
 		if taskId, err := infrastructure.RunRunbook(s.State, "__ 1. Serialize Project", project.Name); err != nil {
 
@@ -158,14 +160,14 @@ func (s StartProjectExportStep) serializeProjects(filteredProjects []*projects2.
 				return err
 			}
 		} else {
-			tasks[project.Name] = taskId
+			tasks = append(tasks, data.NameValuePair{Name: project.Name, Value: taskId})
 		}
 	}
 
 	serializeIndex := 0
-	for project, taskId := range tasks {
-		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
-			statusCallback("🔵 __ 1. Serialize Project for project " + project + " is " + message + " (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
+	for _, task := range tasks {
+		if err := infrastructure.WaitForTask(s.State, task.Value, func(message string) {
+			statusCallback("🔵 __ 1. Serialize Project for project " + task.Name + " is " + message + " (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
 		}); err != nil {
 			runAndTaskError = errors.Join(runAndTaskError, err)
 		}
