@@ -16,16 +16,18 @@ import (
 
 type OctopusDestinationDetails struct {
 	BaseStep
-	Wizard  wizard.Wizard
-	server  *widget.Entry
-	apiKey  *widget.Entry
-	spaceId *widget.Entry
-	result  *widget.Label
+	Wizard   wizard.Wizard
+	server   *widget.Entry
+	apiKey   *widget.Entry
+	spaceId  *widget.Entry
+	result   *widget.Label
+	next     *widget.Button
+	previous *widget.Button
 }
 
 func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Container {
 
-	bottom, _, next := s.BuildNavigation(func() {
+	bottom, previous, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(OctopusDetails{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.getState()}})
@@ -34,9 +36,13 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 		s.apiKey.Disable()
 		s.server.Disable()
 		s.spaceId.Disable()
+		s.next.Disable()
+		s.previous.Disable()
 		defer s.apiKey.Enable()
 		defer s.server.Enable()
 		defer s.spaceId.Enable()
+		defer s.next.Enable()
+		defer s.previous.Enable()
 
 		validationFailed := false
 		if !validators.ValidateDestinationCreds(s.getState()) {
@@ -58,7 +64,8 @@ func (s OctopusDestinationDetails) GetContainer(parent fyne.Window) *fyne.Contai
 			nexCallback(true)
 		}
 	})
-
+	s.next = next
+	s.previous = previous
 	s.result = widget.NewLabel("")
 
 	validation := func(input string) {

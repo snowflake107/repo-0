@@ -13,17 +13,24 @@ import (
 
 type TestTerraformStep struct {
 	BaseStep
-	Wizard wizard.Wizard
-	result *widget.Label
+	Wizard   wizard.Wizard
+	result   *widget.Label
+	next     *widget.Button
+	previous *widget.Button
 }
 
 func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 
-	bottom, _, _ := s.BuildNavigation(func() {
+	bottom, previous, next := s.BuildNavigation(func() {
 		s.Wizard.ShowWizardStep(WelcomeStep{
 			Wizard:   s.Wizard,
 			BaseStep: BaseStep{State: s.State}})
 	}, func() {
+		s.next.Disable()
+		s.previous.Disable()
+		defer s.next.Enable()
+		defer s.previous.Enable()
+
 		s.result.SetText("🔵 Testing Terraform installation.")
 
 		if s.Execute() {
@@ -34,6 +41,8 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 			s.notInstalled()
 		}
 	})
+	s.next = next
+	s.previous = previous
 
 	heading := widget.NewLabel("Test Terraform")
 	heading.TextStyle = fyne.TextStyle{Bold: true}
