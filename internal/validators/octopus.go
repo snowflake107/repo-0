@@ -6,26 +6,26 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 )
 
-func ValidateSourceCreds(state state.State) bool {
+func ValidateSourceCreds(state state.State) error {
 	if myclient, err := octoclient.CreateClient(state); err != nil {
-		return false
+		return err
 	} else {
 		if _, err := spaces.GetByID(myclient, myclient.GetSpaceID()); err != nil {
-			return false
+			return err
 		}
 	}
 
-	return true
+	return nil
 }
 
-func ValidateDestinationCreds(state state.State) bool {
+func ValidateDestinationCreds(state state.State) error {
 	if myclient, err := octoclient.CreateDestinationClient(state); err != nil {
-		return false
+		return err
 	} else {
 		if _, err := spaces.GetByID(myclient, myclient.GetSpaceID()); err != nil {
-			return false
+			return err
 		}
 	}
 
-	return true
+	return nil
 }

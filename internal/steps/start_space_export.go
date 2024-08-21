@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
 	"net/url"
@@ -85,6 +86,10 @@ func (s StartSpaceExportStep) GetContainer(parent fyne.Window) *fyne.Container {
 		if err := s.Execute(func(message string) {
 			result.SetText(message)
 		}); err != nil {
+			if err := logutil.WriteTextToFile("start_space_export_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks"))
 			s.logs.Show()
 			s.logs.SetText(err.Error())

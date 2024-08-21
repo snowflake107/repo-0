@@ -1,11 +1,13 @@
 package steps
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
@@ -56,6 +58,10 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 		validationFailed := false
 		if err := validators.ValidateAWS(s.getState()); err != nil {
+			if err := logutil.WriteTextToFile("aws_terraform_state_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the Access Key, Secret Key, S3 Bucket Name, and S3 Bucket Region.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()
@@ -63,6 +69,10 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		}
 
 		if err := validators.TestS3Bucket(s.getState()); err != nil {
+			if err := logutil.WriteTextToFile("aws_terraform_state_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			s.result.SetText("🔴 Unable to connect to the S3 bucket. Please check that the bucket exists and that the supplied credentials can access it.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()

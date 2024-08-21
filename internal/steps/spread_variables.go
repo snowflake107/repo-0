@@ -1,11 +1,13 @@
 package steps
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/spreadvariables"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
@@ -86,6 +88,10 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 			defer previous.Enable()
 			defer infinite.Hide()
 			if err := s.Execute(); err != nil {
+				if err := logutil.WriteTextToFile("spread_variables_error.txt", err.Error()); err != nil {
+					fmt.Println("Failed to write error to file")
+				}
+
 				result.SetText("🔴 An error was raised while attempting to spread the variables. Unfortunately, this means the wizard can not continue.\n " + err.Error())
 			} else {
 				result.SetText("🟢 Sensitive variables have been spread.")

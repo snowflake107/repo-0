@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	projects2 "github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/mcasperson/OctoterraWizard/internal/infrastructure"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/octoerrors"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
@@ -91,6 +92,10 @@ func (s StartProjectExportStep) GetContainer(parent fyne.Window) *fyne.Container
 		if err := s.Execute(func(message string) {
 			result.SetText(message)
 		}); err != nil {
+			if err := logutil.WriteTextToFile("start_project_export_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			result.SetText(fmt.Sprintf("🔴 Failed to publish and run the runbooks. The failed tasks are shown below. You can review the task details in the Octopus console to find more information."))
 			s.logs.SetText(err.Error())
 			s.logs.Show()

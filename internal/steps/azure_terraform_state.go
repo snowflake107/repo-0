@@ -1,11 +1,13 @@
 package steps
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
@@ -64,6 +66,10 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		exists, err := validators.AzureContainerExists(newState.AzureTenantId, newState.AzureApplicationId, newState.AzurePassword, newState.AzureStorageAccountName, newState.AzureContainerName)
 
 		if err != nil {
+			if err := logutil.WriteTextToFile("azure_terraform_state_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the credentials and storage account details.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()
@@ -76,6 +82,10 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		rgExists, err := validators.AzureResourceGroupExists(newState.AzureTenantId, newState.AzureApplicationId, newState.AzureSubscriptionId, newState.AzurePassword, newState.AzureResourceGroupName)
 
 		if err != nil {
+			if err := logutil.WriteTextToFile("azure_terraform_state_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			s.result.SetText("🔴 Unable to validate the credentials. Please check the credentials and storage account details.")
 			s.logs.SetText(err.Error())
 			s.logs.Show()

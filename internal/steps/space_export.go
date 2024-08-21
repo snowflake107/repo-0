@@ -18,6 +18,7 @@ import (
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projectgroups"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/projects"
 	"github.com/OctopusDeploy/go-octopusdeploy/v2/pkg/variables"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/octoclient"
 	"github.com/mcasperson/OctoterraWizard/internal/query"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
@@ -124,6 +125,10 @@ func (s SpaceExportStep) createNewProject(parent fyne.Window) {
 	s.Execute(func(title string, message string, callback func(bool)) {
 		dialog.NewConfirm(title, message, callback, parent).Show()
 	}, func(title string, err error) {
+		if err := logutil.WriteTextToFile("space_export_error.txt", err.Error()); err != nil {
+			fmt.Println("Failed to write error to file")
+		}
+
 		s.result.SetText(title)
 		s.logs.Show()
 		s.logs.SetText(err.Error())

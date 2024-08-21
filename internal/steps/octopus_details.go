@@ -1,11 +1,13 @@
 package steps
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/mcasperson/OctoterraWizard/internal/logutil"
 	"github.com/mcasperson/OctoterraWizard/internal/state"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
@@ -44,7 +46,11 @@ func (s OctopusDetails) GetContainer(parent fyne.Window) *fyne.Container {
 		defer s.previous.Enable()
 
 		validationFailed := false
-		if !validators.ValidateSourceCreds(s.getState()) {
+		if err := validators.ValidateSourceCreds(s.getState()); err != nil {
+			if err := logutil.WriteTextToFile("octopus_details_error.txt", err.Error()); err != nil {
+				fmt.Println("Failed to write error to file")
+			}
+
 			s.result.SetText("🔴 Unable to connect to the Octopus server. Please check the URL, API key, and Space ID.")
 			validationFailed = true
 		}
