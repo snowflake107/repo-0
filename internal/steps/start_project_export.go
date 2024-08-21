@@ -188,7 +188,7 @@ func (s StartProjectExportStep) deployProjects(filteredProjects []*projects2.Pro
 		statusCallback("🔵 Published __ 2. Deploy Space runbook in project " + project.Name)
 	}
 
-	applyTasks := map[string]string{}
+	applyTasks := []data.NameValuePair{}
 	for _, project := range filteredProjects {
 		if taskId, err := infrastructure.RunRunbook(s.State, "__ 2. Deploy Project", project.Name); err != nil {
 			var failedRunbookRun octoerrors.RunbookRunFailedError
@@ -198,14 +198,14 @@ func (s StartProjectExportStep) deployProjects(filteredProjects []*projects2.Pro
 				return err
 			}
 		} else {
-			applyTasks[project.Name] = taskId
+			applyTasks = append(applyTasks, data.NameValuePair{Name: project.Name, Value: taskId})
 		}
 	}
 
 	applyIndex := 0
-	for project, taskId := range applyTasks {
-		if err := infrastructure.WaitForTask(s.State, taskId, func(message string) {
-			statusCallback("🔵 __ 2. Deploy Project for project " + project + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
+	for _, task := range applyTasks {
+		if err := infrastructure.WaitForTask(s.State, task.Value, func(message string) {
+			statusCallback("🔵 __ 2. Deploy Project for project " + task.Name + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
 		}); err != nil {
 			runAndTaskError = errors.Join(runAndTaskError, err)
 		}
