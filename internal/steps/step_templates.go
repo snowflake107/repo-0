@@ -14,10 +14,11 @@ import (
 
 type StepTemplateStep struct {
 	BaseStep
-	Wizard     wizard.Wizard
-	result     *widget.Label
-	logs       *widget.Entry
-	exportDone bool
+	Wizard       wizard.Wizard
+	result       *widget.Label
+	logs         *widget.Entry
+	exportDone   bool
+	installSteps *widget.Button
 }
 
 func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
@@ -59,14 +60,16 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 	s.logs.Hide()
 	s.exportDone = false
 
-	installSteps := widget.NewButton("Install Step Templates", func() {
+	s.installSteps = widget.NewButton("Install Step Templates", func() {
 		s.logs.Hide()
 		s.result.SetText("🔵 Installing step templates.")
 		s.exportDone = true
 		previous.Disable()
 		next.Disable()
+		s.installSteps.Disable()
 		defer previous.Enable()
 		defer next.Enable()
+		defer s.installSteps.Enable()
 
 		message, err := s.Execute()
 		if err != nil {
@@ -78,7 +81,7 @@ func (s StepTemplateStep) GetContainer(parent fyne.Window) *fyne.Container {
 		next.Enable()
 		s.result.SetText("🟢 Step templates installed.")
 	})
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, installSteps, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, s.installSteps, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
