@@ -6,7 +6,13 @@ This tool prepares an Octopus space to allow space level resources and projects 
 * [macOS](https://github.com/mcasperson/OctoterraWizard/releases/latest/download/octoterrawiz_macos_arm64)
 * [Windows](https://github.com/mcasperson/OctoterraWizard/releases/latest/download/octoterrawiz_windows_amd64.exe)
 
+## Documentation
+
+View the docs [here](https://octopus.com/docs/administration/migrate-spaces-with-octoterra).
+
 ## Environment variables
+
+The default values used by the wizard are defined in environment variables:
 
 * `OCTOTERRAWIZ_BACKEND_TYPE`: Either `AWS S3` or `Azure Storage`
 * `AWS_ACCESS_KEY_ID`: [AWS environment variable](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
