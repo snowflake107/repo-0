@@ -165,7 +165,7 @@ func (s StartProjectExportStep) serializeProjects(filteredProjects []*projects2.
 	}
 
 	serializeIndex := 0
-	statusCallback("🔵 __ 1. Serialize Project runbooks (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
+	statusCallback("🔵 Started running the __ 1. Serialize Project runbooks (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
 	for _, task := range tasks {
 		if err := infrastructure.WaitForTask(s.State, task.Value, func(message string) {
 			statusCallback("🔵 __ 1. Serialize Project for project " + task.Name + " is " + message + " (" + fmt.Sprint(serializeIndex) + "/" + fmt.Sprint(len(tasks)) + ")")
