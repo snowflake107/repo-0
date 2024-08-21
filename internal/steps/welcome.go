@@ -22,10 +22,10 @@ func (s WelcomeStep) GetContainer(parent fyne.Window) *fyne.Container {
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
 		Welcome to the Octoterra Wizard.
-		This tool prepares your Octopus space to export it to another instance, or to implement the Enterprise Patterns.
+		This tool prepares your Octopus space to export it to another instance.
 	`))
-	linkUrl, _ := url.Parse("https://octopus.com/docs/platform-engineering/enterprise-patterns")
-	link := widget.NewHyperlink("Learn more about the Enterprise Patterns.", linkUrl)
+	linkUrl, _ := url.Parse("https://octopus.com/docs/administration/migrate-spaces-with-octoterra")
+	link := widget.NewHyperlink("Read the documentation.", linkUrl)
 	middle := container.New(layout.NewVBoxLayout(), heading, label1, link)
 
 	bottom, previous, _ := s.BuildNavigation(func() {}, func() {

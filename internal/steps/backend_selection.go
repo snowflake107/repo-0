@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 )
 
 type BackendSelectionStep struct {
@@ -42,6 +43,9 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		Terraform requires a backend to manage its state. Select a backend from the list below.
 	`))
 
+	linkUrl, _ := url.Parse("https://developer.hashicorp.com/terraform/language/settings/backends/configuration")
+	link := widget.NewHyperlink("Learn more about Terraform backends.", linkUrl)
+
 	radio := widget.NewRadioGroup([]string{AwsS3, AzureStorage}, func(value string) {
 		s.State.BackendType = value
 	})
@@ -52,7 +56,7 @@ func (s BackendSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		radio.SetSelected(s.State.BackendType)
 	}
 
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, radio)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, link, radio)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

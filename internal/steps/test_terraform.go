@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 	"os/exec"
 )
 
@@ -35,6 +36,10 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 		You must have Terraform installed to use this tool.
 		Click the "Test" button to check if Terraform is installed.
 	`))
+
+	linkUrl, _ := url.Parse("https://developer.hashicorp.com/terraform/install")
+	link := widget.NewHyperlink("Learn how to install Terraform.", linkUrl)
+
 	result := widget.NewLabel("")
 	testTerraform := widget.NewButton("Test Terraform is Installed", func() {
 		cmd := exec.Command("terraform", "-version")
@@ -45,7 +50,7 @@ func (s TestTerraformStep) GetContainer(parent fyne.Window) *fyne.Container {
 			next.Enable()
 		}
 	})
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, testTerraform, result)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, link, testTerraform, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

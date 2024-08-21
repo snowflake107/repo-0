@@ -10,6 +10,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 	"strings"
 )
 
@@ -111,6 +112,9 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		Please provide the details of the storage account that will be used to store the Terraform state.
 	`))
 
+	linkUrl, _ := url.Parse("https://developer.hashicorp.com/terraform/language/settings/backends/azurerm")
+	link := widget.NewHyperlink("Learn more about the Azure Terraform backend.", linkUrl)
+
 	s.logs = widget.NewEntry()
 	s.logs.SetMinRowsVisible(10)
 	s.logs.MultiLine = true
@@ -195,7 +199,7 @@ func (s AzureTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Containe
 		azureContainerNameLabel,
 		s.containerName)
 
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, link, formLayout, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

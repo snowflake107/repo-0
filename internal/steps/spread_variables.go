@@ -9,6 +9,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/spreadvariables"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 )
 
 type SpreadVariablesStep struct {
@@ -56,6 +57,10 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 	intro3.Wrapping = fyne.TextWrapWord
 	intro4 := widget.NewLabel(strutil.TrimMultilineWhitespace(`Modifying variables in this way means steps can continue to refer to the original sensitive variable name, so no changes are required to the deployment process. However, removing the scopes from the sensitive variables does have security implications. In particular, all sensitive variables are exposed to all deployments and runbook runs.`))
 	intro4.Wrapping = fyne.TextWrapWord
+
+	linkUrl, _ := url.Parse("https://octopus.com/docs/administration/migrate-spaces-with-octoterra#spreading-sensitive-variables")
+	link := widget.NewHyperlink("Learn more about spreading sensitive variables.", linkUrl)
+
 	s.confirmChanges = widget.NewCheck("I understand and accept the security risks associated with spreading sensitive variables", func(value bool) {
 		if value {
 			s.spreadVariables.Enable()
@@ -89,7 +94,7 @@ func (s SpreadVariablesStep) GetContainer(parent fyne.Window) *fyne.Container {
 		}()
 	})
 	s.spreadVariables.Disable()
-	middle := container.New(layout.NewVBoxLayout(), heading, intro, intro2, intro3, intro4, s.confirmChanges, s.spreadVariables, infinite, result)
+	middle := container.New(layout.NewVBoxLayout(), heading, intro, intro2, intro3, intro4, link, s.confirmChanges, s.spreadVariables, infinite, result)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

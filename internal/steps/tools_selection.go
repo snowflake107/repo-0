@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 )
 
 type ToolsSelectionStep struct {
@@ -30,11 +31,14 @@ func (s ToolsSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 	heading.TextStyle = fyne.TextStyle{Bold: true}
 
 	label1 := widget.NewLabel(strutil.TrimMultilineWhitespace(`
-		The source server must either use Docker and container images to expose tools like Python and Terraform,
+		The source server must either use Docker and container images to expose tools like Python, PowerShell, and Terraform,
 		or have Terraform and Python installed locally.
 		If your source server has Docker installed, select the "Container Images" option.
-		Otherwise, ensure that Terraform and Python are installed locally and select the "Local Tools" option.
+		Otherwise, ensure that Terraform, Powershell Core, and Python are installed locally and select the "Local Tools" option.
 	`))
+
+	linkUrl, _ := url.Parse("https://octopus.com/docs/administration/migrate-spaces-with-octoterra#local-tools-vs-container-images")
+	link := widget.NewHyperlink("Learn more about local tools vs container images.", linkUrl)
 
 	radio := widget.NewRadioGroup([]string{"Container Images", "Local Tools"}, func(value string) {
 		s.State.UseContainerImages = value == "Container Images"
@@ -46,7 +50,7 @@ func (s ToolsSelectionStep) GetContainer(parent fyne.Window) *fyne.Container {
 		radio.SetSelected("Local Tools")
 	}
 
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, radio)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, link, radio)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 

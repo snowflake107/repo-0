@@ -10,6 +10,7 @@ import (
 	"github.com/mcasperson/OctoterraWizard/internal/strutil"
 	"github.com/mcasperson/OctoterraWizard/internal/validators"
 	"github.com/mcasperson/OctoterraWizard/internal/wizard"
+	"net/url"
 	"strings"
 )
 
@@ -94,6 +95,9 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 		Terraform manages its state in an S3 bucket in AWS. Please provide the details of the S3 bucket that will be used to store the Terraform state.
 	`))
 
+	linkUrl, _ := url.Parse("https://developer.hashicorp.com/terraform/language/settings/backends/s3")
+	link := widget.NewHyperlink("Learn more about the AWS S3 Terraform backend.", linkUrl)
+
 	s.result = widget.NewLabel("")
 
 	s.infinite = widget.NewProgressBarInfinite()
@@ -143,7 +147,7 @@ func (s AwsTerraformStateStep) GetContainer(parent fyne.Window) *fyne.Container 
 
 	formLayout := container.New(layout.NewFormLayout(), accessKeyLabel, s.accessKey, secretKeyLabel, s.secretKey, s3BucketLabel, s.s3Bucket, apiKeyLabel, s.s3Region)
 
-	middle := container.New(layout.NewVBoxLayout(), heading, label1, formLayout, s.infinite, s.result, s.logs)
+	middle := container.New(layout.NewVBoxLayout(), heading, label1, link, formLayout, s.infinite, s.result, s.logs)
 
 	content := container.NewBorder(nil, bottom, nil, nil, middle)
 
