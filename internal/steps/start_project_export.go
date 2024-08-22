@@ -203,6 +203,7 @@ func (s StartProjectExportStep) deployProjects(filteredProjects []*projects2.Pro
 	}
 
 	applyIndex := 0
+	statusCallback("🔵 Started running the __ 2. Deploy Project runbooks (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
 	for _, task := range applyTasks {
 		if err := infrastructure.WaitForTask(s.State, task.Value, func(message string) {
 			statusCallback("🔵 __ 2. Deploy Project for project " + task.Name + " is " + message + " (" + fmt.Sprint(applyIndex) + "/" + fmt.Sprint(len(applyTasks)) + ")")
