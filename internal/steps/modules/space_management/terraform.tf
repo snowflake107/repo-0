@@ -486,7 +486,7 @@ resource "octopusdeploy_runbook_process" "deploy_space_aws" {
         "Octopus.Action.AwsAccount.Variable"                    = "#{OctoterraApply.AWS.Account}"
         "Octopus.Action.Aws.Region"                             = "#{OctoterraApply.AWS.S3.BucketRegion}"
         "Octopus.Action.Template.Id"                            = var.octopus_deploys3_actiontemplateid
-        "Octopus.Action.Template.Version"                       = "3"
+        "Octopus.Action.Template.Version"                       = "4"
         "Octopus.Action.Terraform.RunAutomaticFileSubstitution" = "False"
         "Octopus.Action.Terraform.AdditionalInitParams"         = "-backend-config=\"bucket=#{OctoterraApply.AWS.S3.BucketName}\" -backend-config=\"region=#{OctoterraApply.AWS.S3.BucketRegion}\" -backend-config=\"key=#{OctoterraApply.AWS.S3.BucketKey}\" #{if OctoterraApply.Terraform.AdditionalInitParams}#{OctoterraApply.Terraform.AdditionalInitParams}#{/if}"
         "Octopus.Action.Terraform.TemplateDirectory"            = "space_population"
@@ -564,7 +564,7 @@ resource "octopusdeploy_runbook_process" "deploy_space_azure" {
       worker_pool_id                     = length(data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools) == 0 ? "" : data.octopusdeploy_worker_pools.ubuntu_worker_pool.worker_pools[0].id
       properties = {
         "Octopus.Action.Template.Id"                    = var.octopus_deployazure_actiontemplateid
-        "Octopus.Action.Template.Version"               = "1"
+        "Octopus.Action.Template.Version"               = "2"
         "Octopus.Action.RunOnServer"                    = "true"
         "Octopus.Action.Terraform.AllowPluginDownloads" = "True"
         "Octopus.Action.Package.DownloadOnTentacle"     = "False"
