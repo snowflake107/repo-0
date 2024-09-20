@@ -577,7 +577,7 @@ resource "octopusdeploy_runbook_process" "deploy_space_azure" {
         "Octopus.Action.Aws.AssumeRole"                         = "False"
         "Octopus.Action.Terraform.TemplateDirectory"            = "space_population"
         "Octopus.Action.GoogleCloud.ImpersonateServiceAccount"  = "False"
-        "Octopus.Action.AzureAccount.Variable"                  = "OctoterraApply.Azure.Account"
+        "Octopus.Action.AzureAccount.Variable"                  = "#{OctoterraApply.Azure.Account}"
         "OctoterraApply.Octopus.ServerUrl"                      = "#{Octopus.Destination.Server}"
         "OctoterraApply.Octopus.ApiKey"                         = "#{Octopus.Destination.ApiKey}"
         "OctoterraApply.Octopus.SpaceID"                        = "#{Octopus.Destination.SpaceID}"
