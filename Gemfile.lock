@@ -75,8 +75,8 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
-    addressable (2.8.6)
-      public_suffix (>= 2.0.2, < 6.0)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     administrate-field-image (1.2.0)
       administrate (>= 0.2.0.rc1)
     ammeter (1.1.7)
@@ -111,7 +111,7 @@ GEM
       xpath (~> 3.2)
     childprocess (5.0.0)
     coderay (1.1.3)
-    concurrent-ruby (1.2.3)
+    concurrent-ruby (1.3.4)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -139,7 +139,7 @@ GEM
       railties (>= 5.0.0)
     faker (3.3.1)
       i18n (>= 1.8.11, < 2)
-    formulaic (0.4.1)
+    formulaic (0.4.2)
       activesupport
       capybara
       i18n
@@ -148,7 +148,7 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.1.0)
     highline (2.1.0)
-    i18n (1.14.4)
+    i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     i18n-tasks (1.0.13)
       activesupport (>= 4.0.2)
@@ -197,8 +197,8 @@ GEM
     matrix (0.4.2)
     method_source (1.0.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.5)
-    minitest (5.22.3)
+    mini_portile2 (2.8.7)
+    minitest (5.25.1)
     net-imap (0.3.7)
       date
       net-protocol
@@ -209,7 +209,7 @@ GEM
     net-smtp (0.3.4)
       net-protocol
     nio4r (2.5.9)
-    nokogiri (1.16.2)
+    nokogiri (1.16.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     parallel (1.24.0)
@@ -220,11 +220,11 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.4)
+    public_suffix (6.0.1)
     pundit (2.3.1)
       activesupport (>= 3.0.0)
-    racc (1.7.3)
-    rack (2.2.8.1)
+    racc (1.8.1)
+    rack (2.2.9)
     rack-test (2.1.0)
       rack (>= 1.3)
     rack-timeout (0.6.3)
@@ -263,7 +263,7 @@ GEM
     raindrops (0.20.1)
     rake (13.1.0)
     redcarpet (3.6.0)
-    regexp_parser (2.9.0)
+    regexp_parser (2.9.2)
     rexml (3.2.6)
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
