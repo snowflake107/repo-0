@@ -522,7 +522,7 @@ jobs:
     - continue-on-error: true
       uses: actions/checkout@v4
     - continue-on-error: true
-      uses: pypa/gh-action-pip-audit@v1.0.8
+      uses: pypa/gh-action-pip-audit@v1.1.0
       with:
         ignore-vulns: 'GHSA-w596-4wvx-j9j6  # subversion related git pull, dependency
           for pytest. There is no impact here.
