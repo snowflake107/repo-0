@@ -2,5 +2,5 @@
 dataclasses;python_version<"3.7"
 junitparser==2.5.0
 PyGithub==1.55
-urllib3==1.26.9
+urllib3==2.2.3
 requests==2.27.1
