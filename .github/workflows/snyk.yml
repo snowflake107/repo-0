@@ -259,7 +259,7 @@ jobs:
     - continue-on-error: true
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      uses: snyk/actions/python-3.8@4a528b5c534bb771b6e3772656a8e0e9dc902f8b
+      uses: snyk/actions/python-3.8@cdb760004ba9ea4d525f2e043745dfe85bb9077e
       with:
         args: --sarif-file-output=snyk.sarif
     - continue-on-error: true
