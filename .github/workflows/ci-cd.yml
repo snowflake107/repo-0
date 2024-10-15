@@ -533,7 +533,7 @@ jobs:
     - continue-on-error: true
       id: docker-meta
       name: Docker meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v5
       with:
         images: ghcr.io/EnricoMi/publish-unit-test-result-action
         tags: 'type=sha
