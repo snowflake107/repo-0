@@ -568,7 +568,7 @@ jobs:
         username: ${{ github.repository_owner }}
     - continue-on-error: true
       name: Build and push Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v6
       with:
         labels: ${{ steps.docker-meta.outputs.labels }}
         pull: true
@@ -1378,7 +1378,7 @@ jobs:
     - continue-on-error: true
       id: build
       name: Build Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v6
       with:
         load: true
         outputs: type=docker
