@@ -2,6 +2,13 @@
 
 All notable changes to the LaunchDarkly SSE Client for Ruby will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org).
 
+## [2.2.3](https://github.com/snowflake107/repo-0/compare/v2.2.2...2.2.3) (2024-10-15)
+
+
+### Bug Fixes
+
+* Use `content_type.mime_type` instead of direct header access ([#36](https://github.com/snowflake107/repo-0/issues/36)) ([27170f6](https://github.com/snowflake107/repo-0/commit/27170f6e114824068194d1bb3c196a5688b65019))
+
 ## [2.2.2] - 2023-03-13
 ### Fixed:
 - Content-Type checking was failing in some environments due to casing issues. Updated check to use a more robust header retrieval method. (Thanks, [matt-dutchie](https://github.com/launchdarkly/ruby-eventsource/pull/36)!)
