@@ -252,7 +252,7 @@ jobs:
       uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
     - continue-on-error: true
       name: Set up Node.js environment
-      uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
       with:
         cache: npm
         node-version-file: package.json
