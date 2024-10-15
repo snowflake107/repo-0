@@ -1113,7 +1113,7 @@ jobs:
     - continue-on-error: true
       id: cache
       name: Cache llhttp generated files
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v4.1.1
       with:
         key: llhttp-${{ hashFiles('vendor/llhttp/package.json', 'vendor/llhttp/src/**/*')
           }}
@@ -1398,7 +1398,7 @@ jobs:
         python-version: 3.9
     - continue-on-error: true
       name: Cache PyPI
-      uses: actions/cache@v3.0.4
+      uses: actions/cache@v4.1.1
       with:
         key: pip-lint-${{ hashFiles('requirements/*.txt') }}
         path: ~/.cache/pip
