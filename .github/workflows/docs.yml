@@ -534,7 +534,7 @@ jobs:
     - continue-on-error: true
       id: deployment
       name: Deploy to GitHub Pages
-      uses: actions/deploy-pages@v3
+      uses: actions/deploy-pages@v4
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/auth0/auth0-python.$(date
         +%s)
