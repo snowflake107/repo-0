@@ -254,7 +254,7 @@ jobs:
       with:
         go-version: 1.19
     - continue-on-error: true
-      uses: arduino/setup-protoc@v1
+      uses: arduino/setup-protoc@v3
     - continue-on-error: true
       name: Build server allgo version
       run: make buildserverall
