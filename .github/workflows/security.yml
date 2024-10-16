@@ -264,7 +264,7 @@ jobs:
         generateSarif: '1'
     - continue-on-error: true
       name: Upload result to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: semgrep.sarif
     - name: after
@@ -538,7 +538,7 @@ jobs:
         template: '@/contrib/sarif.tpl'
     - continue-on-error: true
       name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: trivy-results.sarif
     - name: after
