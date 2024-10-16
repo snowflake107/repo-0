@@ -21,7 +21,7 @@ require (
 	github.com/go-ozzo/ozzo-validation v0.0.0-20170913164239-85dcd8368eba
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
-	github.com/go-test/deep v1.0.7
+	github.com/go-test/deep v1.1.1
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/go-github/v31 v31.0.0
 	github.com/google/uuid v1.1.2-0.20200519141726-cb32006e483f // indirect
