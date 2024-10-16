@@ -6,7 +6,7 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.29.1
 
 require (
 	github.com/Laisky/graphql v1.0.5
-	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
 	github.com/aws/aws-sdk-go v1.31.15 // indirect
@@ -22,9 +22,7 @@ require (
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/go-test/deep v1.0.7
-	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/go-github/v31 v31.0.0
-	github.com/google/uuid v1.1.2-0.20200519141726-cb32006e483f // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-getter v1.5.3
 	github.com/hashicorp/go-version v1.3.0
@@ -58,9 +56,9 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.16.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.26.0
 	golang.org/x/oauth2 v0.0.0-20191122200657-5d9234df094c // indirect
-	golang.org/x/tools v0.0.0-20201023174141-c8cfbd0f21e6 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20200701001935-0939c5918c31 // indirect
 	google.golang.org/grpc v1.30.0 // indirect
