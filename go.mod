@@ -30,7 +30,7 @@ require (
 	github.com/basgys/goxml2json v1.1.0
 	github.com/cloudflare/tableflip v1.2.3
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
-	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
+	github.com/dchest/uniuri v1.2.0
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structs v1.1.0
 	github.com/fernet/fernet-go v0.0.0-20211208181803-9f70042a33ee
