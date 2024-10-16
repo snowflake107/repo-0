@@ -86,7 +86,7 @@
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^9.1.3",
-    "nyc": "^15.1.0",
+    "nyc": "^17.1.0",
     "parse-gitignore": "^2.0.0",
     "passport": "^0.7.0",
     "passport-http": "^0.3.0",
