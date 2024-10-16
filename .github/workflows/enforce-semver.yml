@@ -246,7 +246,7 @@ jobs:
 
         sudo sh -c ''echo 1 > /proc/sys/net/ipv4/ip_forward'''
     - continue-on-error: true
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         script: "const { issue, repo } = context\n\nconst { data: pull } = await github.rest.issues.get({\n\
           \  issue_number: issue.number,\n  owner: repo.owner,\n  repo: repo.repo,\n\
