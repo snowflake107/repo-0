@@ -252,7 +252,7 @@ jobs:
         persist-credentials: false
     - continue-on-error: true
       name: Setup Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: 18
     - continue-on-error: true
