@@ -52,7 +52,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli v1.22.5
-	github.com/urfave/negroni v0.3.0
+	github.com/urfave/negroni v1.0.0
 	github.com/xanzy/go-gitlab v0.48.0
 	github.com/zclconf/go-cty v1.5.1 // indirect
 	go.etcd.io/bbolt v1.3.5
