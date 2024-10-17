@@ -260,7 +260,7 @@ jobs:
     - continue-on-error: true
       id: maven-cache-check
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -539,7 +539,7 @@ jobs:
         repository: debezium/debezium-connector-cassandra
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -837,7 +837,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -1129,7 +1129,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -1413,7 +1413,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -1688,7 +1688,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -1971,7 +1971,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -2246,7 +2246,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -2522,7 +2522,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -2797,7 +2797,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -3079,7 +3079,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -3354,7 +3354,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -3637,7 +3637,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -3921,7 +3921,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -4197,7 +4197,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository
@@ -4475,7 +4475,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -4759,7 +4759,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('core/**/pom.xml') }}
         path: ~/.m2/repository
@@ -5042,7 +5042,7 @@ jobs:
     - continue-on-error: true
       id: maven-cache-check
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-debezium-test-build-${{ hashFiles('**/pom.xml') }}
         path: ~/.m2/repository

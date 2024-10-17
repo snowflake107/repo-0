@@ -262,7 +262,7 @@ jobs:
         java-version: 17
     - continue-on-error: true
       name: Cache Maven Repository
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         key: maven-oracle-${{ steps.get-date.outputs.date }}
         path: ~/.m2/repository
