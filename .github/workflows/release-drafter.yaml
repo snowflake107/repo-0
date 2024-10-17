@@ -249,7 +249,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       name: "\U0001F680 Run Release Drafter"
-      uses: release-drafter/release-drafter@v5.21.0
+      uses: release-drafter/release-drafter@v6.0.0
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid2/aperim/docker-mautic.$(date
         +%s)
