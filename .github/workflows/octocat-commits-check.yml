@@ -256,7 +256,7 @@ jobs:
     - continue-on-error: true
       if: ${{ steps.octocat.outputs.OCTOCAT_COMMIT_FOUND == 'true' }}
       name: Create comment
-      uses: peter-evans/create-or-update-comment@v2
+      uses: peter-evans/create-or-update-comment@v4
       with:
         body: 'Hi @${{ github.event.pull_request.user.login }}. Thank you for your
           valuable contribution.
