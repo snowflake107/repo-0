@@ -257,7 +257,7 @@ jobs:
       run: echo "::set-output name=path::$(yarn config get cacheFolder)"
     - continue-on-error: true
       name: Cache Yarn's cache folder
-      uses: zendesk/cache@v3.2.5
+      uses: zendesk/cache@v4.1.1
       with:
         key: yarn-cache-folder-os-${{ runner.os }}-node-${{ env.node-version }}-${{
           hashFiles('yarn.lock') }}
@@ -278,7 +278,7 @@ jobs:
         '
     - continue-on-error: true
       name: Cache Docs Yarn's cache folder
-      uses: zendesk/cache@v3.2.5
+      uses: zendesk/cache@v4.1.1
       with:
         key: yarn-cache-folder-docs-os-${{ runner.os }}-node-${{ env.node-version
           }}-${{ hashFiles('docs/yarn.lock') }}
