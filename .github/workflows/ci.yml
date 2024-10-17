@@ -805,7 +805,7 @@ jobs:
         python-version: '3.9'
     - continue-on-error: true
       name: Run pre-commit
-      uses: pre-commit/action@v2.0.3
+      uses: pre-commit/action@v3.0.1
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid2/Kalosal/cookiecutter-django.$(date
         +%s)
